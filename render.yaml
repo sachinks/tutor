@@ -1,0 +1,57 @@
+# Render Blueprint — https://docs.render.com/infrastructure-as-code
+#
+# Defines the Django platform service. The FastAPI AI service will be added
+# when Milestone 5 is built. Deploy by connecting the GitHub repo to Render
+# and selecting this file.
+#
+# Prerequisites (set up manually before first deploy):
+#   1. Create a Neon database (free tier) and copy the connection string.
+#   2. Connect this repo to Render (Dashboard → New → Blueprint → select repo).
+#   3. Render will prompt you to fill in the sync'd env vars below.
+
+services:
+  # ── Django platform ────────────────────────────────────────────
+  - type: web
+    name: tutor-platform
+    runtime: python
+    plan: free
+    region: singapore  # closest to Kolkata
+    branch: main
+    buildCommand: ./build.sh
+    startCommand: cd backend && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.3"
+      - key: DJANGO_SETTINGS_MODULE
+        value: config.settings.prod
+      - key: DJANGO_DEBUG
+        value: "false"
+      - key: DJANGO_SECRET_KEY
+        generateValue: true  # Render generates a random secret
+      - key: DJANGO_ALLOWED_HOSTS
+        sync: false  # you fill this in: e.g. tutor-platform.onrender.com
+      - key: DJANGO_CSRF_TRUSTED_ORIGINS
+        sync: false  # e.g. https://tutor-platform.onrender.com
+      - key: DATABASE_URL
+        sync: false  # paste your Neon connection string
+      - key: TUTOR_TRUSTED_PROXIES
+        value: "1"
+      - key: TUTOR_DEV_TOOLS
+        value: "false"
+
+  # ── FastAPI AI service (Milestone 5 — uncomment when ready) ───
+  # - type: web
+  #   name: tutor-ai
+  #   runtime: python
+  #   plan: free
+  #   region: singapore
+  #   branch: main
+  #   buildCommand: cd ai && pip install -r requirements.txt
+  #   startCommand: cd ai && uvicorn main:app --host 0.0.0.0 --port $PORT
+  #   envVars:
+  #     - key: PYTHON_VERSION
+  #       value: "3.12.3"
+  #     - key: TUTOR_AI_PROVIDER
+  #       value: mock
+  #     - key: TUTOR_PLATFORM_SERVICE_TOKEN
+  #       sync: false
