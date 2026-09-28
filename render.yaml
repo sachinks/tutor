@@ -17,6 +17,8 @@ services:
     plan: free
     region: singapore  # closest to Kolkata
     branch: main
+    autoDeployTrigger: checksPass  # deploy only after GitHub CI is green, never on a red commit
+    healthCheckPath: /api/v1/health  # a new version goes live only if it answers here (app up + database reachable)
     buildCommand: ./build.sh
     startCommand: cd backend && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120
     envVars:
@@ -38,6 +40,12 @@ services:
         value: "1"
       - key: TUTOR_DEV_TOOLS
         value: "false"
+      - key: TUTOR_DEMO_DATA
+        value: "true"  # demo/staging only; production must not load demo content
+      - key: DJANGO_SUPERUSER_EMAIL
+        sync: false  # first admin, created once by build.sh (ensure_superuser)
+      - key: DJANGO_SUPERUSER_PASSWORD
+        sync: false  # strong password; lives only in Render. Change it in /admin after first login
 
   # ── FastAPI AI service (Milestone 5 — uncomment when ready) ───
   # - type: web
@@ -46,6 +54,7 @@ services:
   #   plan: free
   #   region: singapore
   #   branch: main
+  #   autoDeployTrigger: checksPass
   #   buildCommand: cd ai && pip install -r requirements.txt
   #   startCommand: cd ai && uvicorn main:app --host 0.0.0.0 --port $PORT
   #   envVars:
