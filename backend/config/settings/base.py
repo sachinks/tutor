@@ -42,6 +42,10 @@ INSTALLED_APPS = [
     # TUTOR apps
     "apps.catalogue",
     "apps.accounts",
+    "apps.content",
+    "apps.assessment",
+    "apps.learning",
+    "apps.commerce",
     "apps.operations",
 ]
 

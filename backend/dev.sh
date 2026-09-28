@@ -11,6 +11,7 @@ source ~/.venvs/tp-platform/bin/activate
   python manage.py migrate &&
   python manage.py seed_reference &&
   python manage.py seed_consent &&
+  python manage.py seed_demo_catalogue &&
   python manage.py check &&
   DJANGO_LOG_LEVEL=ERROR python manage.py test apps "$@"  # quiet: no SMS/request noise
   echo "EXIT CODE: $?"
