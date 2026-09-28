@@ -34,6 +34,10 @@ CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS", "")
 TUTOR_DEV_TOOLS = env_bool("TUTOR_DEV_TOOLS", False)  # tester helpers; honoured only when DEBUG
 FRONTEND_URL = env("FRONTEND_URL", "http://localhost:3000")  # used in links sent to parents
 
+# Number of reverse proxies in front of Django that append to X-Forwarded-For (Render: 1). With 0 the
+# header is ignored, because a client can set it to anything. Used for rate limits and audit IPs.
+TUTOR_TRUSTED_PROXIES = int(env("TUTOR_TRUSTED_PROXIES", "0"))
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -100,6 +104,30 @@ AUTH_PASSWORD_VALIDATORS = [
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SAMESITE = "Lax"
+
+# Cache: shared by every web worker, so rate limits and login lockouts hold across processes.
+# The database cache needs no extra service; move to Redis when traffic needs it (docs/engineering/deployment.md).
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "tutor_cache",  # created by `manage.py createcachetable`
+    }
+}
+
+# Rate limits per client IP (per user where noted), as "count/period" (s, m, h, d). None switches one off.
+# Generous on purpose: a whole class can sit behind one school IP. Accounts are protected by the lockout below.
+TUTOR_THROTTLE_RATES = {
+    "api": "600/m",  # every endpoint (per user when logged in)
+    "login": "30/m",
+    "signup": "30/h",  # student and parent sign-up, parent adding a child
+    "otp": "30/h",  # send/verify one-time codes, password reset
+    "consent_link": "60/h",  # parent approval-link pages
+    "consent_send": "10/h",  # resend link / change parent contact (per user)
+}
+
+# Login lockout per email/mobile: after this many wrong passwords the account can't log in for the window.
+# Counted for unknown identifiers too, so the lockout never reveals whether an account exists.
+TUTOR_LOGIN_LOCKOUT = {"max_failures": 10, "window_seconds": 15 * 60}
 
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "Asia/Kolkata"

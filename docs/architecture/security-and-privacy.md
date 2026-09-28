@@ -27,6 +27,13 @@ TUTOR stores data about children aged 10–17. Treat every change here as high-r
 - Approval links: 32-byte random tokens, stored as SHA-256 hashes, 7-day expiry, single use.
 - Codes are never sent to unregistered contacts, so the API doesn't reveal who has an account.
 - Session cookies: HttpOnly; Secure and domain-scoped in production; SameSite=Lax; CSRF enforced on state changes.
+- **Rate limits** on login, sign-up, one-time codes and consent links, plus a general per-user/per-IP ceiling
+  (see [API reference](api-reference.md#rate-limits)). Limits are generous per IP because a class can share a school IP.
+- **Login lockout:** 10 wrong passwords for one email/mobile block that login for 15 minutes, in the API and the Django
+  admin alike. Unknown identifiers lock the same way, so the lockout doesn't reveal who has an account. A password reset
+  by one-time code lifts it.
+- **Client IP** comes from `X-Forwarded-For` only as far as our own proxies (`TUTOR_TRUSTED_PROXIES`); entries a client
+  writes itself are ignored (D21).
 
 ## Authorization
 
@@ -36,6 +43,10 @@ TUTOR stores data about children aged 10–17. Treat every change here as high-r
 - Access to paid content is decided only by `Entitlement` rows, which will be created only from signature-verified payment
   webhooks.
 - Teacher roles are scoped by subject and class; a reviewer can never be the author (database constraint).
+- Django "staff" only opens the admin. **Publishing** needs the curriculum lead role for the course's subject and class,
+  or super admin; **granting roles** and **admin access** (staff, superuser, permissions) need a super admin (D19). The
+  checks live in `apps/accounts/permissions.py` and are called by the services, so no screen can skip them. Published
+  and archived statuses can't be typed into admin forms; only the Publish action sets them.
 - Parents can act only on children linked to them; other requests return `404`.
 
 ## Secrets and configuration
@@ -45,15 +56,17 @@ TUTOR stores data about children aged 10–17. Treat every change here as high-r
 
 ## Audit
 
-Append-only `AuditLog` for consent given/withdrawn/restored, content publishing, and (planned) role changes, refunds and
-suspensions. It is read-only in the admin.
+Append-only `AuditLog` for consent given/withdrawn/restored, content and question publishing, role grants/changes/
+revocations, and (planned) refunds and suspensions. It is read-only in the admin.
 
 ## Before launch (checklist)
 
 - [ ] Consent text reviewed and approved by the legal owner
 - [ ] Safety escalation procedure written and staffed
 - [ ] Scheduled deletion jobs running and tested
-- [ ] Rate limiting on auth and tutor endpoints in production
-- [ ] Dependency and secret scanning in CI
+- [x] Rate limiting and login lockout on auth, sign-up and consent endpoints
+- [ ] Rate limiting on AI tutor endpoints (with milestone 5)
+- [x] Dependency scanning (`pip-audit`, Dependabot) and security lint (ruff `S`) in CI
+- [ ] Secret scanning (pre-commit / GitHub secret scanning, Q14)
 - [ ] Backup restore tested
 - [ ] External security review of auth, consent and payment flows

@@ -37,8 +37,9 @@ tutor/
 
 | Task | Command (in `backend/`) |
 |---|---|
-| Everything: install deps, format, lint, migrations, seed data, checks, tests | `./dev.sh` (output also in `.last_run.log`) |
-| Run one app's tests | `./dev.sh apps.learning` |
+| Everything: install deps, format, lint (incl. security rules), migrations, cache table, seed data, checks, dependency audit, tests with coverage (≥ 90%) | `./dev.sh` (output also in `.last_run.log`) |
+| Run one app's tests (coverage shown, minimum not enforced) | `./dev.sh apps.learning` |
+| Tests by hand | `python manage.py test apps --settings=config.settings.test` |
 | Run the server | `python manage.py runserver` → `/api/v1/docs`, `/admin/` |
 | New model change | edit `models.py` → `./dev.sh` (runs `makemigrations`) → commit the migration file |
 

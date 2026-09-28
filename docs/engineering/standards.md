@@ -24,6 +24,15 @@ that works. Known gaps are tracked, not hidden, in [quality-backlog.md](quality-
 - Test through the API for user-facing behaviour (Django test client), and directly for rules (e.g. mastery maths).
 - Always test the unhappy paths: no consent, no entitlement, someone else's data, expired links, duplicate submissions.
 - CI runs the full suite against real PostgreSQL. No mocking the database.
+- **Coverage:** branch coverage of `apps/` must stay at or above 90% (`pyproject.toml`); CI fails below it.
+- **Query budgets:** every list/detail endpoint has a test using `apps.core.testing.QueryBudgetMixin` proving its query
+  count doesn't grow with data (no N+1) and stays under a budget. Use `select_related`, `Prefetch`, `Exists` and
+  database pagination; never loop over rows issuing queries.
+- **Test settings:** tests run with `config.settings.test` (in-memory cache, rate limits off unless a test switches them
+  on with `override_settings`, fast password hashing).
+- **Permissions in services:** privileged actions call `apps/accounts/permissions.py` inside the service, not only in a
+  view or admin screen.
+- **Dependencies:** pinned exact versions; `pip-audit` must pass; Dependabot PRs merged only when CI is green.
 
 ## Git and pull requests
 

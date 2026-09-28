@@ -4,13 +4,29 @@ target-version = "py312"
 extend-exclude = ["**/migrations/**", "staticfiles"]
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "B", "DJ"]
+# E/W/F: errors and style · I: import order · B: likely bugs · DJ: Django rules · S: security (bandit)
+select = ["E", "F", "W", "I", "B", "DJ", "S"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["apps", "config"]
 
 [tool.ruff.lint.per-file-ignores]
-# Seed data and tests hold long human-readable strings.
-"**/management/commands/seed_*.py" = ["E501"]
-"**/tests.py" = ["E501"]
-"**/test_*.py" = ["E501"]
+# Seed data and tests hold long human-readable strings. Tests and tester seeds use known dummy passwords (S105/S106).
+"**/management/commands/seed_*.py" = ["E501", "S105", "S106"]
+"**/tests.py" = ["E501", "S105", "S106", "S107"]
+"**/test_*.py" = ["E501", "S105", "S106", "S107"]
+# The smoke test is a client script: a throwaway password and random test phone numbers are intended.
+"qa/smoke_test.py" = ["S105", "S311"]
+"apps/core/testing.py" = ["S105", "S106"]
+
+# Test coverage (quality backlog Q5). Run through dev.sh or CI: coverage run manage.py test ...; coverage report
+[tool.coverage.run]
+branch = true
+source = ["apps"]
+omit = ["*/migrations/*", "*/tests.py", "*/test_*.py", "apps/core/testing.py"]
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
+skip_covered = true
+exclude_also = ["if TYPE_CHECKING:", "raise NotImplementedError"]

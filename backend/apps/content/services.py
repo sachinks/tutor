@@ -2,6 +2,7 @@ from django.db import transaction
 from django.db.models import Max
 from django.utils import timezone
 
+from apps.accounts import permissions
 from apps.core.errors import ApiError
 from apps.operations import audit
 
@@ -18,7 +19,11 @@ def next_version_no(lesson):
 
 @transaction.atomic
 def publish(version: ContentVersion, by_user):
-    """Publish an approved version. The previous published version is archived, never edited (M6)."""
+    """Publish an approved version. The previous published version is archived, never edited (M6).
+
+    Only the curriculum lead for the lesson's subject and class (or a super admin) may publish (D19).
+    """
+    permissions.require_can_publish(by_user, version.lesson if version.lesson_id else None)
     if version.status != ContentVersion.Status.APPROVED:
         raise ApiError(409, "conflict", "Only approved content can be published.")
     now = timezone.now()

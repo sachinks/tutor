@@ -2,6 +2,7 @@ from django.db import transaction
 from django.db.models import Max
 from django.utils import timezone
 
+from apps.accounts import permissions
 from apps.core.errors import ApiError
 from apps.learning import mastery, progress
 from apps.operations import audit
@@ -15,12 +16,29 @@ def published_question_version(question):
     return question.versions.filter(status=QuestionVersion.Status.PUBLISHED).first()
 
 
+def published_quiz_versions(lesson):
+    """The published version of each multiple-choice quiz question in a lesson, in question order. One query."""
+    return (
+        QuestionVersion.objects.filter(
+            status=QuestionVersion.Status.PUBLISHED,
+            question__lesson=lesson,
+            question__purpose=Question.Purpose.QUIZ,
+            question__type=Question.Type.MCQ,
+        )
+        .select_related("question")
+        .order_by("question__position", "question__id")
+    )
+
+
 def next_question_version_no(question):
     return (question.versions.aggregate(m=Max("version_no"))["m"] or 0) + 1
 
 
 @transaction.atomic
 def publish_question_version(version, by_user):
+    """Same rules as lesson content: approved first, and only a curriculum lead for the lesson (or super admin)."""
+    question = version.question
+    permissions.require_can_publish(by_user, question.lesson if question.lesson_id else None)
     if version.status != QuestionVersion.Status.APPROVED:
         raise ApiError(409, "conflict", "Only approved content can be published.")
     previous = published_question_version(version.question)
@@ -43,14 +61,9 @@ def start_lesson_quiz(student, lesson):
     ).first()
     if open_attempt:
         return open_attempt
-    versions = []
-    for q in Question.objects.filter(lesson=lesson, purpose=Question.Purpose.QUIZ, type=Question.Type.MCQ):
-        v = published_question_version(q)
-        if v:
-            versions.append(v)
+    versions = list(published_quiz_versions(lesson)[:QUIZ_SIZE])
     if not versions:
         raise ApiError(404, "not_found", "This lesson has no quiz yet.")
-    versions = versions[:QUIZ_SIZE]
     attempt = Attempt.objects.create(student=student, lesson=lesson, max_score=len(versions))
     AttemptItem.objects.bulk_create(
         [AttemptItem(attempt=attempt, question_version=v, position=i) for i, v in enumerate(versions, start=1)]

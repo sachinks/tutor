@@ -4,6 +4,7 @@ All passwords: Test-Pass-2026   (never use these on a shared or production serve
 """
 
 from django.conf import settings
+from django.contrib.auth.models import Permission
 from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
@@ -31,6 +32,17 @@ ACCOUNTS = [
     ("student_enrolled", "Esha Enrolled", "+919000000003", "esha@test.tutor", "student"),
     ("student_waiting", "Wasim Waiting", "+919000000004", "wasim@test.tutor", "student"),
     ("teacher", "Tara Teacher", "+919000000005", "tara@test.tutor", "teacher"),
+    ("lead", "Lalit Lead", "+919000000006", "lalit@test.tutor", "staff"),
+]
+
+# What the curriculum lead may open in the admin. Publishing itself is decided by the RoleGrant (D19).
+LEAD_ADMIN_PERMISSIONS = [
+    ("content", "view_contentversion"),
+    ("content", "change_contentversion"),
+    ("assessment", "view_question"),
+    ("assessment", "view_questionversion"),
+    ("assessment", "change_questionversion"),
+    ("catalogue", "view_lesson"),
 ]
 
 
@@ -93,6 +105,17 @@ class Command(BaseCommand):
             RoleGrant.objects.get_or_create(
                 user=users["teacher"], role=role, subject=ai, class_level=None, revoked_at=None
             )
+
+        lead = users["lead"]
+        lead.is_staff = True  # can open /admin; nothing more unless a permission or role says so
+        lead.save(update_fields=["is_staff"])
+        lead.user_permissions.set(
+            Permission.objects.get(content_type__app_label=app, codename=codename)
+            for app, codename in LEAD_ADMIN_PERMISSIONS
+        )
+        RoleGrant.objects.get_or_create(
+            user=lead, role=RoleGrant.Role.CURRICULUM_LEAD, subject=ai, class_level=None, revoked_at=None
+        )
 
         if options.get("verbosity", 1) > 0:
             self.stdout.write(self.style.SUCCESS("Test accounts ready (password for all: Test-Pass-2026):"))

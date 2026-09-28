@@ -1,0 +1,22 @@
+# Weekly update PRs for Python dependencies and GitHub Actions (quality backlog Q8).
+# Each PR runs CI; merge only when it is green.
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /backend
+    schedule:
+      interval: weekly
+      day: monday
+      timezone: Asia/Kolkata
+    open-pull-requests-limit: 5
+    groups:
+      django-stack:
+        patterns: ["django", "django-*", "psycopg*", "dj-database-url", "whitenoise", "gunicorn"]
+      dev-tools:
+        patterns: ["ruff", "coverage", "pip-audit", "requests"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      timezone: Asia/Kolkata

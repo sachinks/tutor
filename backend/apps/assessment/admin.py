@@ -1,5 +1,6 @@
 from django.contrib import admin, messages
 
+from apps.core.admin_guards import VersionStatusForm
 from apps.core.errors import ApiError
 
 from . import services
@@ -8,6 +9,7 @@ from .models import Answer, Attempt, AttemptItem, Question, QuestionVersion
 
 class QuestionVersionInline(admin.StackedInline):
     model = QuestionVersion
+    form = VersionStatusForm
     extra = 0
     fields = ("version_no", "status", "body", "is_ai_draft", "author", "reviewer", "published_at")
     readonly_fields = ("published_at",)
@@ -24,6 +26,7 @@ class QuestionAdmin(admin.ModelAdmin):
 
 @admin.register(QuestionVersion)
 class QuestionVersionAdmin(admin.ModelAdmin):
+    form = VersionStatusForm
     list_display = ("__str__", "question", "status", "is_ai_draft", "author", "reviewer")
     list_filter = ("status", "is_ai_draft")
     raw_id_fields = ("question", "author", "reviewer", "published_by")
@@ -31,11 +34,15 @@ class QuestionVersionAdmin(admin.ModelAdmin):
 
     @admin.action(description="Publish selected approved versions")
     def publish_selected(self, request, queryset):
+        done = 0
         for version in queryset:
             try:
                 services.publish_question_version(version, request.user)
+                done += 1
             except ApiError as exc:
                 self.message_user(request, f"{version}: {exc.message}", level=messages.WARNING)
+        if done:
+            self.message_user(request, f"Published {done} version(s).")
 
 
 class AttemptItemInline(admin.TabularInline):

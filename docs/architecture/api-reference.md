@@ -28,8 +28,24 @@ Base URL `/api/v1`. The live, always-accurate schema is generated from code: **`
 | 404 | `not_found` | |
 | 409 | `already_registered` / `already_has_guardian` / `conflict` | State doesn't allow the action |
 | 410 | `link_expired` | Approval link expired or already used |
-| 429 | `limit_reached` | Rate or daily limit |
+| 429 | `limit_reached` | Rate or daily limit. Rate limits add a `Retry-After` header (seconds) |
+| 429 | `login_locked` | Too many wrong passwords for this email/mobile; wait 15 minutes or reset the password |
 | 503 | `consent_text_missing` | Setup problem: no active consent text |
+
+### Rate limits
+
+Per client IP unless noted; values are defaults in `TUTOR_THROTTLE_RATES` and can be tuned per environment.
+
+| Scope | Endpoints | Default |
+|---|---|---|
+| `api` | every endpoint (per user when logged in) | 600 / minute |
+| `login` | `POST /auth/login` | 30 / minute |
+| `signup` | `POST /auth/signup/student`, `/auth/signup/parent`, `/parent/children` | 30 / hour |
+| `otp` | `POST /auth/otp/send`, `/auth/otp/verify`, `/auth/password/reset` | 30 / hour |
+| `consent_link` | `/consent/link/{token}` (view, approve, report) | 60 / hour |
+| `consent_send` | resend approval link, change parent contact (per user) | 10 / hour |
+
+Separately, 10 wrong passwords for one email/mobile lock that login for 15 minutes (`login_locked`).
 
 Permission shorthand: **Public** · **Auth** (any logged-in user) · **Student✓** (student with active consent) ·
 **Parent** · **Owner**.

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# One command for local checks: dependencies, database, migrations, seed data, lint, tests.
+# One command for local checks: dependencies, database, migrations, cache table, seed data, lint, security
+# checks, and tests with coverage. Extra arguments narrow the tests, e.g. ./dev.sh apps.learning
 # Output is also saved to .last_run.log (git-ignored).
 # Uses the virtualenv in $TUTOR_VENV (default ~/.venvs/tp-platform) if it exists.
 set -uo pipefail
@@ -16,10 +17,13 @@ VENV="${TUTOR_VENV:-$HOME/.venvs/tp-platform}"
   ruff check . &&
   python manage.py makemigrations &&
   python manage.py migrate &&
+  python manage.py createcachetable &&
   python manage.py seed_reference &&
   python manage.py seed_consent &&
   python manage.py seed_demo_catalogue &&
   python manage.py check &&
-  DJANGO_LOG_LEVEL=ERROR python manage.py test apps "$@"
+  pip-audit -r requirements.txt --progress-spinner off &&
+  DJANGO_LOG_LEVEL=ERROR coverage run manage.py test apps --settings=config.settings.test "$@" &&
+  if [ "$#" -gt 0 ]; then coverage report --fail-under=0; else coverage report; fi  # minimum only on a full run
   echo "EXIT CODE: $?"
 } 2>&1 | tee .last_run.log

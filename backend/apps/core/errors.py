@@ -2,7 +2,9 @@
 {"error": {"code": "...", "message": "...", "fields": {...}}}
 """
 
-from ninja.errors import AuthenticationError, HttpError, ValidationError
+import math
+
+from ninja.errors import AuthenticationError, HttpError, Throttled, ValidationError
 
 
 class ApiError(Exception):
@@ -36,6 +38,15 @@ def install_error_handlers(api):
     @api.exception_handler(AuthenticationError)
     def not_authenticated(request, exc):
         return api.create_response(request, error_body("not_authenticated", "Please log in."), status=401)
+
+    @api.exception_handler(Throttled)
+    def throttled(request, exc):
+        response = api.create_response(
+            request, error_body("limit_reached", "Too many requests. Please wait a little and try again."), status=429
+        )
+        if exc.wait:
+            response["Retry-After"] = str(math.ceil(exc.wait))
+        return response
 
     @api.exception_handler(HttpError)
     def http_error(request, exc):

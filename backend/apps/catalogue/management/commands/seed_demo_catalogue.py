@@ -5,7 +5,7 @@ from django.core.management import call_command
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from apps.accounts.models import User
+from apps.accounts.models import RoleGrant, User
 from apps.assessment import services as assessment_services
 from apps.assessment.models import Question, QuestionVersion
 from apps.catalogue.models import (
@@ -234,7 +234,12 @@ class Command(BaseCommand):
         call_command("seed_reference", verbosity=0)
         author = _system_user("demo-author@tutor.local", "Demo Author")
         reviewer = _system_user("demo-reviewer@tutor.local", "Demo Reviewer")
+        lead = _system_user("demo-lead@tutor.local", "Demo Curriculum Lead")
         subject = Subject.objects.get(slug="ai-foundations")
+        # Publishing needs the curriculum lead role for the subject (D19); AI Foundations has no class.
+        RoleGrant.objects.get_or_create(
+            user=lead, role=RoleGrant.Role.CURRICULUM_LEAD, subject=subject, class_level=None, revoked_at=None
+        )
 
         skills = {}
         for code, name, _ in SKILLS:
@@ -275,7 +280,7 @@ class Command(BaseCommand):
                     author=author,
                     reviewer=reviewer,
                 )
-                content_services.publish(version, reviewer)
+                content_services.publish(version, lead)
 
         for lesson in Lesson.objects.filter(module=module):
             for position, (code, stem, choices, answer, explanation, hints, misconceptions) in enumerate(
@@ -303,7 +308,7 @@ class Command(BaseCommand):
                         author=author,
                         reviewer=reviewer,
                     )
-                    assessment_services.publish_question_version(qv, reviewer)
+                    assessment_services.publish_question_version(qv, lead)
 
         programme, _ = Programme.objects.update_or_create(
             slug="explore-ai-class-8",

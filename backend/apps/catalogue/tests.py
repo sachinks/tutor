@@ -2,7 +2,7 @@ from django.core.management import call_command
 from django.db import IntegrityError, transaction
 from django.test import Client, TestCase
 
-from apps.accounts.models import User
+from apps.accounts.models import RoleGrant, User
 from apps.catalogue.models import (
     Board,
     BoardMapping,
@@ -117,6 +117,8 @@ class ContentVersionTests(TestCase):
         cls.lesson = Lesson.objects.get(slug="what-is-data")
         cls.author = User.objects.create_user(email="a@example.com", password="x-long-pass-1", full_name="A")
         cls.reviewer = User.objects.create_user(email="r@example.com", password="x-long-pass-1", full_name="R")
+        cls.lead = User.objects.create_user(email="lead@example.com", password="x-long-pass-1", full_name="L")
+        RoleGrant.objects.create(user=cls.lead, role="curriculum_lead", subject=cls.lesson.module.course.subject)
 
     def new_version(self, status="approved"):
         return ContentVersion.objects.create(
@@ -130,14 +132,14 @@ class ContentVersionTests(TestCase):
 
     def test_publishing_archives_previous(self):
         old = content_services.published_version(self.lesson)
-        new = content_services.publish(self.new_version(), self.reviewer)
+        new = content_services.publish(self.new_version(), self.lead)
         old.refresh_from_db()
         self.assertEqual(old.status, "archived")
         self.assertEqual(content_services.published_version(self.lesson), new)
 
     def test_only_approved_can_be_published(self):
         with self.assertRaises(ApiError):
-            content_services.publish(self.new_version(status="draft"), self.reviewer)
+            content_services.publish(self.new_version(status="draft"), self.lead)
 
     def test_reviewer_cannot_be_author(self):
         with self.assertRaises(IntegrityError), transaction.atomic():

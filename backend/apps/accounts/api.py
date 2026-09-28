@@ -9,8 +9,15 @@ from ninja.security import django_auth
 
 from apps.core.errors import ApiError
 from apps.core.http import client_ip
+from apps.core.throttling import (
+    consent_link_throttle,
+    consent_send_throttle,
+    login_throttle,
+    otp_throttle,
+    signup_throttle,
+)
 
-from . import services
+from . import lockout, services
 from .schemas import (
     AddChildIn,
     ApproveIn,
@@ -44,13 +51,13 @@ def csrf(request):
     return {"csrf_token": get_token(request)}
 
 
-@auth_router.post("/otp/send", response=OkOut)
+@auth_router.post("/otp/send", response=OkOut, throttle=otp_throttle)
 def otp_send(request, payload: OtpSendIn):
     services.issue_otp(payload.destination, payload.purpose)
     return {"ok": True, "message": "If this contact is registered, a code has been sent."}
 
 
-@auth_router.post("/otp/verify", response=MeOut)
+@auth_router.post("/otp/verify", response=MeOut, throttle=otp_throttle)
 def otp_verify(request, payload: OtpVerifyIn):
     if payload.purpose == "reset_password":
         raise ApiError(400, "validation_error", "Use /auth/password/reset for password resets.")
@@ -60,27 +67,27 @@ def otp_verify(request, payload: OtpVerifyIn):
     return services.me_payload(user)
 
 
-@auth_router.post("/password/reset", response=OkOut)
+@auth_router.post("/password/reset", response=OkOut, throttle=otp_throttle)
 def password_reset(request, payload: PasswordResetIn):
     services.reset_password(payload.destination, payload.code, payload.new_password)
     return {"ok": True, "message": "Password changed. You can log in now."}
 
 
-@auth_router.post("/signup/student", response={201: MeOut})
+@auth_router.post("/signup/student", response={201: MeOut}, throttle=signup_throttle)
 def signup_student(request, payload: StudentSignupIn):
     user = services.signup_student(payload, ip=client_ip(request))
     login(request, user, backend=BACKEND)
     return 201, services.me_payload(user)
 
 
-@auth_router.post("/signup/parent", response={201: MeOut})
+@auth_router.post("/signup/parent", response={201: MeOut}, throttle=signup_throttle)
 def signup_parent(request, payload: ParentSignupIn):
     user = services.signup_parent(payload, ip=client_ip(request))
     login(request, user, backend=BACKEND)
     return 201, services.me_payload(user)
 
 
-@auth_router.post("/login", response=MeOut)
+@auth_router.post("/login", response=MeOut, throttle=login_throttle)
 def do_login(request, payload: LoginIn):
     identifier = payload.identifier.strip()
     try:
@@ -89,6 +96,12 @@ def do_login(request, payload: LoginIn):
         pass  # let authentication fail normally
     user = authenticate(request, username=identifier, password=payload.password)
     if user is None:
+        if lockout.is_locked(identifier):
+            raise ApiError(
+                429,
+                "login_locked",
+                "Too many wrong passwords. Try again in 15 minutes, or reset your password with a one-time code.",
+            )
         raise ApiError(400, "invalid_credentials", "Wrong email/mobile or password.")
     login(request, user, backend=BACKEND)
     return services.me_payload(user)
@@ -108,19 +121,19 @@ def me(request):
 # --- §2.2 consent -------------------------------------------------------------------------
 
 
-@consent_router.post("/requests/resend", response=OkOut, auth=django_auth)
+@consent_router.post("/requests/resend", response=OkOut, auth=django_auth, throttle=consent_send_throttle)
 def resend(request):
     services.resend_approval(request.user)
     return {"ok": True, "message": "Approval link sent again."}
 
 
-@consent_router.patch("/requests/parent-contact", response=OkOut, auth=django_auth)
+@consent_router.patch("/requests/parent-contact", response=OkOut, auth=django_auth, throttle=consent_send_throttle)
 def change_parent_contact(request, payload: ParentContactIn):
     services.change_parent_contact(request.user, payload.parent_contact)
     return {"ok": True, "message": "A new approval link was sent."}
 
 
-@consent_router.get("/link/{token}", response=ConsentLinkOut)
+@consent_router.get("/link/{token}", response=ConsentLinkOut, throttle=consent_link_throttle)
 def link_details(request, token: str):
     req = services.get_request_for_token(token)
     text = services._current_consent_text()
@@ -133,7 +146,7 @@ def link_details(request, token: str):
     }
 
 
-@consent_router.post("/link/{token}/approve", response=OkOut, auth=django_auth)
+@consent_router.post("/link/{token}/approve", response=OkOut, auth=django_auth, throttle=consent_link_throttle)
 def approve(request, token: str, payload: ApproveIn):
     if not payload.accept:
         raise ApiError(400, "validation_error", "Tick the consent box to approve.", {"accept": "required"})
@@ -142,14 +155,14 @@ def approve(request, token: str, payload: ApproveIn):
     return {"ok": True, "message": "Approved. Your child can now start learning."}
 
 
-@consent_router.post("/link/{token}/report", response=OkOut)
+@consent_router.post("/link/{token}/report", response=OkOut, throttle=consent_link_throttle)
 def report(request, token: str):
     req = services.get_request_for_token(token)
     services.report_request(req, ip=client_ip(request))
     return {"ok": True, "message": "Thank you. This request has been blocked."}
 
 
-@parent_router.post("/children", response={201: ChildOut})
+@parent_router.post("/children", response={201: ChildOut}, throttle=signup_throttle)
 def add_child(request, payload: AddChildIn):
     child = services.add_child(request.user, payload, ip=client_ip(request))
     profile = child.student_profile

@@ -39,8 +39,21 @@ jobs:
       - name: No missing migrations
         run: python manage.py makemigrations --check --dry-run
       - name: Migrate
-        run: python manage.py migrate
+        run: python manage.py migrate && python manage.py createcachetable
       - name: Django checks
         run: python manage.py check
-      - name: Tests
-        run: python manage.py test apps
+      - name: Production settings pass Django's deployment checks
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.prod
+          # Placeholder values shaped like production ones; nothing here is a real secret.
+          DJANGO_SECRET_KEY: ci-deploy-check-${{ github.run_id }}-long-random-looking-value-0123456789abcdef
+          DJANGO_ALLOWED_HOSTS: api.tutor.org.in
+          DJANGO_CSRF_TRUSTED_ORIGINS: https://tutor.org.in
+          DJANGO_COOKIE_DOMAIN: .tutor.org.in
+          DJANGO_HSTS_SECONDS: "31536000"
+          TUTOR_TRUSTED_PROXIES: "1"
+        run: python manage.py check --deploy --fail-level WARNING
+      - name: Dependency vulnerability scan
+        run: pip-audit -r requirements.txt --progress-spinner off
+      - name: Tests with coverage (minimum in pyproject.toml)
+        run: coverage run manage.py test apps --settings=config.settings.test && coverage report

@@ -5,8 +5,8 @@ from uuid import UUID
 from ninja import Router
 from ninja.security import django_auth
 
-from apps.assessment.models import Attempt, Question
-from apps.assessment.services import published_question_version
+from apps.assessment.models import Attempt
+from apps.assessment.services import published_quiz_versions
 from apps.catalogue.api import lessons_router  # lesson endpoints share the /lessons prefix
 from apps.catalogue.models import Lesson, Skill
 from apps.content.services import published_version
@@ -36,9 +36,7 @@ def open_lesson(request, lesson_id: UUID):
     if not version:
         raise ApiError(404, "not_found", "This lesson has no published content yet.")
     progress.mark_opened(request.user, lesson)
-    has_quiz = any(
-        published_question_version(q) for q in Question.objects.filter(lesson=lesson, purpose="quiz", type="mcq")
-    )
+    has_quiz = published_quiz_versions(lesson).exists()
     skills = Skill.objects.filter(lesson_links__lesson=lesson).order_by("code")
     return {
         "id": lesson.id,

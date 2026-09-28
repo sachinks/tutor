@@ -12,4 +12,5 @@
 | 8 | Teacher studio | Applications, content studio and review API, AI assist | Planned |
 | 9 | Parent views | Dashboard, progress, tutor topic summaries, weekly reports, data export/delete | Planned |
 | 10 | Web app | Next.js: public site, student, parent, teacher screens | Planned |
+| 10a | Test-team hand-off | Test plan with work distribution (manual / API automation / UI automation owners by area), traceability matrix (requirement → manual case → automated test), Playwright UI suite for the web app, API automation suite for testers, test data and environment guide, bug triage process | Planned (with the web app) |
 | 11 | Hardening and launch | Background worker, SMS/email provider, rate limits, monitoring, backups, security review, Render + Neon production | Planned |

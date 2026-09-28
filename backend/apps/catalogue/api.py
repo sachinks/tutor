@@ -3,9 +3,10 @@
 from typing import Literal, Optional
 from uuid import UUID
 
-from django.db.models import Exists, OuterRef, Q
+from django.db.models import Exists, OuterRef, Prefetch, Q
 from ninja import Router
 
+from apps.content.models import ContentVersion
 from apps.content.services import published_version
 from apps.core.errors import ApiError
 
@@ -74,6 +75,48 @@ def _programme_item(p):
     }
 
 
+def _filtered_courses(class_number, board, subject, stage):
+    courses = Course.objects.filter(status=PublishStatus.PUBLISHED).select_related("subject", "class_level")
+    if class_number:
+        courses = courses.filter(Q(class_level__number=class_number) | Q(class_level__isnull=True))
+    if board:
+        mapped = BoardMapping.objects.filter(lesson__module__course=OuterRef("pk"), board__code=board.upper())
+        courses = courses.annotate(on_board=Exists(mapped)).filter(Q(on_board=True) | Q(class_level__isnull=True))
+    if subject:
+        courses = courses.filter(subject__slug=subject)
+    if stage:
+        courses = courses.filter(path_stage=stage)
+    return courses
+
+
+def _filtered_programmes(class_number, stage):
+    programmes = Programme.objects.filter(status=PublishStatus.PUBLISHED).select_related("class_level")
+    if class_number:
+        programmes = programmes.filter(Q(class_level__number=class_number) | Q(class_level__isnull=True))
+    if stage:
+        programmes = programmes.filter(path_stage=stage)
+    return programmes
+
+
+def paginate_concatenated(sources, offset, limit):
+    """Paginate several querysets as if they were one list, in the database.
+
+    ``sources`` is a list of ``(queryset, to_item)`` pairs in display order. Each queryset is counted once
+    and sliced with LIMIT/OFFSET, so the cost stays the same however many rows match. Returns
+    ``(items, total)``.
+    """
+    results, total = [], 0
+    for queryset, to_item in sources:
+        count = queryset.count()
+        # Where this source's rows sit inside the combined list: [total, total + count).
+        start = max(offset - total, 0)
+        stop = min(offset + limit - total, count)
+        if start < stop:
+            results += [to_item(row) for row in queryset[start:stop]]
+        total += count
+    return results, total
+
+
 @catalogue_router.get("/items", response=ItemPageOut)
 def items(
     request,
@@ -85,42 +128,35 @@ def items(
     page: int = 1,
     page_size: int = 20,
 ):
-    """Courses and programmes in one list. Board-independent items (no class) always match class/board filters."""
+    """Courses, then programmes, as one paginated list. Board-independent items (no class) match any class or board.
+
+    Programmes have no subject, so a subject filter returns courses only.
+    """
     page = max(page, 1)
     page_size = min(max(page_size, 1), MAX_PAGE_SIZE)
-    results = []
-
+    sources = []
     if type in (None, "course"):
-        courses = Course.objects.filter(status=PublishStatus.PUBLISHED).select_related("subject", "class_level")
-        if class_number:
-            courses = courses.filter(Q(class_level__number=class_number) | Q(class_level__isnull=True))
-        if board:
-            mapped = BoardMapping.objects.filter(lesson__module__course=OuterRef("pk"), board__code=board.upper())
-            courses = courses.annotate(on_board=Exists(mapped)).filter(Q(on_board=True) | Q(class_level__isnull=True))
-        if subject:
-            courses = courses.filter(subject__slug=subject)
-        if stage:
-            courses = courses.filter(path_stage=stage)
-        results += [_course_item(c) for c in courses]
-
+        sources.append((_filtered_courses(class_number, board, subject, stage), _course_item))
     if type in (None, "programme") and not subject:
-        programmes = Programme.objects.filter(status=PublishStatus.PUBLISHED).select_related("class_level")
-        if class_number:
-            programmes = programmes.filter(Q(class_level__number=class_number) | Q(class_level__isnull=True))
-        if stage:
-            programmes = programmes.filter(path_stage=stage)
-        results += [_programme_item(p) for p in programmes]
-
-    total = len(results)
-    start = (page - 1) * page_size
-    return {"results": results[start : start + page_size], "page": page, "page_size": page_size, "total": total}
+        sources.append((_filtered_programmes(class_number, stage), _programme_item))
+    results, total = paginate_concatenated(sources, (page - 1) * page_size, page_size)
+    return {"results": results, "page": page, "page_size": page_size, "total": total}
 
 
 @courses_router.get("/{slug}", response=CourseOut)
 def course_detail(request, slug: str):
     course = (
         Course.objects.select_related("subject", "class_level")
-        .prefetch_related("modules__lessons__versions")
+        .prefetch_related(
+            Prefetch(
+                "modules__lessons",
+                queryset=Lesson.objects.annotate(
+                    has_content=Exists(
+                        ContentVersion.objects.filter(lesson=OuterRef("pk"), status=ContentVersion.Status.PUBLISHED)
+                    )
+                ),
+            )
+        )
         .filter(slug=slug, status=PublishStatus.PUBLISHED)
         .first()
     )
@@ -139,7 +175,7 @@ def course_detail(request, slug: str):
                         "position": lesson.position,
                         "est_minutes": lesson.est_minutes,
                         "is_free": m.id == course.free_module_id,
-                        "has_content": any(v.status == "published" for v in lesson.versions.all()),
+                        "has_content": lesson.has_content,
                     }
                     for lesson in m.lessons.all()
                 ],

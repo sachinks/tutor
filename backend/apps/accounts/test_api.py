@@ -3,6 +3,7 @@
 import json
 import re
 
+from django.core.cache import cache
 from django.core.management import call_command
 from django.test import Client, TestCase
 
@@ -49,6 +50,7 @@ class ApiTestCase(TestCase):
         call_command("seed_consent", verbosity=0)
 
     def setUp(self):
+        cache.clear()  # rate-limit and lockout counters must not leak between tests
         messaging.OUTBOX.clear()
         self.student_client = Client()
         self.parent_client = Client()

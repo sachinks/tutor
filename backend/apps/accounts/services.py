@@ -16,6 +16,7 @@ from apps.core import messaging
 from apps.core.errors import ApiError
 from apps.operations import audit
 
+from . import lockout
 from .models import (
     ApprovalRequest,
     ConsentRecord,
@@ -142,6 +143,9 @@ def reset_password(destination, code, new_password):
     _check_password(new_password, user.full_name, user.email)
     user.set_password(new_password)
     user.save(update_fields=["password"])
+    for identifier in (user.email, user.mobile):  # proving ownership of the contact lifts a login lockout
+        if identifier:
+            lockout.clear(identifier)
     audit.record(user, "user.password_reset", user)
     return user
 

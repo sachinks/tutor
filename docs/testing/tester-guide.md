@@ -35,7 +35,8 @@ Password for all: **`Test-Pass-2026`**. Log in with the mobile (10 digits are fi
 | student_active | Asha Active | 9000000002 | asha@test.tutor | Class 8 CBSE, consent given, **no purchases** (free lessons only) |
 | student_enrolled | Esha Enrolled | 9000000003 | esha@test.tutor | Class 8 CBSE, consent given, **entitled to AI Foundations** |
 | student_waiting | Wasim Waiting | 9000000004 | wasim@test.tutor | Class 8 CBSE, **awaiting parent approval** |
-| teacher | Tara Teacher | 9000000005 | tara@test.tutor | Author and reviewer for AI Foundations |
+| teacher | Tara Teacher | 9000000005 | tara@test.tutor | Author and reviewer for AI Foundations (can't publish) |
+| lead | Lalit Lead | 9000000006 | lalit@test.tutor | Curriculum lead for AI Foundations; can open `/admin/` and publish AI Foundations content only |
 
 Running `seed_test_accounts` again resets these accounts' passwords, states and links. It does not delete quiz
 history; for a completely clean database see §8.

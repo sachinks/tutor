@@ -46,3 +46,31 @@ Expected: `404`; command refuses. Restore `DJANGO_DEBUG=true` afterwards. (Also 
 **TC-SEC-12 · No data minimisation regressions · P2 · NFR-PRIV-1**
 Steps: review `GET /me`, `GET /consent/link/<token>`. Expected: no date of birth anywhere; the approval page shows only
 the child's **first** name and class.
+
+**TC-SEC-13 · Login lockout · P1 · NFR-SEC-4**
+Steps: `POST /auth/login` for Wasim (`9000000004`) with a wrong password 10 times, then once with `Test-Pass-2026`.
+Expected: first 9 → `400 invalid_credentials`; 10th and the correct password → `429 login_locked`. Other accounts still
+log in. To unlock (running `seed_test_accounts` does **not**): wait 15 minutes, or reset Wasim's password with a
+one-time code (`/auth/otp/send` purpose `reset_password` → `/auth/password/reset`), which lifts the lock at once.
+
+**TC-SEC-14 · Lockout doesn't reveal accounts · P2 · FR-ACC-3**
+Steps: repeat TC-SEC-13 with `nobody@test.tutor` (no such account). Expected: identical responses, including the 10th.
+
+**TC-SEC-15 · Rate limit on login · P2 · NFR-SEC-4**
+Steps: send more than 30 `POST /auth/login` requests within one minute (any credentials; a small script or repeated
+"Execute" in `/docs`). Expected: from the 31st, `429 limit_reached` with a `Retry-After` header; after a minute it works
+again.
+
+**TC-SEC-16 · Forged X-Forwarded-For doesn't bypass limits · P2 · NFR-SEC-4**
+Steps: repeat TC-SEC-15 adding a different `X-Forwarded-For` header on every request (e.g. with curl `-H`).
+Expected: still limited after 30 (locally the header is ignored entirely; see D21).
+
+**TC-SEC-17 · Only curriculum leads publish · P1 · FR-CON-3**
+Steps: log in to `/admin/` as a staff user who has content permissions but no curriculum-lead role (create one as the
+superuser, or temporarily revoke Lalit's role), select an approved AI Foundations version, run **Publish selected
+approved versions**. Expected: warning "Only the curriculum lead…"; nothing published. With Lalit (lead) it publishes.
+
+**TC-SEC-18 · Staff can't promote themselves · P1 · NFR-SEC-5**
+Steps: as Lalit in `/admin/`, open his own user record (give him `change_user` first if needed). Expected: Staff status,
+Superuser status, Groups and Permissions are read-only. Role grants: no Add button, no delete.
+

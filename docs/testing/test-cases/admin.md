@@ -24,8 +24,19 @@ Steps: select a `draft` version and run the publish action. Expected: warning me
 Steps: same as TC-ADM-04 under Assessment → Question versions. Expected: new quizzes use the new wording; attempts
 already started keep the old version.
 
-**TC-ADM-07 · Roles · P3 · FR-ACC-9**
-Steps: add a role grant (reviewer, AI Foundations) to a user; add the same active grant again. Expected: second save refused.
+**TC-ADM-07 · Roles · P2 · FR-ACC-9**
+Steps: as the superuser add a role grant (reviewer, AI Foundations) to a user; add the same active grant again.
+Expected: first save sets *Granted by* to you and writes audit `role.granted`; second save refused. There is no delete:
+revoke by setting *Revoked at* (audit `role.revoked`).
+
+**TC-ADM-09 · Curriculum lead publishes only their own subject · P1 · FR-CON-3**
+Steps: log in to `/admin/` as Lalit (`lalit@test.tutor`). Publish an approved AI Foundations content version.
+Then, as the superuser, create a Class 8 maths course with a lesson and an approved version; as Lalit try to publish it.
+Expected: the first publishes (audit `content.published`, actor Lalit); the second is refused with a warning.
+
+**TC-ADM-10 · Status can't be set to published by hand · P1**
+Steps: open an approved content version, change *Status* to `published` and save. Also open a published one and change
+it to `draft`. Expected: both refused with "Published and archived are set only by the … action".
 
 **TC-ADM-08 · Mastery and progress are visible · P3**
 Expected: Learning → Mastery states, Mastery events, Lesson progress, Course completions show the smoke-test student's data;

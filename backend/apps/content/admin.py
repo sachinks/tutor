@@ -1,5 +1,6 @@
 from django.contrib import admin, messages
 
+from apps.core.admin_guards import VersionStatusForm
 from apps.core.errors import ApiError
 
 from . import services
@@ -14,6 +15,7 @@ class ReviewCommentInline(admin.TabularInline):
 
 @admin.register(ContentVersion)
 class ContentVersionAdmin(admin.ModelAdmin):
+    form = VersionStatusForm
     list_display = ("__str__", "kind", "status", "is_ai_draft", "author", "reviewer", "published_at")
     list_filter = ("status", "kind", "is_ai_draft")
     search_fields = ("lesson__title",)

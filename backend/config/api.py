@@ -9,6 +9,7 @@ from apps.accounts.api import auth_router, consent_router, me_router, parent_rou
 from apps.assessment.api import attempts_router  # also registers /lessons/{id}/quiz/start
 from apps.catalogue.api import catalogue_router, courses_router, lessons_router, programmes_router
 from apps.core.errors import install_error_handlers
+from apps.core.throttling import api_throttle
 from apps.learning.api import student_router  # also registers /lessons/{id} and /finish
 
 api = NinjaAPI(
@@ -19,6 +20,8 @@ api = NinjaAPI(
     # Secure by default: every endpoint needs a logged-in session unless its router or operation says auth=None.
     # It also makes /docs send the CSRF token on logged-in requests (ninja does so for cookie auth).
     auth=django_auth,
+    # A general per-user/per-IP ceiling; sensitive endpoints add stricter limits (apps/core/throttling.py).
+    throttle=[api_throttle],
 )
 install_error_handlers(api)
 

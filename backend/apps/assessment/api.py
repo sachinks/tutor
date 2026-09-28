@@ -17,7 +17,7 @@ attempts_router = Router(tags=["quiz"], auth=django_auth)
 
 
 def attempt_payload(attempt):
-    items = attempt.items.select_related("question_version").prefetch_related("answer")
+    items = attempt.items.select_related("question_version", "answer").order_by("position")
     return {
         "attempt_id": attempt.id,
         "lesson_id": attempt.lesson_id,

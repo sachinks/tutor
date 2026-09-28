@@ -3,6 +3,9 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 
+from apps.operations import audit
+
+from . import permissions
 from .models import (
     ApprovalRequest,
     ConsentRecord,
@@ -89,6 +92,15 @@ class UserAdmin(BaseUserAdmin):
     )
     filter_horizontal = ("groups", "user_permissions")
 
+    ADMIN_ACCESS_FIELDS = ("is_staff", "is_superuser", "groups", "user_permissions")
+
+    def get_readonly_fields(self, request, obj=None):
+        """Only a super admin can hand out admin access; otherwise any staff member could promote themselves."""
+        fields = list(super().get_readonly_fields(request, obj))
+        if not permissions.is_super_admin(request.user):
+            fields += [f for f in self.ADMIN_ACCESS_FIELDS if f not in fields]
+        return fields
+
 
 @admin.register(StudentProfile)
 class StudentProfileAdmin(admin.ModelAdmin):
@@ -155,7 +167,26 @@ class VerificationCodeAdmin(admin.ModelAdmin):
 
 @admin.register(RoleGrant)
 class RoleGrantAdmin(admin.ModelAdmin):
-    list_display = ("user", "role", "subject", "class_level", "granted_at", "revoked_at")
+    """Roles are revoked (revoked_at), never deleted, so the history of who could do what is kept."""
+
+    list_display = ("user", "role", "subject", "class_level", "granted_by", "granted_at", "revoked_at")
     list_filter = ("role", "subject", "class_level")
     search_fields = ("user__full_name", "user__email")
-    raw_id_fields = ("user", "granted_by")
+    raw_id_fields = ("user",)
+    readonly_fields = ("granted_by", "granted_at")
+
+    def has_add_permission(self, request):
+        return permissions.can_manage_roles(request.user)
+
+    def has_change_permission(self, request, obj=None):
+        return permissions.can_manage_roles(request.user)
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.granted_by = request.user
+        super().save_model(request, obj, form, change)
+        action = "role.revoked" if obj.revoked_at else ("role.changed" if change else "role.granted")
+        audit.record(request.user, action, obj, after={"role": obj.role, "user": str(obj.user_id)})
