@@ -3,6 +3,6 @@ Django==6.1.1                # pinned 2026-09-28
 django-ninja==1.7.1          # typed REST API + OpenAPI (API_CONTRACTS.md)
 psycopg[binary]==3.3.6       # PostgreSQL driver
 dj-database-url>=2.3,<4     # DATABASE_URL -> settings
-python-dotenv>=1.1,<2       # reads tutor/.env in development
+python-dotenv>=1.2.3,<2       # reads tutor/.env in development
 whitenoise>=6.9,<7          # serves static files on Render
 gunicorn>=23,<24            # production web server
