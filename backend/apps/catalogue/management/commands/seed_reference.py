@@ -39,7 +39,8 @@ class Command(BaseCommand):
                 Subject.objects.update_or_create(
                     slug=s_slug, defaults={"name": s_name, "order": s_order, "discipline": discipline}
                 )
-        self.stdout.write(self.style.SUCCESS(
+        if options.get("verbosity", 1) > 0:
+            self.stdout.write(self.style.SUCCESS(
             f"Reference data ready: {Board.objects.count()} boards, {ClassLevel.objects.count()} classes, "
             f"{Discipline.objects.count()} disciplines, {Subject.objects.count()} subjects."
         ))

@@ -30,6 +30,7 @@ SECRET_KEY = env("DJANGO_SECRET_KEY", required=True)
 DEBUG = env_bool("DJANGO_DEBUG", False)
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
 CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS", "")
+FRONTEND_URL = env("FRONTEND_URL", "http://localhost:3000")  # used in links sent to parents
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
     # TUTOR apps
     "apps.catalogue",
     "apps.accounts",
+    "apps.operations",
 ]
 
 MIDDLEWARE = [
@@ -108,6 +110,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "handlers": {"console": {"class": "logging.StreamHandler", "level": env("DJANGO_LOG_LEVEL", "INFO")}},
     "root": {"handlers": ["console"], "level": env("DJANGO_LOG_LEVEL", "INFO")},
 }
