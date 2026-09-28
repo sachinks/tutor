@@ -1,5 +1,6 @@
 """Commerce (DATA_MODEL.md §10). This step adds only Entitlement: the single source of truth for access (C6).
 Orders, payments and refunds arrive with the Razorpay step; until then admins can grant entitlements by hand."""
+
 import uuid
 
 from django.conf import settings

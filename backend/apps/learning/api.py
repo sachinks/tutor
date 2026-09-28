@@ -1,4 +1,5 @@
 """Student learning API — API_CONTRACTS.md §2.6. Every endpoint: logged in + active parental consent."""
+
 from uuid import UUID
 
 from ninja import Router
@@ -40,10 +41,15 @@ def open_lesson(request, lesson_id: UUID):
     )
     skills = Skill.objects.filter(lesson_links__lesson=lesson).order_by("code")
     return {
-        "id": lesson.id, "title": lesson.title, "course_slug": lesson.module.course.slug,
-        "course_title": lesson.module.course.title, "module_title": lesson.module.title,
-        "version_no": version.version_no, "sections": version.sections,
-        "skills": [{"code": s.code, "name": s.name} for s in skills], "has_quiz": has_quiz,
+        "id": lesson.id,
+        "title": lesson.title,
+        "course_slug": lesson.module.course.slug,
+        "course_title": lesson.module.course.title,
+        "module_title": lesson.module.title,
+        "version_no": version.version_no,
+        "sections": version.sections,
+        "skills": [{"code": s.code, "name": s.name} for s in skills],
+        "has_quiz": has_quiz,
     }
 
 
@@ -64,9 +70,13 @@ def today(request):
     return {
         "next_lesson": {"id": nxt.id, "title": nxt.title, "course_title": nxt.module.course.title} if nxt else None,
         "review": {
-            "skill_code": review["skill"].code, "skill_name": review["skill"].name,
-            "level": review["state"].level, "lesson_id": review["lesson"].id if review["lesson"] else None,
-        } if review else None,
+            "skill_code": review["skill"].code,
+            "skill_name": review["skill"].name,
+            "level": review["state"].level,
+            "lesson_id": review["lesson"].id if review["lesson"] else None,
+        }
+        if review
+        else None,
         "next_session": None,
         "streak_days": planner.streak_days(request.user),
     }
@@ -80,21 +90,32 @@ def record(request):
     states = MasteryState.objects.filter(student=user).select_related("skill__subject").order_by("skill__code")
     completions = CourseCompletion.objects.filter(student=user).select_related("course").order_by("-completed_at")
     attempts = (
-        Attempt.objects.filter(student=user, submitted_at__isnull=False).select_related("lesson")
+        Attempt.objects.filter(student=user, submitted_at__isnull=False)
+        .select_related("lesson")
         .order_by("-submitted_at")[:50]
     )
     return {
         "mastery": [
-            {"code": s.skill.code, "name": s.skill.name, "subject": s.skill.subject.slug, "level": s.level,
-             "score": s.score, "evidence": s.evidence_count}
+            {
+                "code": s.skill.code,
+                "name": s.skill.name,
+                "subject": s.skill.subject.slug,
+                "level": s.level,
+                "score": s.score,
+                "evidence": s.evidence_count,
+            }
             for s in states
         ],
         "completed_courses": [
             {"slug": c.course.slug, "title": c.course.title, "completed_at": c.completed_at} for c in completions
         ],
         "quizzes": [
-            {"lesson_title": a.lesson.title if a.lesson else "", "score": a.score or 0, "max_score": a.max_score,
-             "submitted_at": a.submitted_at}
+            {
+                "lesson_title": a.lesson.title if a.lesson else "",
+                "score": a.score or 0,
+                "max_score": a.max_score,
+                "submitted_at": a.submitted_at,
+            }
             for a in attempts
         ],
         "lessons_finished": LessonProgress.objects.filter(student=user, status="finished").count(),

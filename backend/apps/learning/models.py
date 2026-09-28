@@ -1,4 +1,5 @@
 """The learner record (DATA_MODEL.md §8): what a student has really achieved."""
+
 from django.conf import settings
 from django.db import models
 
@@ -43,6 +44,9 @@ class MasteryEvent(models.Model):
     class Meta:
         ordering = ["created_at"]
 
+    def __str__(self):
+        return f"{self.skill.code}: {self.old_score:.2f} → {self.new_score:.2f}"
+
 
 class LessonProgress(models.Model):
     class Status(models.TextChoices):
@@ -58,6 +62,9 @@ class LessonProgress(models.Model):
     class Meta:
         constraints = [models.UniqueConstraint(fields=["student", "lesson"], name="unique_lesson_progress")]
 
+    def __str__(self):
+        return f"{self.student} · {self.lesson}: {self.status}"
+
 
 class CourseCompletion(models.Model):
     """'Completed course X' — counts in every programme containing it (the learner record rule)."""
@@ -69,3 +76,6 @@ class CourseCompletion(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=["student", "course"], name="unique_course_completion")]
+
+    def __str__(self):
+        return f"{self.student} completed {self.course}"

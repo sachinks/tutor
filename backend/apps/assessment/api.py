@@ -1,4 +1,5 @@
 """Quiz API — API_CONTRACTS.md §2.7. Correct answers are never sent before the student answers."""
+
 from uuid import UUID
 
 from ninja import Router
@@ -59,6 +60,9 @@ def submit(request, attempt_id: UUID):
     attempt, changes, completed = services.submit_attempt(request.user, attempt_id)
     nxt = planner.next_lesson(request.user)
     return {
-        "score": attempt.score, "max_score": attempt.max_score, "skill_changes": changes,
-        "course_completed": completed, "next_lesson_id": nxt.id if nxt else None,
+        "score": attempt.score,
+        "max_score": attempt.max_score,
+        "skill_changes": changes,
+        "course_completed": completed,
+        "next_lesson_id": nxt.id if nxt else None,
     }

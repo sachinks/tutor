@@ -46,7 +46,20 @@ class UserChangeForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = "__all__"
+        fields = (
+            "full_name",
+            "email",
+            "mobile",
+            "email_verified_at",
+            "mobile_verified_at",
+            "account_type",
+            "is_active",
+            "deleted_at",
+            "is_staff",
+            "is_superuser",
+            "groups",
+            "user_permissions",
+        )
 
 
 @admin.register(User)
@@ -66,7 +79,13 @@ class UserAdmin(BaseUserAdmin):
         ("Dates", {"fields": ("date_joined", "updated_at", "last_login")}),
     )
     add_fieldsets = (
-        (None, {"classes": ("wide",), "fields": ("full_name", "email", "mobile", "account_type", "password1", "password2")}),
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": ("full_name", "email", "mobile", "account_type", "password1", "password2"),
+            },
+        ),
     )
     filter_horizontal = ("groups", "user_permissions")
 

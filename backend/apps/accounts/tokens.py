@@ -1,4 +1,5 @@
 """Secrets sent by link or SMS are stored only as hashes (DATA_MODEL.md §4)."""
+
 import hashlib
 import secrets
 

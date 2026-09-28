@@ -1,4 +1,5 @@
 """Who may do what. Every student-learning endpoint goes through these checks (API_CONTRACTS §2.6–2.8)."""
+
 from apps.catalogue.models import ProgrammeCourse, PublishStatus
 from apps.commerce.models import Entitlement
 from apps.core.errors import ApiError

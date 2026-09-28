@@ -1,4 +1,5 @@
 """Mastery from evidence (decisions C2, C3). One function to swap for a better model later."""
+
 from django.db import transaction
 
 from .models import MasteryEvent, MasteryState

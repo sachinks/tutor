@@ -1,4 +1,5 @@
 """Create the first consent text. The wording is a DRAFT until reviewed by the privacy/legal owner."""
+
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
@@ -25,4 +26,6 @@ class Command(BaseCommand):
             version=VERSION, defaults={"body": BODY, "effective_from": timezone.localdate()}
         )
         if options.get("verbosity", 1) > 0:
-            self.stdout.write(self.style.SUCCESS(f"Consent text {text.version} {'created' if created else 'already exists'}."))
+            self.stdout.write(
+                self.style.SUCCESS(f"Consent text {text.version} {'created' if created else 'already exists'}.")
+            )

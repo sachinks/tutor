@@ -1,4 +1,5 @@
 """Business rules for accounts and consent. API views stay thin and call these."""
+
 import hmac
 import re
 from datetime import timedelta
@@ -32,6 +33,7 @@ OTP_SENDS_PER_10_MIN = 5
 
 # --- contacts -----------------------------------------------------------------
 
+
 def normalize_contact(value: str) -> tuple[str, str]:
     """Return ("email", "a@b.com") or ("mobile", "+919876543210"). 10-digit numbers get +91."""
     value = (value or "").strip()
@@ -39,7 +41,7 @@ def normalize_contact(value: str) -> tuple[str, str]:
         try:
             validate_email(value)
         except DjangoValidationError:
-            raise ApiError(400, "validation_error", "Enter a valid email address.")
+            raise ApiError(400, "validation_error", "Enter a valid email address.") from None
         return "email", value.lower()
     digits = re.sub(r"[\s\-()]", "", value)
     if re.fullmatch(r"\d{10}", digits):
@@ -69,7 +71,9 @@ def _check_password(password, full_name, email):
     try:
         validate_password(password, user=User(full_name=full_name, email=email))
     except DjangoValidationError as exc:
-        raise ApiError(400, "validation_error", "Choose a stronger password.", {"password": " ".join(exc.messages)})
+        raise ApiError(
+            400, "validation_error", "Choose a stronger password.", {"password": " ".join(exc.messages)}
+        ) from None
 
 
 def _class_and_board(class_number, board_code):
@@ -87,6 +91,7 @@ def _class_and_board(class_number, board_code):
 
 # --- one-time codes -------------------------------------------------------------
 
+
 def issue_otp(destination: str, purpose: str) -> None:
     kind, value = normalize_contact(destination)
     since = timezone.now() - timedelta(minutes=10)
@@ -97,7 +102,9 @@ def issue_otp(destination: str, purpose: str) -> None:
         return
     raw, hashed = make_otp()
     VerificationCode.objects.create(
-        destination=value, purpose=purpose, code_hash=hashed,
+        destination=value,
+        purpose=purpose,
+        code_hash=hashed,
         expires_at=timezone.now() + timedelta(minutes=VerificationCode.VALID_MINUTES),
     )
     messaging.send("email" if kind == "email" else "sms", value, f"Your TUTOR code is {raw}. It expires in 10 minutes.")
@@ -109,7 +116,9 @@ def check_otp(destination: str, purpose: str, code: str):
     vc = (
         VerificationCode.objects.filter(
             destination=value, purpose=purpose, used_at__isnull=True, expires_at__gt=timezone.now()
-        ).order_by("-created_at").first()
+        )
+        .order_by("-created_at")
+        .first()
     )
     if not vc or vc.attempts >= VerificationCode.MAX_ATTEMPTS:
         raise ApiError(400, "invalid_code", "The code is wrong or has expired.")
@@ -144,13 +153,15 @@ def _send_own_verification(user):
 
 # --- sign-up ---------------------------------------------------------------------
 
+
 @transaction.atomic
 def signup_student(data, ip=None):
     email, mobile = _clean_own_contacts(data.email, data.mobile)
     parent_kind, parent_value = normalize_contact(data.parent_contact)
     if parent_value in (email, mobile):
-        raise ApiError(400, "validation_error", "Enter your parent's contact, not your own.",
-                       {"parent_contact": "same as student"})
+        raise ApiError(
+            400, "validation_error", "Enter your parent's contact, not your own.", {"parent_contact": "same as student"}
+        )
     class_level, board = _class_and_board(data.class_number, data.board_code)
     _check_password(data.password, data.full_name, email)
     user = User.objects.create_user(
@@ -180,11 +191,15 @@ def signup_parent(data, ip=None):
 
 # --- parent approval ---------------------------------------------------------------
 
+
 def create_approval_request(student, kind, contact):
     raw, hashed = make_link_token()
     req = ApprovalRequest.objects.create(
-        student=student, parent_contact=contact, channel="email" if kind == "email" else "sms",
-        token_hash=hashed, expires_at=timezone.now() + timedelta(days=ApprovalRequest.VALID_DAYS),
+        student=student,
+        parent_contact=contact,
+        channel="email" if kind == "email" else "sms",
+        token_hash=hashed,
+        expires_at=timezone.now() + timedelta(days=ApprovalRequest.VALID_DAYS),
     )
     _send_approval_link(req, raw)
     return req
@@ -193,7 +208,8 @@ def create_approval_request(student, kind, contact):
 def _send_approval_link(req, raw_token):
     link = f"{settings.FRONTEND_URL}/approve/{raw_token}"
     messaging.send(
-        req.channel, req.parent_contact,
+        req.channel,
+        req.parent_contact,
         f"{req.student.full_name} has asked to join TUTOR. Review and approve: {link}",
     )
 
@@ -234,7 +250,8 @@ def change_parent_contact(student, new_contact):
 def get_request_for_token(raw_token):
     req = (
         ApprovalRequest.objects.select_related("student__student_profile__class_level")
-        .filter(token_hash=hash_secret(raw_token or "")).first()
+        .filter(token_hash=hash_secret(raw_token or ""))
+        .first()
     )
     if not req:
         raise ApiError(404, "not_found", "This link is not valid.")
@@ -300,8 +317,12 @@ def add_child(parent, data, ip=None):
         email=email, mobile=mobile, password=data.password, full_name=data.full_name.strip(), account_type="student"
     )
     StudentProfile.objects.create(
-        user=child, class_level=class_level, board=board, city=data.city.strip(),
-        school_name=data.school_name.strip(), status=StudentProfile.Status.ACTIVE,
+        user=child,
+        class_level=class_level,
+        board=board,
+        city=data.city.strip(),
+        school_name=data.school_name.strip(),
+        status=StudentProfile.Status.ACTIVE,
     )
     link = GuardianLink.objects.create(parent=parent, student=child, relationship=data.relationship)
     consent = ConsentRecord.objects.create(guardian_link=link, consent_text=text, given_ip=ip)
@@ -312,7 +333,8 @@ def add_child(parent, data, ip=None):
 def _parent_link(parent, student_id):
     link = (
         GuardianLink.objects.select_related("student__student_profile")
-        .filter(parent=parent, student_id=student_id, ended_at__isnull=True).first()
+        .filter(parent=parent, student_id=student_id, ended_at__isnull=True)
+        .first()
     )
     if not link:
         raise ApiError(404, "not_found", "Child not found.")
@@ -347,6 +369,7 @@ def restore_consent(parent, student_id, ip=None):
 
 # --- /me -------------------------------------------------------------------------------
 
+
 def _student_profile(user):
     if not hasattr(user, "student_profile"):
         raise ApiError(403, "forbidden", "Only a student account can do this.")
@@ -358,8 +381,11 @@ def me_payload(user):
     if hasattr(user, "student_profile"):
         sp = user.student_profile
         student = {
-            "class_number": sp.class_level.number, "board": sp.board.code, "city": sp.city,
-            "school_name": sp.school_name, "status": sp.status,
+            "class_number": sp.class_level.number,
+            "board": sp.board.code,
+            "city": sp.city,
+            "school_name": sp.school_name,
+            "status": sp.status,
         }
     children = []
     if hasattr(user, "parent_profile"):
@@ -370,20 +396,31 @@ def me_payload(user):
         )
         children = [
             {
-                "id": link.student.pk, "full_name": link.student.full_name,
+                "id": link.student.pk,
+                "full_name": link.student.full_name,
                 "class_number": link.student.student_profile.class_level.number,
                 "status": link.student.student_profile.status,
             }
             for link in links
         ]
     roles = [
-        {"role": g.role, "subject": g.subject.slug if g.subject else None,
-         "class_number": g.class_level.number if g.class_level else None}
+        {
+            "role": g.role,
+            "subject": g.subject.slug if g.subject else None,
+            "class_number": g.class_level.number if g.class_level else None,
+        }
         for g in user.role_grants.filter(revoked_at__isnull=True).select_related("subject", "class_level")
     ]
     return {
-        "id": user.pk, "full_name": user.full_name, "email": user.email, "mobile": user.mobile,
-        "email_verified": bool(user.email_verified_at), "mobile_verified": bool(user.mobile_verified_at),
-        "account_type": user.account_type, "student": student, "parent": parent,
-        "children": children, "roles": roles,
+        "id": user.pk,
+        "full_name": user.full_name,
+        "email": user.email,
+        "mobile": user.mobile,
+        "email_verified": bool(user.email_verified_at),
+        "mobile_verified": bool(user.mobile_verified_at),
+        "account_type": user.account_type,
+        "student": student,
+        "parent": parent,
+        "children": children,
+        "roles": roles,
     }

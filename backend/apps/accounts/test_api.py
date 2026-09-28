@@ -1,4 +1,5 @@
 """End-to-end tests for the accounts & consent API (journeys S4–S5, P1–P2, P8)."""
+
 import json
 import re
 
@@ -10,8 +11,13 @@ from apps.core import messaging
 from apps.operations.models import AuditLog
 
 STUDENT = {
-    "full_name": "Riya Sen", "mobile": "9800000001", "password": "Learn-2026-ok", "class_number": 8,
-    "board_code": "cbse", "city": "Kolkata", "parent_contact": "9800000002",
+    "full_name": "Riya Sen",
+    "mobile": "9800000001",
+    "password": "Learn-2026-ok",
+    "class_number": 8,
+    "board_code": "cbse",
+    "city": "Kolkata",
+    "parent_contact": "9800000002",
 }
 PARENT = {"full_name": "Mita Sen", "mobile": "9800000002", "password": "Parent-2026-ok"}
 
@@ -56,8 +62,11 @@ class ApiTestCase(TestCase):
         res = post(self.parent_client, "/auth/signup/parent", PARENT)
         self.assertEqual(res.status_code, 201, res.content)
         code = otp(last_message_to("+919800000002"))
-        res = post(self.parent_client, "/auth/otp/verify",
-                   {"destination": "9800000002", "purpose": "verify_contact", "code": code})
+        res = post(
+            self.parent_client,
+            "/auth/otp/verify",
+            {"destination": "9800000002", "purpose": "verify_contact", "code": code},
+        )
         self.assertEqual(res.status_code, 200, res.content)
         self.assertTrue(res.json()["mobile_verified"])
 
@@ -114,8 +123,12 @@ class SignupAndApprovalFlow(ApiTestCase):
 
     def test_change_parent_contact(self):
         self.signup_student()
-        res = post(self.student_client, "/consent/requests/parent-contact",
-                   {"parent_contact": "father@example.com"}, method="patch")
+        res = post(
+            self.student_client,
+            "/consent/requests/parent-contact",
+            {"parent_contact": "father@example.com"},
+            method="patch",
+        )
         self.assertEqual(res.status_code, 200, res.content)
         self.assertIn("/approve/", last_message_to("father@example.com"))
         self.assertEqual(ApprovalRequest.objects.filter(status="sent").count(), 1)
@@ -157,20 +170,33 @@ class LoginAndErrors(ApiTestCase):
         self.signup_student()
         post(Client(), "/auth/otp/send", {"destination": "9800000001", "purpose": "reset_password"})
         code = otp(last_message_to("+919800000001"))
-        res = post(Client(), "/auth/password/reset",
-                   {"destination": "9800000001", "code": code, "new_password": "Brand-new-2026"})
+        res = post(
+            Client(),
+            "/auth/password/reset",
+            {"destination": "9800000001", "code": code, "new_password": "Brand-new-2026"},
+        )
         self.assertEqual(res.status_code, 200, res.content)
-        self.assertEqual(post(Client(), "/auth/login",
-                              {"identifier": "9800000001", "password": "Brand-new-2026"}).status_code, 200)
+        self.assertEqual(
+            post(Client(), "/auth/login", {"identifier": "9800000001", "password": "Brand-new-2026"}).status_code, 200
+        )
 
 
 class ParentManagesChildren(ApiTestCase):
     def test_add_child_withdraw_and_restore(self):
         self.signup_verified_parent()
-        res = post(self.parent_client, "/parent/children", {
-            "full_name": "Arjun Sen", "email": "arjun@example.com", "password": "Child-2026-ok",
-            "class_number": 10, "board_code": "ICSE", "city": "Kolkata", "relationship": "mother",
-        })
+        res = post(
+            self.parent_client,
+            "/parent/children",
+            {
+                "full_name": "Arjun Sen",
+                "email": "arjun@example.com",
+                "password": "Child-2026-ok",
+                "class_number": 10,
+                "board_code": "ICSE",
+                "city": "Kolkata",
+                "relationship": "mother",
+            },
+        )
         self.assertEqual(res.status_code, 201, res.content)
         child_id = res.json()["id"]
         self.assertEqual(res.json()["status"], "active")
@@ -182,10 +208,18 @@ class ParentManagesChildren(ApiTestCase):
 
     def test_other_parent_cannot_touch_child(self):
         self.signup_verified_parent()
-        res = post(self.parent_client, "/parent/children", {
-            "full_name": "Arjun Sen", "email": "arjun@example.com", "password": "Child-2026-ok",
-            "class_number": 10, "board_code": "ICSE", "city": "Kolkata",
-        })
+        res = post(
+            self.parent_client,
+            "/parent/children",
+            {
+                "full_name": "Arjun Sen",
+                "email": "arjun@example.com",
+                "password": "Child-2026-ok",
+                "class_number": 10,
+                "board_code": "ICSE",
+                "city": "Kolkata",
+            },
+        )
         child_id = res.json()["id"]
         stranger = Client()
         User.objects.create_user(email="x@example.com", password="Stranger-2026", full_name="X", account_type="parent")

@@ -1,4 +1,5 @@
 """Accounts & consent API — API_CONTRACTS.md §2.1–2.2."""
+
 from uuid import UUID
 
 from django.contrib.auth import authenticate, login, logout
@@ -35,6 +36,7 @@ parent_router = Router(tags=["parent"], auth=django_auth)
 
 
 # --- §2.1 auth ------------------------------------------------------------------------
+
 
 @auth_router.get("/csrf", response=dict)
 def csrf(request):
@@ -105,6 +107,7 @@ def me(request):
 
 # --- §2.2 consent -------------------------------------------------------------------------
 
+
 @consent_router.post("/requests/resend", response=OkOut, auth=django_auth)
 def resend(request):
     services.resend_approval(request.user)
@@ -150,8 +153,12 @@ def report(request, token: str):
 def add_child(request, payload: AddChildIn):
     child = services.add_child(request.user, payload, ip=client_ip(request))
     profile = child.student_profile
-    return 201, {"id": child.pk, "full_name": child.full_name,
-                 "class_number": profile.class_level.number, "status": profile.status}
+    return 201, {
+        "id": child.pk,
+        "full_name": child.full_name,
+        "class_number": profile.class_level.number,
+        "status": profile.status,
+    }
 
 
 @parent_router.post("/children/{child_id}/consent/withdraw", response=OkOut)

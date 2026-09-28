@@ -1,0 +1,2 @@
+# Development and CI tools (not installed on Render)
+ruff==0.15.11

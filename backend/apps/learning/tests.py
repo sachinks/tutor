@@ -1,11 +1,12 @@
 """The core learning loop, end to end: lesson → quiz (hints, answers) → mastery → record/today (journeys S8–S11)."""
+
 import json
 
 from django.core.management import call_command
 from django.test import Client, TestCase
 
 from apps.accounts.models import StudentProfile, User
-from apps.catalogue.models import Board, ClassLevel, Course, Lesson, Module, PublishStatus, Subject
+from apps.catalogue.models import Board, ClassLevel, Course, Lesson, Module
 from apps.commerce.models import Entitlement
 from apps.learning import mastery
 from apps.learning.models import CourseCompletion, MasteryState
@@ -28,8 +29,11 @@ class LoopBase(TestCase):
     def make_student(self, status="active", email="kid@example.com"):
         user = User.objects.create_user(email=email, password="Kid-pass-2026", full_name="Kid Learner")
         StudentProfile.objects.create(
-            user=user, class_level=ClassLevel.objects.get(number=8), board=Board.objects.get(code="CBSE"),
-            city="Kolkata", status=status,
+            user=user,
+            class_level=ClassLevel.objects.get(number=8),
+            board=Board.objects.get(code="CBSE"),
+            city="Kolkata",
+            status=status,
         )
         client = Client()
         client.force_login(user, backend="apps.accounts.backends.EmailOrMobileBackend")
@@ -58,16 +62,20 @@ class AccessTests(LoopBase):
 
     def test_programme_entitlement_covers_its_courses(self):
         from apps.catalogue.models import Programme
+
         student, c = self.make_student()
-        Entitlement.objects.create(student=student, product_type="programme",
-                                   product_id=Programme.objects.get(slug="explore-ai-class-8").id)
+        Entitlement.objects.create(
+            student=student, product_type="programme", product_id=Programme.objects.get(slug="explore-ai-class-8").id
+        )
         self.assertEqual(c.get(f"/api/v1/lessons/{self.paid_lesson.id}").status_code, 404)  # allowed, just empty
 
     def test_revoked_entitlement(self):
         from django.utils import timezone
+
         student, c = self.make_student()
-        Entitlement.objects.create(student=student, product_type="course", product_id=self.course.id,
-                                   revoked_at=timezone.now())
+        Entitlement.objects.create(
+            student=student, product_type="course", product_id=self.course.id, revoked_at=timezone.now()
+        )
         self.assertEqual(c.get(f"/api/v1/lessons/{self.paid_lesson.id}").status_code, 403)
 
 

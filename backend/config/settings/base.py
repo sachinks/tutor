@@ -1,4 +1,5 @@
 """Settings shared by every environment. Values that differ per environment come from env vars."""
+
 import os
 from pathlib import Path
 
@@ -81,9 +82,7 @@ TEMPLATES = [
 
 # Database: one DATABASE_URL (local Postgres in WSL for dev, Neon in prod)
 DATABASES = {
-    "default": dj_database_url.parse(
-        env("DATABASE_URL", required=True), conn_max_age=600, conn_health_checks=True
-    )
+    "default": dj_database_url.parse(env("DATABASE_URL", required=True), conn_max_age=600, conn_health_checks=True)
 }
 
 # Accounts (DATA_MODEL.md M1, M2)

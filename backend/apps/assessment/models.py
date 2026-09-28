@@ -8,6 +8,7 @@ Question body (JSON):
 {"stem": "…", "options": ["A", "B", "C", "D"], "answer_index": 1, "explanation": "…",
  "hints": ["first hint", "second hint"], "misconceptions": {"0": "note shown if option 0 is chosen"}}
 """
+
 import uuid
 
 from django.conf import settings
@@ -28,7 +29,9 @@ class Question(models.Model):
         EXPLORATORY = "exploratory", "Exploratory test"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    lesson = models.ForeignKey("catalogue.Lesson", on_delete=models.CASCADE, null=True, blank=True, related_name="questions")
+    lesson = models.ForeignKey(
+        "catalogue.Lesson", on_delete=models.CASCADE, null=True, blank=True, related_name="questions"
+    )
     skill = models.ForeignKey("catalogue.Skill", on_delete=models.PROTECT, related_name="questions")
     type = models.CharField(max_length=15, choices=Type.choices, default=Type.MCQ)
     difficulty = models.PositiveSmallIntegerField(default=1, validators=[MinValueValidator(1), MaxValueValidator(3)])
@@ -61,8 +64,12 @@ class QuestionVersion(models.Model):
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.DRAFT)
     is_ai_draft = models.BooleanField(default=False)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
-    reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, blank=True, related_name="+")
-    published_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, blank=True, related_name="+")
+    reviewer = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, blank=True, related_name="+"
+    )
+    published_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, blank=True, related_name="+"
+    )
     published_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -71,10 +78,13 @@ class QuestionVersion(models.Model):
         ordering = ["-version_no"]
         constraints = [
             models.UniqueConstraint(fields=["question", "version_no"], name="unique_question_version_no"),
-            models.UniqueConstraint(fields=["question"], condition=Q(status="published"),
-                                    name="one_published_version_per_question"),
-            models.CheckConstraint(condition=Q(reviewer__isnull=True) | ~Q(reviewer=models.F("author")),
-                                   name="question_reviewer_is_not_author"),
+            models.UniqueConstraint(
+                fields=["question"], condition=Q(status="published"), name="one_published_version_per_question"
+            ),
+            models.CheckConstraint(
+                condition=Q(reviewer__isnull=True) | ~Q(reviewer=models.F("author")),
+                name="question_reviewer_is_not_author",
+            ),
         ]
 
     def __str__(self):
@@ -115,6 +125,9 @@ class AttemptItem(models.Model):
         ordering = ["attempt", "position"]
         constraints = [models.UniqueConstraint(fields=["attempt", "position"], name="unique_item_position")]
 
+    def __str__(self):
+        return f"{self.attempt_id} #{self.position}"
+
 
 class Answer(models.Model):
     class MarkedBy(models.TextChoices):
@@ -129,3 +142,6 @@ class Answer(models.Model):
     marked_by = models.CharField(max_length=10, choices=MarkedBy.choices, default=MarkedBy.CODE)
     feedback = models.TextField(blank=True)
     answered_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Answer to {self.item} ({'correct' if self.is_correct else 'wrong'})"

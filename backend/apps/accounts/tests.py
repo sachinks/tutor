@@ -135,7 +135,10 @@ class TokenAndApprovalTests(ReferenceDataMixin, TestCase):
         student = User.objects.create_user(mobile="+919800000009", password="pw-123456", full_name="Kid")
         _, hashed = make_link_token()
         req = ApprovalRequest.objects.create(
-            student=student, parent_contact="+919800000010", channel="sms", token_hash=hashed,
+            student=student,
+            parent_contact="+919800000010",
+            channel="sms",
+            token_hash=hashed,
             expires_at=timezone.now() + timedelta(days=ApprovalRequest.VALID_DAYS),
         )
         self.assertTrue(req.is_usable)

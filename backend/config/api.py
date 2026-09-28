@@ -1,4 +1,5 @@
 """The TUTOR REST API: /api/v1 (API_CONTRACTS.md)."""
+
 from django.db import connection
 from ninja import NinjaAPI
 

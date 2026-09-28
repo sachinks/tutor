@@ -1,4 +1,5 @@
 """Catalogue reference data (DATA_MODEL.md §5). Courses, lessons and skills are added in the next step."""
+
 from django.db import models
 
 
@@ -82,7 +83,10 @@ class Course(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     subject = models.ForeignKey(Subject, on_delete=models.PROTECT, related_name="courses")
     class_level = models.ForeignKey(
-        ClassLevel, on_delete=models.PROTECT, null=True, blank=True,
+        ClassLevel,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
         help_text="Empty for board-independent courses such as AI Foundations.",
     )
     title = models.CharField(max_length=150)
@@ -92,7 +96,11 @@ class Course(models.Model):
     path_stage = models.PositiveSmallIntegerField(default=1, validators=PATH_STAGE_VALIDATORS)
     price_paise = models.PositiveIntegerField(default=0, help_text="Whole paise: ₹499 = 49900.")
     free_module = models.ForeignKey(
-        "Module", on_delete=models.SET_NULL, null=True, blank=True, related_name="+",
+        "Module",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
         help_text="Readable without buying (decision Q5).",
     )
     status = models.CharField(max_length=10, choices=PublishStatus.choices, default=PublishStatus.DRAFT)
@@ -168,6 +176,9 @@ class SkillPrerequisite(models.Model):
             models.CheckConstraint(condition=~models.Q(skill=models.F("requires")), name="no_self_prerequisite"),
         ]
 
+    def __str__(self):
+        return f"{self.skill.code} needs {self.requires.code}"
+
 
 class LessonSkill(models.Model):
     class Role(models.TextChoices):
@@ -181,6 +192,9 @@ class LessonSkill(models.Model):
     class Meta:
         constraints = [models.UniqueConstraint(fields=["lesson", "skill"], name="unique_lesson_skill")]
 
+    def __str__(self):
+        return f"{self.lesson} {self.role} {self.skill.code}"
+
 
 class BoardMapping(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name="board_mappings")
@@ -190,6 +204,9 @@ class BoardMapping(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=["lesson", "board", "class_level"], name="unique_board_mapping")]
+
+    def __str__(self):
+        return f"{self.lesson} → {self.board.code} {self.class_level}: {self.chapter_ref}"
 
 
 class Programme(models.Model):
@@ -221,3 +238,6 @@ class ProgrammeCourse(models.Model):
     class Meta:
         ordering = ["programme", "position"]
         constraints = [models.UniqueConstraint(fields=["programme", "course"], name="unique_programme_course")]
+
+    def __str__(self):
+        return f"{self.programme} · {self.position}. {self.course}"

@@ -1,6 +1,7 @@
 """One error format for the whole API (API_CONTRACTS.md §1):
 {"error": {"code": "...", "message": "...", "fields": {...}}}
 """
+
 from ninja.errors import AuthenticationError, HttpError, ValidationError
 
 

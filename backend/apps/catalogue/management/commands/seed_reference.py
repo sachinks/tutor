@@ -1,4 +1,5 @@
 """Load the launch reference data (PRODUCT_DESIGN.md decision 4). Safe to run many times."""
+
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
@@ -12,12 +13,17 @@ BOARDS = [
 DISCIPLINES = [
     # (name, slug, order, [(subject name, slug, order), ...])
     ("Mathematics", "mathematics", 1, [("Mathematics", "mathematics", 1)]),
-    ("Natural Sciences", "natural-sciences", 2, [
-        ("Science", "science", 1),  # Classes 6–10
-        ("Physics", "physics", 2),  # Classes 11–12
-        ("Chemistry", "chemistry", 3),
-        ("Biology", "biology", 4),
-    ]),
+    (
+        "Natural Sciences",
+        "natural-sciences",
+        2,
+        [
+            ("Science", "science", 1),  # Classes 6–10
+            ("Physics", "physics", 2),  # Classes 11–12
+            ("Chemistry", "chemistry", 3),
+            ("Biology", "biology", 4),
+        ],
+    ),
     ("Computing & AI", "computing-ai", 3, [("AI Foundations", "ai-foundations", 1)]),
 ]
 
@@ -40,7 +46,9 @@ class Command(BaseCommand):
                     slug=s_slug, defaults={"name": s_name, "order": s_order, "discipline": discipline}
                 )
         if options.get("verbosity", 1) > 0:
-            self.stdout.write(self.style.SUCCESS(
-            f"Reference data ready: {Board.objects.count()} boards, {ClassLevel.objects.count()} classes, "
-            f"{Discipline.objects.count()} disciplines, {Subject.objects.count()} subjects."
-        ))
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"Reference data ready: {Board.objects.count()} boards, {ClassLevel.objects.count()} classes, "
+                    f"{Discipline.objects.count()} disciplines, {Subject.objects.count()} subjects."
+                )
+            )

@@ -31,14 +31,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     full_name = models.CharField(max_length=150)
     email = models.EmailField(unique=True, null=True, blank=True)
-    mobile = models.CharField(
-        max_length=16, unique=True, null=True, blank=True, validators=[mobile_validator]
-    )
+    mobile = models.CharField(max_length=16, unique=True, null=True, blank=True, validators=[mobile_validator])
     email_verified_at = models.DateTimeField(null=True, blank=True)
     mobile_verified_at = models.DateTimeField(null=True, blank=True)
-    account_type = models.CharField(
-        max_length=10, choices=AccountType.choices, default=AccountType.STUDENT
-    )
+    account_type = models.CharField(max_length=10, choices=AccountType.choices, default=AccountType.STUDENT)
     is_active = models.BooleanField(default=True, help_text="Untick to suspend the account.")
     is_staff = models.BooleanField(default=False, help_text="Can log in to the Django admin.")
     date_joined = models.DateTimeField(default=timezone.now)
@@ -195,13 +191,13 @@ class ConsentRecord(models.Model):
     class Meta:
         ordering = ["-given_at"]
 
-    @property
-    def is_active(self):
-        return self.withdrawn_at is None
-
     def __str__(self):
         state = "active" if self.is_active else "withdrawn"
         return f"Consent {self.consent_text_id} for {self.guardian_link} ({state})"
+
+    @property
+    def is_active(self):
+        return self.withdrawn_at is None
 
 
 class ApprovalRequest(models.Model):
@@ -238,12 +234,12 @@ class ApprovalRequest(models.Model):
     class Meta:
         ordering = ["-created_at"]
 
+    def __str__(self):
+        return f"Approval for {self.student.full_name} via {self.channel} ({self.status})"
+
     @property
     def is_usable(self):
         return self.status == self.Status.SENT and self.expires_at > timezone.now()
-
-    def __str__(self):
-        return f"Approval for {self.student.full_name} via {self.channel} ({self.status})"
 
 
 class VerificationCode(models.Model):
@@ -292,9 +288,7 @@ class RoleGrant(models.Model):
     role = models.CharField(max_length=20, choices=Role.choices)
     subject = models.ForeignKey("catalogue.Subject", on_delete=models.PROTECT, null=True, blank=True)
     class_level = models.ForeignKey("catalogue.ClassLevel", on_delete=models.PROTECT, null=True, blank=True)
-    granted_by = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True, blank=True, related_name="roles_granted"
-    )
+    granted_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="roles_granted")
     granted_at = models.DateTimeField(default=timezone.now)
     revoked_at = models.DateTimeField(null=True, blank=True)
 

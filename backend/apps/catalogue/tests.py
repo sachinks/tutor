@@ -26,13 +26,21 @@ class CatalogueApiTests(TestCase):
         # A Class 8 CBSE maths course with one lesson mapped to CBSE
         maths = Subject.objects.get(slug="mathematics")
         cls.maths8 = Course.objects.create(
-            subject=maths, class_level=ClassLevel.objects.get(number=8), title="Maths Class 8", slug="maths-8",
-            price_paise=99900, status=PublishStatus.PUBLISHED,
+            subject=maths,
+            class_level=ClassLevel.objects.get(number=8),
+            title="Maths Class 8",
+            slug="maths-8",
+            price_paise=99900,
+            status=PublishStatus.PUBLISHED,
         )
         m = Module.objects.create(course=cls.maths8, title="Numbers", position=1)
         lesson = Lesson.objects.create(module=m, title="Rational numbers", slug="rational-numbers", position=1)
-        BoardMapping.objects.create(lesson=lesson, board=Board.objects.get(code="CBSE"),
-                                    class_level=ClassLevel.objects.get(number=8), chapter_ref="Chapter 1")
+        BoardMapping.objects.create(
+            lesson=lesson,
+            board=Board.objects.get(code="CBSE"),
+            class_level=ClassLevel.objects.get(number=8),
+            chapter_ref="Chapter 1",
+        )
         Course.objects.create(subject=maths, title="Hidden draft", slug="draft-course")  # draft: never listed
 
     def get(self, path):
@@ -97,7 +105,9 @@ class CatalogueApiTests(TestCase):
     def test_demo_seed_is_idempotent(self):
         call_command("seed_demo_catalogue", verbosity=0)
         self.assertEqual(Lesson.objects.filter(module__course__slug="ai-foundations").count(), 3)
-        self.assertEqual(ContentVersion.objects.filter(status="published", lesson__module__course__slug="ai-foundations").count(), 3)
+        self.assertEqual(
+            ContentVersion.objects.filter(status="published", lesson__module__course__slug="ai-foundations").count(), 3
+        )
 
 
 class ContentVersionTests(TestCase):
@@ -110,9 +120,12 @@ class ContentVersionTests(TestCase):
 
     def new_version(self, status="approved"):
         return ContentVersion.objects.create(
-            lesson=self.lesson, version_no=content_services.next_version_no(self.lesson),
-            body={"sections": [{"heading": "New", "blocks": []}]}, status=status,
-            author=self.author, reviewer=self.reviewer,
+            lesson=self.lesson,
+            version_no=content_services.next_version_no(self.lesson),
+            body={"sections": [{"heading": "New", "blocks": []}]},
+            status=status,
+            author=self.author,
+            reviewer=self.reviewer,
         )
 
     def test_publishing_archives_previous(self):

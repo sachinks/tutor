@@ -30,7 +30,6 @@ def publish(version: ContentVersion, by_user):
     version.published_at = now
     version.published_by = by_user
     version.save(update_fields=["status", "published_at", "published_by", "updated_at"])
-    audit.record(by_user, "content.published", version,
-                 before={"previous": str(previous.pk) if previous else None})
+    audit.record(by_user, "content.published", version, before={"previous": str(previous.pk) if previous else None})
     # Next step: tell the background worker to re-index this lesson for the AI tutor.
     return version

@@ -1,18 +1,25 @@
 #!/usr/bin/env bash
-# One command for local checks: database up, migrations, seed data, tests.
-# Output is also saved to .last_run.log so Claude can read the result from Windows.
+# One command for local checks: dependencies, database, migrations, seed data, lint, tests.
+# Output is also saved to .last_run.log (git-ignored).
+# Uses the virtualenv in $TUTOR_VENV (default ~/.venvs/tp-platform) if it exists.
 set -uo pipefail
 cd "$(dirname "$0")"
-source ~/.venvs/tp-platform/bin/activate
+VENV="${TUTOR_VENV:-$HOME/.venvs/tp-platform}"
+[ -f "$VENV/bin/activate" ] && source "$VENV/bin/activate"
 {
-  pg_lsclusters | grep -q online || sudo service postgresql start
+  if command -v pg_lsclusters >/dev/null; then
+    pg_lsclusters | grep -q online || sudo service postgresql start
+  fi
   mkdir -p staticfiles  # silences whitenoise's 'no directory' warning
+  pip install -q -r requirements.txt -r requirements-dev.txt &&
+  ruff format . &&
+  ruff check . &&
   python manage.py makemigrations &&
   python manage.py migrate &&
   python manage.py seed_reference &&
   python manage.py seed_consent &&
   python manage.py seed_demo_catalogue &&
   python manage.py check &&
-  DJANGO_LOG_LEVEL=ERROR python manage.py test apps "$@"  # quiet: no SMS/request noise
+  DJANGO_LOG_LEVEL=ERROR python manage.py test apps "$@"
   echo "EXIT CODE: $?"
 } 2>&1 | tee .last_run.log

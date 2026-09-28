@@ -61,7 +61,8 @@ def start_lesson_quiz(student, lesson):
 def _item(student, attempt_id, position):
     item = (
         AttemptItem.objects.select_related("attempt", "question_version__question__skill")
-        .filter(attempt_id=attempt_id, attempt__student=student, position=position).first()
+        .filter(attempt_id=attempt_id, attempt__student=student, position=position)
+        .first()
     )
     if not item:
         raise ApiError(404, "not_found", "Question not found in this attempt.")
@@ -92,7 +93,10 @@ def answer_item(student, attempt_id, position, choice_index):
         raise ApiError(400, "validation_error", "Choose one of the options.", {"choice_index": "out of range"})
     correct = choice_index == body.get("answer_index")
     answer = Answer.objects.create(
-        item=item, response={"choice_index": choice_index}, is_correct=correct, marks=1 if correct else 0,
+        item=item,
+        response={"choice_index": choice_index},
+        is_correct=correct,
+        marks=1 if correct else 0,
         marked_by=Answer.MarkedBy.CODE,
     )
     state = mastery.record_evidence(
@@ -100,7 +104,9 @@ def answer_item(student, attempt_id, position, choice_index):
     )
     misconception = None if correct else (body.get("misconceptions") or {}).get(str(choice_index))
     return {
-        "correct": correct, "correct_index": body.get("answer_index"), "explanation": body.get("explanation", ""),
+        "correct": correct,
+        "correct_index": body.get("answer_index"),
+        "explanation": body.get("explanation", ""),
         "misconception": misconception,
         "mastery": {"skill": state.skill.code, "level": state.level, "score": state.score},
     }
