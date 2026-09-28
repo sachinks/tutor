@@ -166,3 +166,16 @@ class RoleTests(ReferenceDataMixin, TestCase):
         RoleGrant.objects.create(user=self.teacher, role="operations")
         with self.assertRaises(IntegrityError):
             RoleGrant.objects.create(user=self.teacher, role="operations")
+
+
+class DevToolsAreLockedTests(TestCase):
+    """Tester helpers must never be reachable outside local development (docs/testing/tester-guide.md)."""
+
+    def test_seed_test_accounts_refuses_without_dev_flags(self):
+        from django.core.management.base import CommandError
+
+        with self.assertRaises(CommandError):
+            call_command("seed_test_accounts", verbosity=0)
+
+    def test_dev_outbox_not_mounted_when_debug_off(self):
+        self.assertEqual(self.client.get("/api/v1/dev/outbox").status_code, 404)

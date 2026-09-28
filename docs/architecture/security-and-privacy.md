@@ -30,6 +30,8 @@ TUTOR stores data about children aged 10–17. Treat every change here as high-r
 
 ## Authorization
 
+- **Secure by default:** the API requires a logged-in session on every endpoint unless the endpoint is explicitly marked
+  public (`auth=None`). A new endpoint someone forgets to mark is protected, not exposed.
 - Every check runs on the server. Student learning endpoints check, in order: logged in → active consent → entitlement.
 - Access to paid content is decided only by `Entitlement` rows, which will be created only from signature-verified payment
   webhooks.

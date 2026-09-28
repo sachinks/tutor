@@ -8,6 +8,8 @@
   focused modules such as `learning/mastery.py`). Models hold data and invariants.
 - **Database invariants belong in the database:** unique and check constraints for rules like "one published version",
   "reviewer ≠ author", "email or mobile".
+- **Auth:** endpoints are protected by default. Public endpoints must say `auth=None` on the router or operation, and
+  need a test proving anonymous access is intended.
 - **Errors:** raise `apps.core.errors.ApiError(status, code, message, fields)`. Never return ad-hoc error shapes.
 - **Money** in integer paise; **IDs** in URLs as UUIDs; **time** stored in UTC, "today" computed in IST.
 - **Published content is immutable.** Change = new version.

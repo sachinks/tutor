@@ -23,10 +23,10 @@ from .models import (
 )
 from .schemas import CourseOut, FacetsOut, ItemPageOut, LessonPreviewOut, ProgrammeOut
 
-catalogue_router = Router(tags=["catalogue"])
-courses_router = Router(tags=["catalogue"])
-programmes_router = Router(tags=["catalogue"])
-lessons_router = Router(tags=["catalogue"])
+catalogue_router = Router(tags=["catalogue"], auth=None)
+courses_router = Router(tags=["catalogue"], auth=None)
+programmes_router = Router(tags=["catalogue"], auth=None)
+lessons_router = Router(tags=["catalogue"], auth=None)  # preview public; learning endpoints override
 
 MAX_PAGE_SIZE = 50
 

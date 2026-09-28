@@ -29,9 +29,9 @@ from .schemas import (
 
 BACKEND = "apps.accounts.backends.EmailOrMobileBackend"
 
-auth_router = Router(tags=["auth"])
+auth_router = Router(tags=["auth"], auth=None)  # public; logout overrides with django_auth
 me_router = Router(tags=["auth"], auth=django_auth)
-consent_router = Router(tags=["consent"])
+consent_router = Router(tags=["consent"], auth=None)  # link pages public; student/parent actions override
 parent_router = Router(tags=["parent"], auth=django_auth)
 
 

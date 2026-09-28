@@ -31,6 +31,7 @@ SECRET_KEY = env("DJANGO_SECRET_KEY", required=True)
 DEBUG = env_bool("DJANGO_DEBUG", False)
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
 CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS", "")
+TUTOR_DEV_TOOLS = env_bool("TUTOR_DEV_TOOLS", False)  # tester helpers; honoured only when DEBUG
 FRONTEND_URL = env("FRONTEND_URL", "http://localhost:3000")  # used in links sent to parents
 
 INSTALLED_APPS = [

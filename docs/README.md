@@ -19,6 +19,7 @@ AI tutor, and everything they do builds one evidence-based **learner record**.
 | Engineering | [Development guide](engineering/development.md) | Setting up a machine; day-to-day workflow |
 | Engineering | [Standards](engineering/standards.md) | Before opening your first pull request |
 | Engineering | [Deployment](engineering/deployment.md) | Releasing to staging or production |
+| Testing | [Test plan](testing/test-plan.md) · [Tester guide](testing/tester-guide.md) · [Test cases](testing/README.md) | Testing a build; reporting bugs |
 | Decisions | [Decision log](decisions/decision-log.md) | Asking "why is it like this?" |
 
 ## Conventions for these documents

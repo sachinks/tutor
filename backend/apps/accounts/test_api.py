@@ -225,3 +225,22 @@ class ParentManagesChildren(ApiTestCase):
         User.objects.create_user(email="x@example.com", password="Stranger-2026", full_name="X", account_type="parent")
         post(stranger, "/auth/login", {"identifier": "x@example.com", "password": "Stranger-2026"})
         self.assertEqual(post(stranger, f"/parent/children/{child_id}/consent/withdraw").status_code, 404)
+
+
+class SecureByDefaultTests(ApiTestCase):
+    def test_docs_page_sends_csrf_token(self):
+        """TC-SET-3: the /docs page must send X-CSRFToken so logged-in POSTs work from Swagger."""
+        html = self.client.get("/api/v1/docs").content.decode()
+        self.assertTrue('data-api-csrf="true"' in html or "X-CSRFToken" in html)
+
+    def test_public_endpoints_stay_public(self):
+        anon = Client()
+        self.assertEqual(anon.get("/api/v1/health").status_code, 200)
+        self.assertEqual(anon.get("/api/v1/catalogue/facets").status_code, 200)
+        self.assertEqual(anon.get("/api/v1/courses/ai-foundations").status_code, 404)  # public, just no demo data here
+        self.assertEqual(anon.get("/api/v1/auth/csrf").status_code, 200)
+
+    def test_protected_endpoints_need_login(self):
+        anon = Client()
+        for path in ("/api/v1/me", "/api/v1/student/today", "/api/v1/student/record"):
+            self.assertEqual(anon.get(path).status_code, 401, path)
