@@ -1,5 +1,8 @@
 # Engineering standards
 
+**Quality bar:** TUTOR is a production product for children. We build to industry standard, never the quickest thing
+that works. Known gaps are tracked, not hidden, in [quality-backlog.md](quality-backlog.md).
+
 ## Code
 
 - **Python 3.12**, formatted and linted by **ruff** (`backend/pyproject.toml`: line length 120; rules E, F, W, I, B, DJ).
