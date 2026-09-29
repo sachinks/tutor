@@ -1,0 +1,10 @@
+{
+  "programmes": [
+    {"slug": "class-8-foundation", "title": "Class 8 Foundation", "class_number": 8, "path_stage": 1, "price_paise": 179900, "summary": "Maths and Science for Class 8, plus AI Foundations.", "courses": ["mathematics-class-8", "science-class-8", "ai-foundations"]},
+    {"slug": "class-11-science-start", "title": "Class 11 Science Start", "class_number": 11, "path_stage": 3, "price_paise": 249900, "summary": "Physics and Chemistry foundations for Class 11.", "courses": ["physics-class-11", "chemistry-class-11"]},
+    {"slug": "class-6-maths-start", "title": "Class 6 Maths Start", "class_number": 6, "path_stage": 1, "price_paise": 69900, "summary": "Numbers and fractions for Class 6.", "courses": ["mathematics-class-6"]}
+  ],
+  "unpublished_courses": [
+    {"slug": "biology-class-12", "title": "Biology · Class 12 (coming soon)", "subject": "biology", "class_number": 12, "summary": "Draft course: must never appear in the public catalogue.", "module": "Reproduction", "lesson": {"slug": "reproduction-in-organisms", "title": "Reproduction in organisms"}}
+  ]
+}

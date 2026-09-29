@@ -42,9 +42,11 @@ Steps: on *What is data?* answer position 2 with option 1. Expected: `correct: f
 "Who won is the label here."
 
 **TC-QZ-06 · Can't answer twice; bad option · P1**
+Steps: in an open attempt, answer position 1, then answer position 1 again; then answer position 2 with `choice_index: 9`.
 Expected: second answer `409`; `choice_index: 9` → `400 validation_error`.
 
 **TC-QZ-07 · Submit · P1**
+Steps: answer every question, `POST /attempts/<id>/submit`, then submit again.
 Expected: `score` / `max_score`; `skill_changes` with `before` and `after` per skill; submitting again `409`; the lesson
 is now finished.
 
@@ -73,5 +75,6 @@ lesson; `review` names the weakest practised skill; `streak_days ≥ 1`.
 Steps: answer a question between 00:00 and 05:30 IST; check Today. Expected: `streak_days ≥ 1` (not 0).
 
 **TC-REC-01 · My record · P1**
+Steps: as Kabir (or a student who has taken a quiz), `GET /student/record`.
 Expected: mastery per skill (code, name, level, score, evidence); completed courses; quiz history newest first;
 `lessons_finished`.

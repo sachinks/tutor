@@ -1,0 +1,61 @@
+{
+  "course": {
+    "slug": "chemistry-class-11",
+    "title": "Chemistry · Class 11",
+    "subject": "chemistry",
+    "class_number": 11,
+    "summary": "The mole concept and molar mass: counting atoms by weighing them.",
+    "track": "foundation",
+    "path_stage": 3,
+    "price_paise": 149900,
+    "free_module_position": 1
+  },
+  "skills": [
+    {"code": "C11-MOL-01", "name": "Explain the mole and Avogadro's number", "requires": []},
+    {"code": "C11-MOL-02", "name": "Calculate molar mass and convert grams to moles", "requires": ["C11-MOL-01"]}
+  ],
+  "modules": [
+    {
+      "position": 1,
+      "title": "Some basic concepts of chemistry",
+      "lessons": [
+        {
+          "slug": "the-mole",
+          "title": "The mole",
+          "est_minutes": 12,
+          "skills": ["C11-MOL-01"],
+          "boards": [{"board": "CBSE", "chapter": "Chapter 1: Some basic concepts of chemistry"}, {"board": "ICSE", "chapter": "Chapter 1: Some basic concepts of chemistry"}],
+          "sections": [
+            {"heading": "A counting unit", "text": "A **mole** is a counting unit, like a dozen. One mole contains 6.022 × 10²³ particles: this is **Avogadro's number**."},
+            {"heading": "Why so big?", "text": "Atoms are tiny, so we need a huge number of them to make an amount we can weigh."},
+            {"heading": "Example", "text": "2 moles of water contain 2 × 6.022 × 10²³ ≈ 1.2 × 10²⁴ molecules."}
+          ],
+          "questions": [
+            {"skill": "C11-MOL-01", "stem": "Avogadro's number is approximately…", "options": ["6.022 × 10²³", "3.0 × 10⁸", "9.8", "1.6 × 10⁻¹⁹"], "answer": 0, "explanation": "6.022 × 10²³ particles per mole.", "hints": ["It has the power 23."], "misconceptions": {"1": "3.0 × 10⁸ m/s is the speed of light."}},
+            {"skill": "C11-MOL-01", "stem": "How many molecules are in 0.5 mol of CO₂?", "options": ["6.022 × 10²³", "3.011 × 10²³", "1.2 × 10²⁴", "0.5"], "answer": 1, "explanation": "0.5 × 6.022 × 10²³ = 3.011 × 10²³.", "hints": ["Multiply moles by Avogadro's number."], "misconceptions": {}},
+            {"skill": "C11-MOL-01", "stem": "A mole is best described as…", "options": ["a mass", "a volume", "a counting unit", "a type of molecule"], "answer": 2, "explanation": "Like a dozen, it counts particles.", "hints": ["Think of 'a dozen'."], "misconceptions": {"0": "Molar mass is a mass; the mole is a count."}},
+            {"skill": "C11-MOL-01", "stem": "1 mol of Na and 1 mol of Cl contain…", "options": ["different numbers of atoms", "the same number of atoms", "the same mass", "no atoms"], "answer": 1, "explanation": "One mole of anything has 6.022 × 10²³ particles.", "hints": ["Same count, different masses."], "misconceptions": {"2": "Their masses differ (23 g vs 35.5 g)."}}
+          ]
+        },
+        {
+          "slug": "molar-mass",
+          "title": "Molar mass",
+          "est_minutes": 15,
+          "skills": ["C11-MOL-02"],
+          "boards": [{"board": "CBSE", "chapter": "Chapter 1: Some basic concepts of chemistry"}, {"board": "ICSE", "chapter": "Chapter 1: Some basic concepts of chemistry"}],
+          "sections": [
+            {"heading": "Molar mass", "text": "The **molar mass** is the mass of one mole, in g/mol. Add the atomic masses: H₂O = 2 × 1 + 16 = 18 g/mol."},
+            {"heading": "Grams to moles", "text": "moles = mass ÷ molar mass. 36 g of water = 36 ÷ 18 = 2 mol."},
+            {"heading": "Useful atomic masses", "text": "H = 1, C = 12, N = 14, O = 16, Na = 23, Cl = 35.5 (g/mol, rounded)."}
+          ],
+          "questions": [
+            {"skill": "C11-MOL-02", "stem": "Molar mass of CO₂ (C = 12, O = 16)?", "options": ["28 g/mol", "44 g/mol", "32 g/mol", "40 g/mol"], "answer": 1, "explanation": "12 + 2 × 16 = 44 g/mol.", "hints": ["There are two oxygen atoms."], "misconceptions": {"0": "That counts only one oxygen."}},
+            {"skill": "C11-MOL-02", "stem": "How many moles are in 58.5 g of NaCl (Na = 23, Cl = 35.5)?", "options": ["0.5 mol", "1 mol", "2 mol", "58.5 mol"], "answer": 1, "explanation": "Molar mass 58.5 g/mol, so 58.5 ÷ 58.5 = 1 mol.", "hints": ["First find the molar mass."], "misconceptions": {}},
+            {"skill": "C11-MOL-02", "stem": "Mass of 3 mol of H₂O?", "options": ["18 g", "36 g", "54 g", "6 g"], "answer": 2, "explanation": "3 × 18 = 54 g.", "hints": ["mass = moles × molar mass."], "misconceptions": {"0": "18 g is one mole."}},
+            {"skill": "C11-MOL-02", "stem": "Molar mass of NH₃ (N = 14, H = 1)?", "options": ["15 g/mol", "17 g/mol", "18 g/mol", "14 g/mol"], "answer": 1, "explanation": "14 + 3 × 1 = 17 g/mol.", "hints": ["Three hydrogen atoms."], "misconceptions": {"0": "That counts one hydrogen."}}
+          ]
+        }
+      ]
+    }
+  ]
+}

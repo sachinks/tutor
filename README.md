@@ -8,9 +8,11 @@ and everything they do builds one evidence-based **learner record** (mastery per
 | Folder | What it is | Status |
 |---|---|---|
 | `backend/` | Django platform: accounts, consent, catalogue, content, assessment, learning, commerce, operations. REST API at `/api/v1` | In progress |
+| `backend/apps/demo/` | Demo world: course content (JSON), demo people, learning history (`seed_demo`) | Active |
+| `backend/qa/` | Smoke test (local and hosted) and the test-suite workbook builder | Active |
 | `ai/` | FastAPI AI service: tutor, RAG, evals, LLM gateway. Called only by Django | Next |
 | `web/` | Next.js web app | Later |
-| `docs/` | Product design, journeys, data model, API contracts, architecture | Living documents |
+| `docs/` | Product, architecture, engineering, decisions and testing docs (incl. the test-suite workbook) | Living documents |
 | `.github/workflows/` | CI: lint, migrations check and tests on every push | Active |
 
 Start with [`docs/README.md`](docs/README.md).
@@ -30,6 +32,43 @@ python manage.py runserver
 
 - API docs: http://127.0.0.1:8000/api/v1/docs
 - Admin: http://127.0.0.1:8000/admin/
+
+Hosted demo (Render + Neon, deploys from `main` after CI passes): https://tutor-platform-ovlg.onrender.com
+(`/api/v1/docs`, `/admin/`). The free tier sleeps when idle, so the first request can take up to a minute.
+
+## Demo data
+
+`./dev.sh` loads the demo world automatically; to reload it by hand (from `backend/`):
+
+```bash
+python manage.py seed_demo                    # create or refresh courses, people, roles, review states (safe to repeat)
+python manage.py seed_demo --reset-activity   # also rebuild students' learning history, so streaks are current
+```
+
+It runs only where `.env` has `TUTOR_DEMO_DATA=true`, and creates people only when `TUTOR_DEMO_PASSWORD` is set
+(locally `Test-Pass-2026`, see `.env.example`). Production never sets these, so demo data can't reach it.
+
+What you get: 6 published courses (AI Foundations, Maths 6 and 8, Science 8, Physics 11, Chemistry 11) with 81 quiz
+questions, 4 programmes, a draft course, and **19 people**: students in every consent state, parents, teachers and
+**4 product admins** (super admin, two curriculum leads, operations), plus learning history and content waiting for
+review. Every account, what it's for and the expected data: [`docs/testing/demo-data.md`](docs/testing/demo-data.md).
+
+On the hosted demo the same data loads on every deploy; the shared password is the `TUTOR_DEMO_PASSWORD` secret in
+Render, given to testers privately.
+
+## Testing
+
+| What | Command (from `backend/`) | When |
+|---|---|---|
+| Everything (lint, security checks, migrations, demo data, all tests, coverage ≥ 90%) | `./dev.sh` | Before every pull request |
+| One app's tests | `./dev.sh apps.learning` | While working on it |
+| Local end-to-end journey (server running) | `python qa/smoke_test.py` | After `runserver`, before manual testing |
+| Hosted checks (read-only) | `python qa/smoke_test.py --hosted --base https://tutor-platform-ovlg.onrender.com` | After every deploy |
+| Rebuild the test-suite workbook | `python qa/build_test_suite.py` | After changing test cases or tests |
+
+Manual testing: start with the [tester guide](docs/testing/tester-guide.md). All manual cases, automated tests,
+traceability and a bug log are in the workbook [`docs/testing/TUTOR-test-suite.xlsx`](docs/testing/TUTOR-test-suite.xlsx),
+generated from the markdown cases in `docs/testing/test-cases/`. CI runs the same checks as `./dev.sh` on every push.
 
 ## Conventions
 

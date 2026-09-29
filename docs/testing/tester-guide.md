@@ -7,39 +7,58 @@ Follow [engineering/development.md](../engineering/development.md) steps 1–5. 
 ```
 DJANGO_DEBUG=true
 TUTOR_DEV_TOOLS=true
+TUTOR_DEMO_DATA=true
+TUTOR_DEMO_PASSWORD=Test-Pass-2026
 ```
 
-`TUTOR_DEV_TOOLS` switches on two tester helpers: the **outbox** endpoint and the **test accounts** command. Both refuse
-to work unless `DJANGO_DEBUG=true`, so they can't exist on staging or production.
+`TUTOR_DEV_TOOLS` switches on the **outbox** endpoint (it refuses to work unless `DJANGO_DEBUG=true`, so it can't exist
+on the hosted demo or production). `TUTOR_DEMO_DATA` allows the **demo world** to load, and `TUTOR_DEMO_PASSWORD` is
+the password every demo account gets.
 
 ## 2. Start a test session
 
 ```bash
 cd ~/tp/tutor/backend
 source ~/.venvs/tp-platform/bin/activate
-./dev.sh                                # must end with "OK" and "EXIT CODE: 0"
-python manage.py seed_test_accounts     # creates/resets the accounts below
+./dev.sh                                # loads the demo world; must end with "OK" and "EXIT CODE: 0"
 python manage.py runserver
 ```
 
 Then, in a second terminal: `python qa/smoke_test.py`. It must end with **all checks passed**. If it doesn't, stop and
 report it: the build isn't ready for manual testing.
 
+Your cases and where to record results: the workbook `docs/testing/TUTOR-test-suite.xlsx` (see the
+[testing README](README.md#the-workbook)). Copy it for your cycle; fill only the yellow columns.
+
+### Testing on the hosted demo
+
+Use https://tutor-platform-ovlg.onrender.com/api/v1/docs with the same demo accounts and the hosted password the
+product owner gives you. First run `python qa/smoke_test.py --hosted --base https://tutor-platform-ovlg.onrender.com`
+(case TC-HOST-01). There is **no outbox** on the hosted demo, so cases that need a one-time code or an approval link
+(marked *Local* in the workbook's Environment column) are run locally.
+
 ## 3. Test accounts
 
-Password for all: **`Test-Pass-2026`**. Log in with the mobile (10 digits are fine) or the email.
+The full list (19 people, including the four product admins) and what each is for is in
+**[demo-data.md](demo-data.md)**. Password for all: **`Test-Pass-2026`** locally. Log in with the mobile (10 digits are
+fine) or the email. The ones most cases use:
 
 | Key | Name | Mobile | Email | State |
 |---|---|---|---|---|
-| parent | Test Parent | 9000000001 | parent@test.tutor | Verified parent of Asha and Esha |
+| parent | Test Parent | 9000000001 | parent@test.tutor | Verified parent of Asha, Esha and Kabir |
 | student_active | Asha Active | 9000000002 | asha@test.tutor | Class 8 CBSE, consent given, **no purchases** (free lessons only) |
-| student_enrolled | Esha Enrolled | 9000000003 | esha@test.tutor | Class 8 CBSE, consent given, **entitled to AI Foundations** |
+| student_enrolled | Esha Enrolled | 9000000003 | esha@test.tutor | Class 8 CBSE, **entitled to AI Foundations** |
 | student_waiting | Wasim Waiting | 9000000004 | wasim@test.tutor | Class 8 CBSE, **awaiting parent approval** |
+| kabir | Kabir Sen | 9000000021 | kabir@test.tutor | Class 8 Foundation programme, rich learning history |
 | teacher | Tara Teacher | 9000000005 | tara@test.tutor | Author and reviewer for AI Foundations (can't publish) |
-| lead | Lalit Lead | 9000000006 | lalit@test.tutor | Curriculum lead for AI Foundations; can open `/admin/` and publish AI Foundations content only |
+| ananya | Ananya Iyer | 9000000041 | ananya@test.tutor | **Super admin** (product role) |
+| lead | Lalit Lead | 9000000006 | lalit@test.tutor | **Curriculum lead**, AI Foundations |
+| maya | Maya Menon | 9000000042 | maya@test.tutor | **Curriculum lead**, Mathematics |
+| omar | Omar Sheikh | 9000000043 | omar@test.tutor | **Operations** |
 
-Running `seed_test_accounts` again resets these accounts' passwords, states and links. It does not delete quiz
-history; for a completely clean database see §8.
+`python manage.py seed_demo` (run by `./dev.sh`) resets these accounts' passwords, consent states, roles and
+enrolments. It keeps quiz history; `python manage.py seed_demo --reset-activity` rebuilds the demo students' history.
+For a completely clean database see §8.
 
 ## 4. Tools
 
@@ -49,7 +68,7 @@ history; for a completely clean database see §8.
 | Admin | http://127.0.0.1:8000/admin/ | Inspecting data; granting entitlements; publishing content; audit log |
 | Outbox | http://127.0.0.1:8000/api/v1/dev/outbox?to=%2B919000000001 | Reading SMS/email the system "sent" (codes, approval links). `%2B` is `+` |
 | Server terminal | where `runserver` runs | Same messages, printed as `[SMS → +91…]` |
-| Smoke script | `python qa/smoke_test.py` | 30-second automated check of the main journey |
+| Smoke script | `python qa/smoke_test.py` (local) · `--hosted --base <url>` (hosted) | Quick automated check of the main journey / the deployed site |
 
 ### Being two people at once
 
@@ -83,7 +102,8 @@ lesson of that course.
 
 ## 6. Reporting a bug
 
-Open a GitHub issue using the **Bug report** template. Include:
+Log it in the workbook's **Bug log** sheet during a cycle, and open a GitHub issue using the **Bug report** template.
+Include:
 
 - **Case ID** (e.g. `TC-QZ-04`) or "exploratory"
 - **Account** used and **build** (`git log -1 --oneline` in `tutor/`)
@@ -103,5 +123,5 @@ Never paste real people's data or passwords into issues. Use only the test accou
 ## 8. Clean reset (destroys local data)
 
 ```bash
-python manage.py flush --noinput && ./dev.sh && python manage.py seed_test_accounts && python manage.py createsuperuser
+python manage.py flush --noinput && ./dev.sh && python manage.py createsuperuser
 ```
