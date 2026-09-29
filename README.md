@@ -10,7 +10,7 @@ and everything they do builds one evidence-based **learner record** (mastery per
 | `backend/` | Django platform: accounts, consent, catalogue, content, assessment, learning, commerce, operations. REST API at `/api/v1` | In progress |
 | `backend/apps/demo/` | Demo world: course content (JSON), demo people, learning history (`seed_demo`) | Active |
 | `backend/qa/` | Smoke test (local and hosted) and the test-suite workbook builder | Active |
-| `ai/` | FastAPI AI service: tutor, RAG, evals, LLM gateway. Called only by Django | Next |
+| `ai/` | FastAPI AI service: model providers (Ollama / mock), lesson index, tutor. Called only by Django. See [`ai/README.md`](ai/README.md) | In progress |
 | `web/` | Next.js web app | Later |
 | `docs/` | Product, architecture, engineering, decisions and testing docs (incl. the test-suite workbook) | Living documents |
 | `.github/workflows/` | CI: lint, migrations check and tests on every push | Active |

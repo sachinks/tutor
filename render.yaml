@@ -57,8 +57,9 @@ services:
   #   region: singapore
   #   branch: main
   #   autoDeployTrigger: checksPass
-  #   buildCommand: cd ai && pip install -r requirements.txt
-  #   startCommand: cd ai && uvicorn main:app --host 0.0.0.0 --port $PORT
+  #   buildCommand: cd ai && pip install -r requirements.txt && alembic upgrade head
+  #   startCommand: cd ai && uvicorn tutor_ai.main:create_app --factory --host 0.0.0.0 --port $PORT
+  #   healthCheckPath: /health
   #   envVars:
   #     - key: PYTHON_VERSION
   #       value: "3.12.3"

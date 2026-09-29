@@ -61,3 +61,43 @@ jobs:
         run: pip-audit -r requirements.txt --progress-spinner off
       - name: Tests with coverage (minimum in pyproject.toml)
         run: coverage run manage.py test apps --settings=config.settings.test && coverage report
+
+  ai:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: tutor
+          POSTGRES_PASSWORD: tutor
+          POSTGRES_DB: tutor_ai_ci
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    defaults:
+      run:
+        working-directory: ai
+    env:
+      TUTOR_ENV: test
+      AI_DATABASE_URL: postgresql://tutor:tutor@localhost:5432/tutor_ai_ci
+      TUTOR_AI_SERVICE_TOKEN: ci-only-service-token-not-a-secret-0123456789
+      TUTOR_AI_PROVIDER: mock
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: ai/requirements*.txt
+      - name: Install
+        run: pip install -r requirements.txt -r requirements-dev.txt
+      - name: Lint and format check
+        run: ruff check . && ruff format --check .
+      - name: Type check (strict)
+        run: mypy
+      - name: Migrations apply and match the code
+        run: psql "$AI_DATABASE_URL" -c "CREATE EXTENSION IF NOT EXISTS vector" && alembic upgrade head && alembic check
+      - name: Dependency vulnerability scan
+        run: pip-audit -r requirements.txt --progress-spinner off
+      - name: Tests with coverage (minimum in pyproject.toml)
+        run: coverage run -m pytest && coverage report
