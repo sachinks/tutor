@@ -43,6 +43,12 @@ class Settings(BaseSettings):
     # Minimum cosine similarity for a passage to count as relevant. None = the provider's default (retrieval.py);
     # the right value depends on the embedding model and is calibrated with the eval suites.
     min_similarity: float | None = Field(None, alias="TUTOR_AI_MIN_SIMILARITY", ge=0, le=1)
+    # Tutor turns (design §3, §7).
+    safety_policy: Path = Field(AI_DIR / "safety" / "v1.toml", alias="TUTOR_AI_SAFETY_POLICY")
+    turn_timeout_seconds: float = Field(120.0, alias="TUTOR_AI_TURN_TIMEOUT_SECONDS", gt=0, le=900)
+    # Replies with less than this share of words from the lesson are flagged "ungrounded" (not replaced: a small
+    # local model paraphrases a lot; the action is revisited with evals).
+    grounding_min: float = Field(0.2, alias="TUTOR_AI_GROUNDING_MIN", ge=0, le=1)
 
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = Field("INFO", alias="TUTOR_AI_LOG_LEVEL")
     trusted_proxies: int = Field(0, alias="TUTOR_TRUSTED_PROXIES", ge=0, le=5)

@@ -216,6 +216,21 @@ The classifier is a layered, testable component: deterministic rules and word li
 with every provider), then a model-based check with the hosted provider in production. The fixed replies and the
 helpline text are content owned by the safety owner, not strings in code.
 
+How it is built (step 4b, D39):
+
+| Part | Where | Behaviour |
+|---|---|---|
+| Policy content | `ai/safety/v1.toml` (**DRAFT**) | Fixed replies, phrase lists per category (self-harm critical; abuse, violence, adult, bullying high; rude low) and prompt-injection patterns. Whole-word matching ignoring case and punctuation; multi-word phrases so science lessons ("kill bacteria", "cell dies", "act as a catalyst") don't trigger. Validated at start-up; replies record `safety/v1`. |
+| Input check | `tutor_ai/safety.py` `check_input` | critical/high → fixed reply, flagged, no retrieval and no model call; injection → fixed reply, flagged; personal data (phones incl. +91 formats, e-mails, "my address is …") → replaced by `[phone hidden]` etc. before any model sees it, a reminder shown, flagged; low → answered normally. |
+| Streaming guard | `StreamGuard` | Model text is released with a lag longer than any protected answer or phrase; a protected quiz answer (whole words, any case/punctuation) or a high/critical phrase stops generation and nothing of it reaches the student; `final.text` is the fixed fallback and `final.replaced` is true. |
+| Grounding | `grounding_score` | Share of the reply's content words found in the passages and the student's message; below `TUTOR_AI_GROUNDING_MIN` (0.2) the reply is kept but flagged `ungrounded` (low). Replacement is decided with evals, because small local models paraphrase heavily. |
+| Off-topic | `tutor_ai/tutor.py` | On later turns, a message below the relevance threshold for every pinned passage triggers one course-wide search; if nothing relevant is found the student gets the fixed redirect (no model call, not flagged). |
+| Turn endpoint | `POST /v1/tutor/turns` | SSE: `meta` {chat_id, model, provider, prompt_version, safety_version, mode, pinned_chunk_ids} → `delta` {text}… → `final` {text, blocked, replaced, off_topic, citations[{label, chunk_id, heading}], safety{input, output, personal_data, grounding}, flags[], context{pinned_chunk_ids, repinned, extra_retrieval, similarity}, usage, latency_ms, model, prompt_version, safety_version, mode}; or `error` {code: provider_unavailable \| provider_timeout \| provider_error \| timeout \| lesson_not_indexed \| server_error}. Invalid requests are `400` before streaming. A blocked message is a normal `final` (the student sees the kind reply), not an error. |
+| Timeouts | `TUTOR_AI_TURN_TIMEOUT_SECONDS` (120) | A deadline for the whole reply, enforced per chunk so it never cancels anything outside the stream; the model stream is always closed. |
+| Safety check | `POST /v1/safety/check` | `{category, severity, flagged}` for a text (not stored). |
+
+The AI service never logs message text; log lines carry chat id, pseudonymous learner_ref, outcome and category.
+
 ## 8. Quality: evals
 
 | Suite | Contents | Scored by |
@@ -288,8 +303,7 @@ branch coverage ≥ 90%, pip-audit, and a separate CI job.
 1. **Done.** `ai/` skeleton: FastAPI app, settings, auth, health, JSON logging, Alembic with schema `ai`, CI job, quality gates.
 2. **Done.** Provider interface with `mock` (hashed embeddings, rule-based tutor) and `ollama`.
 3. **Done.** Chunker + index endpoints + index status; Django outbox + `sync_ai_index` (D37).
-4. Retrieval + prompt builder + tutor turn over SSE + safety rules + quiz guard. **4a done** (prompt registry,
-   retrieval, prompt builder); 4b: safety checks, quiz guard on output, `POST /v1/tutor/turns` over SSE.
+4. **Done.** Retrieval + prompt builder + tutor turn over SSE + safety rules + quiz guard (4a: D38, 4b: D39).
 5. Django `tutor` app: endpoints, limits, storage, relay, parent-visible flags; smoke checks.
 6. Eval runner + first golden sets; Render `tutor-ai` service.
 7. Later: short-answer grading, author assist, weekly parent summaries.
