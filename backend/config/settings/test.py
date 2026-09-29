@@ -16,3 +16,8 @@ PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
 # Tests never write log files.
 TUTOR_LOG_DIR = ""
 LOGGING = build_logging(LOG_LEVEL, "")
+
+# No AI service in tests: tests that need one inject a fake transport (apps/aiservice/tests.py).
+TUTOR_AI_URL = ""
+TUTOR_AI_SERVICE_TOKEN = ""
+TUTOR_AI_INDEX_ON_PUBLISH = False

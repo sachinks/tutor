@@ -11,7 +11,7 @@ updates:
     open-pull-requests-limit: 5
     groups:
       django-stack:
-        patterns: ["django", "django-*", "psycopg*", "dj-database-url", "whitenoise", "gunicorn"]
+        patterns: ["django", "django-*", "psycopg*", "dj-database-url", "whitenoise", "gunicorn", "httpx"]
       dev-tools:
         patterns: ["ruff", "coverage", "pip-audit", "requests"]
   - package-ecosystem: pip

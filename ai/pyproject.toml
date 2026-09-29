@@ -40,6 +40,8 @@ filterwarnings = ["error::DeprecationWarning:tutor_ai.*"]
 [tool.coverage.run]
 branch = true
 source = ["tutor_ai"]
+# SQLAlchemy's async layer runs our code inside greenlets; without this coverage misses lines after database awaits.
+concurrency = ["greenlet", "thread"]
 
 [tool.coverage.report]
 fail_under = 90

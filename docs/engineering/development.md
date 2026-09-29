@@ -11,7 +11,7 @@ tutor/
 │  ├─ requirements.txt      runtime dependencies (pinned)
 │  ├─ requirements-dev.txt  development tools (ruff)
 │  └─ pyproject.toml        ruff configuration
-├─ ai/                      FastAPI AI service (planned)
+├─ ai/                      FastAPI AI service (lesson index; tutor in progress)
 ├─ web/                     Next.js web app (planned)
 ├─ docs/                    this documentation
 └─ .github/workflows/ci.yml continuous integration
@@ -61,6 +61,12 @@ All are idempotent (safe to run repeatedly).
 Its own virtualenv (`~/.venvs/tp-ai`) and its own check script: `cd ai && ./dev.sh` (format, lint, `mypy --strict`,
 migrations + `alembic check`, pip-audit, tests with ≥ 90% coverage on a throwaway database). Run it locally with
 `uvicorn tutor_ai.main:create_app --factory --port 8001 --reload`. Details: [ai/README.md](../../ai/README.md).
+
+**Lesson index.** With the AI service running and `TUTOR_AI_URL` + `TUTOR_AI_SERVICE_TOKEN` in `tutor/.env`,
+publishing a lesson sends it to the AI service straight after the publish commits. If the service was down, the
+request waits in Admin → AI service → Index requests; send it (and repair anything out of step) with
+`python manage.py sync_ai_index` (`--all` to skip the retry wait). A fresh database: run `sync_ai_index` once after
+`seed_demo` to index every demo lesson. Manual cases: [ai-index](../testing/test-cases/ai-index.md).
 
 ## AI tutor locally (Ollama)
 

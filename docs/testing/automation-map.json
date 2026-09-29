@@ -369,5 +369,28 @@
   ],
   "TC-LOG-02": [
     "apps.core.test_errors_and_logging.MessagingSecretsTests.test_hosted_mode_never_logs_or_keeps_the_text"
+  ],
+  "TC-AIX-01": [
+    "apps.aiservice.tests.OutboxTests.test_sent_straight_after_commit_when_an_ai_service_is_configured",
+    "apps.aiservice.tests.DispatchTests.test_payload_and_headers"
+  ],
+  "TC-AIX-02": [
+    "apps.aiservice.tests.OutboxTests.test_a_failure_after_commit_never_breaks_publishing",
+    "apps.aiservice.tests.DispatchTests.test_an_unreachable_service_stops_the_run_without_using_up_attempts",
+    "apps.aiservice.tests.DispatchTests.test_temporary_failures_are_retried_with_backoff_and_the_same_key"
+  ],
+  "TC-AIX-03": [
+    "apps.aiservice.tests.ReconcileTests.test_missing_outdated_other_model_and_orphaned_lessons_are_queued",
+    "apps.aiservice.tests.CommandTests.test_reconciles_then_sends"
+  ],
+  "TC-AIX-04": [
+    "apps.aiservice.tests.OutboxTests.test_changes_while_pending_merge_into_one_request",
+    "apps.aiservice.tests.DispatchTests.test_a_change_while_sending_keeps_the_request_pending"
+  ],
+  "TC-AIX-05": [
+    "apps.aiservice.tests.CommandTests.test_without_an_ai_service_it_reports_the_queue"
+  ],
+  "TC-AIX-06": [
+    "apps.aiservice.tests.AdminTests.test_list_is_read_only_with_a_queue_again_action"
   ]
 }

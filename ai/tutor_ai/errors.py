@@ -13,6 +13,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from .providers.base import ProviderError, ProviderTimeout, ProviderUnavailable
 from .request_context import get_request_id
 
 logger = logging.getLogger("tutor_ai.errors")
@@ -44,11 +45,21 @@ def install_error_handlers(app: FastAPI) -> None:
         logger.info("request refused", extra={"path": request.url.path, "status": exc.status, "code": exc.code})
         return _response(exc.status, exc.code, exc.message, exc.fields)
 
+    @app.exception_handler(ProviderError)
+    async def provider_error(request: Request, exc: ProviderError) -> JSONResponse:
+        # The detail (URLs, model names, upstream messages) goes to the log only.
+        logger.warning("model provider failed", extra={"path": request.url.path, "code": exc.code, "error": str(exc)})
+        if isinstance(exc, ProviderUnavailable):
+            return _response(503, exc.code, "The AI model is unavailable right now.")
+        if isinstance(exc, ProviderTimeout):
+            return _response(504, exc.code, "The AI model took too long to answer.")
+        return _response(502, exc.code, "The AI model returned an unusable answer.")
+
     @app.exception_handler(RequestValidationError)
     async def validation_error(request: Request, exc: RequestValidationError) -> JSONResponse:
         fields: dict[str, str] = {}
         for err in exc.errors():
-            loc = [str(p) for p in err.get("loc", ()) if p not in ("body", "query", "path")]
+            loc = [str(p) for p in err.get("loc", ()) if p not in ("body", "query", "path", "header")]
             fields[".".join(loc) or "non_field"] = str(err.get("msg", "Invalid value"))
         return _response(400, "validation_error", "Some fields are invalid.", fields)
 

@@ -3,6 +3,7 @@ from django.db.models import Max
 from django.utils import timezone
 
 from apps.accounts import permissions
+from apps.aiservice import indexing as ai_index
 from apps.core.errors import ApiError
 from apps.operations import audit
 
@@ -36,5 +37,7 @@ def publish(version: ContentVersion, by_user):
     version.published_by = by_user
     version.save(update_fields=["status", "published_at", "published_by", "updated_at"])
     audit.record(by_user, "content.published", version, before={"previous": str(previous.pk) if previous else None})
-    # Next step: tell the background worker to re-index this lesson for the AI tutor.
+    if version.lesson_id:
+        # Transactional outbox: queued in this transaction, sent after it commits (docs/architecture/ai-service.md §5).
+        ai_index.lesson_changed(version.lesson_id)
     return version

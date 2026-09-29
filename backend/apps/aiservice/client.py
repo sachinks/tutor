@@ -1,0 +1,150 @@
+"""HTTP client for the AI service (docs/architecture/ai-service.md §3).
+
+Every call sends the service token, the current request ID (so both services' logs line up) and, for indexing, an
+Idempotency-Key. Failures become AIServiceError with a `retryable` flag: network problems, timeouts, 5xx, 429 and
+401 (a token being rotated) are worth retrying later; any other 4xx means the request itself is wrong.
+
+The token is never logged. The client is synchronous (Django views and management commands are).
+"""
+
+import logging
+import uuid
+from typing import Any
+
+import httpx
+from django.conf import settings
+
+from apps.core.request_context import get_request_id
+
+logger = logging.getLogger("tutor.aiservice")
+
+MIN_TOKEN_LENGTH = 32
+RETRYABLE_STATUSES = frozenset({401, 408, 425, 429, 500, 502, 503, 504})
+CONNECT_TIMEOUT_SECONDS = 5.0
+
+
+class AIServiceNotConfigured(RuntimeError):
+    """TUTOR_AI_URL or TUTOR_AI_SERVICE_TOKEN is missing: there is no AI service in this environment."""
+
+
+class AIServiceError(Exception):
+    def __init__(
+        self,
+        message: str,
+        *,
+        code: str = "unavailable",
+        status: int | None = None,
+        retryable: bool = True,
+        fields: dict[str, str] | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.code = code
+        self.status = status
+        self.retryable = retryable
+        self.fields = fields or {}
+
+    def __str__(self) -> str:
+        prefix = f"{self.status} " if self.status else ""
+        return f"{prefix}{self.code}: {self.args[0]}"
+
+
+def is_configured() -> bool:
+    return bool(settings.TUTOR_AI_URL) and len(settings.TUTOR_AI_SERVICE_TOKEN) >= MIN_TOKEN_LENGTH
+
+
+class AIServiceClient:
+    def __init__(self, base_url: str, token: str, *, timeout: float, transport: httpx.BaseTransport | None = None):
+        self._client = httpx.Client(
+            base_url=base_url.rstrip("/"),
+            timeout=httpx.Timeout(timeout, connect=min(CONNECT_TIMEOUT_SECONDS, timeout)),
+            transport=transport,
+            headers={"Authorization": f"Bearer {token}", "Accept": "application/json", "User-Agent": "tutor-django"},
+        )
+
+    def close(self) -> None:
+        self._client.close()
+
+    def __enter__(self) -> "AIServiceClient":
+        return self
+
+    def __exit__(self, *exc_info: object) -> None:
+        self.close()
+
+    # -- plumbing ----------------------------------------------------------------------------------------------
+
+    def _request(
+        self,
+        method: str,
+        path: str,
+        *,
+        json: Any = None,
+        params: dict[str, Any] | None = None,
+        idempotency_key: str | None = None,
+    ) -> httpx.Response:
+        request_id = get_request_id()
+        headers = {"X-Request-ID": request_id if request_id != "-" else uuid.uuid4().hex}
+        if idempotency_key:
+            headers["Idempotency-Key"] = idempotency_key
+        try:
+            response = self._client.request(method, path, json=json, params=params, headers=headers)
+        except httpx.TimeoutException as exc:
+            raise AIServiceError(f"{method} {path} timed out", code="timeout") from exc
+        except httpx.HTTPError as exc:
+            raise AIServiceError(f"{method} {path} failed: {type(exc).__name__}", code="unreachable") from exc
+        if response.status_code >= 400:
+            raise self._error(method, path, response)
+        return response
+
+    @staticmethod
+    def _error(method: str, path: str, response: httpx.Response) -> AIServiceError:
+        code, message, fields = f"http_{response.status_code}", response.reason_phrase or "error", {}
+        try:
+            error = response.json().get("error") or {}
+            code = str(error.get("code") or code)
+            message = str(error.get("message") or message)
+            fields = {str(k): str(v) for k, v in (error.get("fields") or {}).items()}
+        except (ValueError, AttributeError):
+            pass  # not our JSON error shape (a proxy page, say): keep the HTTP status
+        return AIServiceError(
+            f"{method} {path}: {message}",
+            code=code,
+            status=response.status_code,
+            retryable=response.status_code in RETRYABLE_STATUSES,
+            fields=fields,
+        )
+
+    @staticmethod
+    def _json(response: httpx.Response) -> dict[str, Any]:
+        try:
+            data = response.json()
+        except ValueError as exc:
+            raise AIServiceError("the AI service returned invalid JSON", code="bad_response") from exc
+        if not isinstance(data, dict):
+            raise AIServiceError("the AI service returned an unexpected body", code="bad_response")
+        return data
+
+    # -- endpoints ---------------------------------------------------------------------------------------------
+
+    def whoami(self) -> dict[str, Any]:
+        return self._json(self._request("GET", "/v1/whoami"))
+
+    def index_lesson(self, lesson_id: uuid.UUID, payload: dict[str, Any], *, key: str) -> dict[str, Any]:
+        return self._json(self._request("PUT", f"/v1/lessons/{lesson_id}/index", json=payload, idempotency_key=key))
+
+    def delete_lesson(self, lesson_id: uuid.UUID, *, key: str, up_to_version: int | None = None) -> None:
+        params = {"up_to_version": up_to_version} if up_to_version else None
+        self._request("DELETE", f"/v1/lessons/{lesson_id}/index", params=params, idempotency_key=key)
+
+    def index_status(self) -> dict[str, Any]:
+        return self._json(self._request("GET", "/v1/index/status"))
+
+
+def get_client(transport: httpx.BaseTransport | None = None) -> AIServiceClient:
+    if not is_configured():
+        raise AIServiceNotConfigured("TUTOR_AI_URL and TUTOR_AI_SERVICE_TOKEN are not both set")
+    return AIServiceClient(
+        settings.TUTOR_AI_URL,
+        settings.TUTOR_AI_SERVICE_TOKEN,
+        timeout=settings.TUTOR_AI_INDEX_TIMEOUT_SECONDS,
+        transport=transport,
+    )

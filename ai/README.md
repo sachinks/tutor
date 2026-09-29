@@ -15,8 +15,11 @@ ai/
 │  ├─ errors.py          one error shape, same as Django's
 │  ├─ logging_config.py  JSON logs on stdout
 │  ├─ db.py, schema.py   async SQLAlchemy Core; tables in schema "ai"
+│  ├─ chunking.py        lesson sections → passages (pure functions)
+│  ├─ indexing.py        atomic replace / delete / status of the lesson index (stale-version and idempotency guards)
 │  ├─ providers/         ModelProvider interface; mock (tests, CI, hosted demo) and ollama (local)
-│  └─ api/               /health (public), /v1/* (service token)
+│  └─ api/               /health (public); /v1/whoami, /v1/lessons/{id}/index (PUT, DELETE), /v1/index/status
+│                        (service token)
 ├─ migrations/           Alembic, version table inside schema "ai"
 ├─ tests/unit            no database needed
 ├─ tests/integration     real PostgreSQL + pgvector (throwaway database per run)
