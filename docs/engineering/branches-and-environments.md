@@ -23,7 +23,7 @@ gitGraph
 
 | Branch | Purpose | Rules |
 |---|---|---|
-| `main` | The only long-lived branch. Render deploys every merge | Protected: pull request required, CI must pass, stale approvals dismissed. One required approval is restored when the team joins |
+| `main` | The only long-lived branch. Render deploys every merge | Protected: pull request with 1 approval from the code owner (Sachin), CI must pass, branch up to date. Only admins (Sachin) can bypass, which he uses to merge his own PRs; team members get the Write role |
 | `feat/…`, `fix/…`, `docs/…`, `chore/…` | Short-lived work branches off `main`, deleted after merge | One topic per branch; tests and docs in the same PR |
 
 ## Environments

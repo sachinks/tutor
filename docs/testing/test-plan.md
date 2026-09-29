@@ -20,7 +20,7 @@ app arrives, these cases are re-run through the screens; the expected results st
 | Level | Who | Tool | When |
 |---|---|---|---|
 | Unit and API tests (automated) | Developers | `./dev.sh`, CI on GitHub | Every change; CI must be green to merge |
-| Smoke test (automated, black-box) | Testers, developers | `python qa/smoke_test.py` against a running server | After each merge; before any demo or release |
+| Smoke test (automated, black-box) | Testers, developers | Local: `python qa/smoke_test.py` (full journey). Hosted: `python qa/smoke_test.py --hosted --base <url>` (read-only) | Local after each merge; hosted after each deploy; both before any demo or release |
 | Manual functional tests | Testers | `/api/v1/docs`, `/admin`, cases in `test-cases/` | Each milestone; regression before release |
 | Exploratory testing | Testers | Same tools, no script | Time-boxed sessions per milestone |
 | Security and privacy checks | Testers + security | Cases in `security-and-privacy.md` | Each milestone; external review before launch |
@@ -30,7 +30,7 @@ app arrives, these cases are re-run through the screens; the expected results st
 | Environment | Use | Data |
 |---|---|---|
 | Local (tester's machine) | All manual and smoke testing now | Seeded: reference data, demo course, test accounts |
-| Staging (Render, planned) | Release candidates | Seeded copy; never real children's data |
+| Hosted demo (Render + Neon, live: `https://tutor-platform-ovlg.onrender.com`) | Hosted smoke checks, demos, manual checks of public pages and admin | Demo catalogue only; no tester accounts, no dev tools; never real children's data |
 | Production | Smoke only, with dedicated test accounts | Real data: no exploratory testing |
 
 ## Entry and exit criteria

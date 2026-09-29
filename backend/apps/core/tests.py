@@ -39,3 +39,13 @@ class AuditLogAdminTests(TestCase):
         self.assertFalse(audit_admin.has_add_permission(request))
         self.assertFalse(audit_admin.has_change_permission(request))
         self.assertFalse(audit_admin.has_delete_permission(request))
+
+
+class RootPageTests(SimpleTestCase):
+    def test_root_points_to_the_api(self):
+        response = self.client.get("/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["docs"], "/api/v1/docs")
+
+    def test_root_is_read_only(self):
+        self.assertEqual(self.client.post("/").status_code, 405)

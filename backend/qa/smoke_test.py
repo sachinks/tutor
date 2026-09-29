@@ -1,12 +1,17 @@
-"""End-to-end smoke test against a RUNNING local server (black-box, over HTTP).
+"""Black-box smoke test over HTTP, in two modes.
 
-Usage (server running with DJANGO_DEBUG=true and TUTOR_DEV_TOOLS=true):
+Local journey (server running with DJANGO_DEBUG=true and TUTOR_DEV_TOOLS=true):
     python qa/smoke_test.py                       # default http://127.0.0.1:8000
-    python qa/smoke_test.py --base http://127.0.0.1:8000
-
 Walks the real journey: catalogue → student sign-up → blocked without consent → parent sign-up and
 verification → approval link → lesson → quiz → record/today → consent withdraw/restore.
-Prints PASS/FAIL per step; exit code 1 on any FAIL. Uses fresh random mobile numbers, so it can be repeated.
+Uses fresh random mobile numbers, so it can be repeated.
+
+Hosted checks (after every deploy; creates no data, needs no tester tools):
+    python qa/smoke_test.py --hosted --base https://tutor-platform-ovlg.onrender.com
+Health (waits for a sleeping free-tier service), public catalogue, protected endpoints refuse anonymous
+callers, tester tools are off, HTTPS and security headers are in place.
+
+Prints PASS/FAIL per check; exit code 1 on any FAIL.
 """
 
 import argparse
@@ -52,10 +57,91 @@ def latest(dev, to, pattern):
     return None
 
 
+def hosted_checks(base):
+    """Read-only checks for a deployed site. Never signs anyone up, so the hosted data stays clean."""
+    api = base.rstrip("/") + "/api/v1"
+    s = requests.Session()
+    try:
+        health = s.get(api + "/health", timeout=90)  # a sleeping free-tier service takes up to a minute to wake
+    except requests.RequestException as exc:
+        check("H0 site reachable", False, str(exc))
+        return
+    check(
+        "H1 healthy and database reachable",
+        health.status_code == 200 and health.json() == {"ok": True, "db": True},
+        health.text,
+    )
+    check("H2 HSTS header present", "max-age=" in health.headers.get("Strict-Transport-Security", ""))
+    check("H3 nosniff header present", health.headers.get("X-Content-Type-Options") == "nosniff")
+
+    if base.startswith("https://"):
+        plain = requests.get(
+            "http://" + base[len("https://") :].rstrip("/") + "/api/v1/catalogue/facets",
+            timeout=30,
+            allow_redirects=False,
+        )
+        check(
+            "H4 plain HTTP redirects to HTTPS",
+            plain.status_code in (301, 308) and plain.headers.get("Location", "").startswith("https://"),
+            str(plain.status_code),
+        )
+
+    root = s.get(base.rstrip("/") + "/", timeout=30)
+    check(
+        "H5 root page points to the API docs",
+        root.status_code == 200 and root.json().get("docs") == "/api/v1/docs",
+        root.text[:200],
+    )
+
+    csrf = s.get(api + "/auth/csrf", timeout=30)
+    cookie = next((c for c in s.cookies if c.name == "csrftoken"), None)
+    check("H6 CSRF cookie is Secure", csrf.status_code == 200 and cookie is not None and cookie.secure)
+
+    items = s.get(api + "/catalogue/items", timeout=30).json()["results"]
+    check("C1 catalogue lists AI Foundations", any(i["slug"] == "ai-foundations" for i in items))
+    course = s.get(api + "/courses/ai-foundations", timeout=30).json()
+    lessons = [lesson for m in course["modules"] for lesson in m["lessons"]]
+    check("C2 course has lessons and skills", len(lessons) >= 1 and len(course["skills"]) >= 1)
+    free = next((lesson for lesson in lessons if lesson["is_free"]), None)
+    if check("C3 course has a free lesson", free is not None):
+        r = s.get(api + f"/lessons/{free['id']}/preview", timeout=30)
+        check(
+            "C4 free lesson preview readable without login", r.status_code == 200 and r.json()["sections"], r.text[:200]
+        )
+    check("C5 unknown course is 404", s.get(api + "/courses/does-not-exist", timeout=30).status_code == 404)
+
+    anon = requests.Session()
+    for path in ("/me", "/student/today", "/student/record"):
+        r = anon.get(api + path, timeout=30)
+        check(f"X1 anonymous {path} is 401", r.status_code == 401, r.text[:200])
+    if lessons:
+        check(
+            "X2 anonymous lesson is 401", anon.get(api + f"/lessons/{lessons[0]['id']}", timeout=30).status_code == 401
+        )
+    check("X3 tester tools are off", anon.get(api + "/dev/outbox", timeout=30).status_code == 404)
+    # A made-up address, so no real account moves toward the login lockout.
+    anon.get(api + "/auth/csrf", timeout=30)
+    r = anon.post(
+        api + "/auth/login",
+        json={"identifier": f"smoke-{random.randint(10**6, 10**7)}@example.invalid", "password": "wrong-password"},
+        headers={"X-CSRFToken": anon.cookies.get("csrftoken", ""), "Referer": base},
+        timeout=30,
+    )
+    check(
+        "X4 wrong login is refused cleanly",
+        r.status_code == 400 and r.json()["error"]["code"] == "invalid_credentials",
+        r.text[:200],
+    )
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--base", default="http://127.0.0.1:8000")
+    ap.add_argument("--hosted", action="store_true", help="read-only checks for a deployed site")
     args = ap.parse_args()
+    if args.hosted:
+        hosted_checks(args.base)
+        return
     student_mobile = f"98{random.randint(10**7, 10**8 - 1)}"
     parent_mobile = f"97{random.randint(10**7, 10**8 - 1)}"
     student, parent, dev = Client(args.base), Client(args.base), Client(args.base)
