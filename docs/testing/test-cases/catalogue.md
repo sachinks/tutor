@@ -22,6 +22,7 @@ Steps: `GET /courses/ai-foundations`. Expected: 3 lessons, all `is_free: true` a
 `path_stage_label: "Explore"`; `price_paise: 49900`.
 
 **TC-CAT-06 · Unknown or draft course · P2**
+Steps: `GET /courses/does-not-exist`, then `GET /courses/biology-class-12` (a draft course).
 Expected: `404 not_found` for a wrong slug and for a draft course's slug.
 
 **TC-CAT-07 · Programme page · P2**

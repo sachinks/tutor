@@ -53,6 +53,8 @@ jobs:
           DJANGO_HSTS_SECONDS: "31536000"
           TUTOR_TRUSTED_PROXIES: "1"
         run: python manage.py check --deploy --fail-level WARNING
+      - name: Test suite sources are consistent (cases, automation map, test labels)
+        run: python qa/build_test_suite.py --check
       - name: Dependency vulnerability scan
         run: pip-audit -r requirements.txt --progress-spinner off
       - name: Tests with coverage (minimum in pyproject.toml)

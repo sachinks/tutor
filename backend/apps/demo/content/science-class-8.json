@@ -1,0 +1,105 @@
+{
+  "course": {
+    "slug": "science-class-8",
+    "title": "Science · Class 8",
+    "subject": "science",
+    "class_number": 8,
+    "summary": "Force, pressure and friction explained through things you can try at home.",
+    "track": "foundation",
+    "path_stage": 1,
+    "price_paise": 99900,
+    "free_module_position": 1
+  },
+  "skills": [
+    {"code": "S8-FOR-01", "name": "Describe force as a push or pull and its effects", "requires": []},
+    {"code": "S8-FOR-02", "name": "Relate pressure to force and area", "requires": ["S8-FOR-01"]},
+    {"code": "S8-FRI-01", "name": "Explain what friction is and what it depends on", "requires": ["S8-FOR-01"]},
+    {"code": "S8-FRI-02", "name": "Choose ways to increase or reduce friction", "requires": ["S8-FRI-01"]}
+  ],
+  "modules": [
+    {
+      "position": 1,
+      "title": "Force and pressure",
+      "lessons": [
+        {
+          "slug": "force-push-and-pull",
+          "title": "Force: a push or a pull",
+          "est_minutes": 10,
+          "skills": ["S8-FOR-01"],
+          "boards": [{"board": "CBSE", "chapter": "Chapter 8: Force and pressure"}, {"board": "ICSE", "chapter": "Chapter 3: Force and pressure"}],
+          "sections": [
+            {"heading": "What is a force?", "text": "A **force** is a push or a pull on an object. Kicking a football is a push; opening a drawer is a pull."},
+            {"heading": "What a force can do", "text": "A force can start or stop motion, change speed or direction, and change the shape of an object, like squeezing a ball of dough."},
+            {"heading": "Measuring force", "text": "Force is measured in **newtons (N)**. When two forces act in opposite directions, the net force is their difference."}
+          ],
+          "questions": [
+            {"skill": "S8-FOR-01", "stem": "Which is an example of a pull?", "options": ["Kicking a ball", "Opening a drawer", "Pressing a doorbell", "Pushing a cart"], "answer": 1, "explanation": "Opening a drawer draws it towards you: a pull.", "hints": ["Which one moves the object towards you?"], "misconceptions": {}},
+            {"skill": "S8-FOR-01", "stem": "What is the SI unit of force?", "options": ["Joule", "Pascal", "Newton", "Watt"], "answer": 2, "explanation": "Force is measured in newtons (N).", "hints": ["Named after the scientist of the laws of motion."], "misconceptions": {"1": "The pascal is the unit of pressure."}},
+            {"skill": "S8-FOR-01", "stem": "Two teams pull a rope with 300 N and 250 N in opposite directions. Net force?", "options": ["550 N", "50 N towards the 300 N team", "50 N towards the 250 N team", "0 N"], "answer": 1, "explanation": "Opposite forces subtract: 300 − 250 = 50 N, towards the stronger side.", "hints": ["Opposite directions: subtract."], "misconceptions": {"0": "Forces in opposite directions don't add up."}},
+            {"skill": "S8-FOR-01", "stem": "Squeezing a lump of clay mainly shows that force can…", "options": ["change shape", "stop motion", "increase mass", "create heat only"], "answer": 0, "explanation": "The clay changes shape.", "hints": ["What happens to the clay?"], "misconceptions": {}}
+          ]
+        },
+        {
+          "slug": "pressure",
+          "title": "Pressure",
+          "est_minutes": 12,
+          "skills": ["S8-FOR-02"],
+          "boards": [{"board": "CBSE", "chapter": "Chapter 8: Force and pressure"}, {"board": "ICSE", "chapter": "Chapter 3: Force and pressure"}],
+          "sections": [
+            {"heading": "Force on an area", "text": "**Pressure = force ÷ area.** The same force on a smaller area gives more pressure."},
+            {"heading": "Everyday examples", "text": "A sharp knife cuts easily because its thin edge has a tiny area. School bags have wide straps so the weight spreads over a bigger area and presses less on the shoulders."},
+            {"heading": "Units", "text": "Pressure is measured in **pascals (Pa)**: 1 Pa = 1 N per square metre."}
+          ],
+          "questions": [
+            {"skill": "S8-FOR-02", "stem": "A 100 N force acts on 2 m². What is the pressure?", "options": ["200 Pa", "50 Pa", "102 Pa", "98 Pa"], "answer": 1, "explanation": "100 ÷ 2 = 50 Pa.", "hints": ["Pressure = force ÷ area."], "misconceptions": {"0": "That multiplies instead of dividing."}},
+            {"skill": "S8-FOR-02", "stem": "Why do camels walk easily on sand?", "options": ["They are light", "Their broad feet spread weight over a larger area", "Sand is hard", "They walk fast"], "answer": 1, "explanation": "Larger area means less pressure, so they sink less.", "hints": ["Think about area."], "misconceptions": {}},
+            {"skill": "S8-FOR-02", "stem": "If the area is halved and the force stays the same, pressure…", "options": ["halves", "stays the same", "doubles", "becomes zero"], "answer": 2, "explanation": "Dividing by half the area doubles the result.", "hints": ["Try force 10 N on area 2 then area 1."], "misconceptions": {"0": "Pressure goes the opposite way to area."}},
+            {"skill": "S8-FOR-02", "stem": "The SI unit of pressure is…", "options": ["Newton", "Pascal", "Metre", "Kilogram"], "answer": 1, "explanation": "1 Pa = 1 N/m².", "hints": ["Named after Blaise Pascal."], "misconceptions": {"0": "The newton is the unit of force."}}
+          ]
+        }
+      ]
+    },
+    {
+      "position": 2,
+      "title": "Friction",
+      "lessons": [
+        {
+          "slug": "what-is-friction",
+          "title": "What is friction?",
+          "est_minutes": 10,
+          "skills": ["S8-FRI-01"],
+          "boards": [{"board": "CBSE", "chapter": "Chapter 9: Friction"}, {"board": "ICSE", "chapter": "Chapter 4: Friction"}],
+          "sections": [
+            {"heading": "A force that opposes motion", "text": "**Friction** acts between two surfaces in contact and opposes their relative motion. A ball rolling on the ground slows down because of friction."},
+            {"heading": "Why it happens", "text": "Even smooth-looking surfaces have tiny bumps. The bumps of the two surfaces catch on each other."},
+            {"heading": "What it depends on", "text": "Friction is larger for rougher surfaces and when the surfaces are pressed together harder."}
+          ],
+          "questions": [
+            {"skill": "S8-FRI-01", "stem": "Friction always acts…", "options": ["in the direction of motion", "opposite to the direction of motion", "upwards", "only on wet surfaces"], "answer": 1, "explanation": "Friction opposes relative motion.", "hints": ["Why does a rolling ball slow down?"], "misconceptions": {}},
+            {"skill": "S8-FRI-01", "stem": "On which surface will a marble roll the farthest?", "options": ["Carpet", "Sand", "Polished floor", "Grass"], "answer": 2, "explanation": "The smoothest surface has the least friction.", "hints": ["Least friction wins."], "misconceptions": {}},
+            {"skill": "S8-FRI-01", "stem": "Friction is caused mainly by…", "options": ["gravity alone", "irregularities of the two surfaces", "air only", "magnetism"], "answer": 1, "explanation": "Tiny bumps interlock.", "hints": ["Look closely at a surface under a magnifier."], "misconceptions": {}},
+            {"skill": "S8-FRI-01", "stem": "Pressing two surfaces together harder makes friction…", "options": ["smaller", "larger", "zero", "unchanged"], "answer": 1, "explanation": "The bumps interlock more tightly.", "hints": ["Try rubbing your palms softly, then hard."], "misconceptions": {}}
+          ]
+        },
+        {
+          "slug": "increasing-and-reducing-friction",
+          "title": "Increasing and reducing friction",
+          "est_minutes": 12,
+          "skills": ["S8-FRI-02"],
+          "boards": [{"board": "CBSE", "chapter": "Chapter 9: Friction"}, {"board": "ICSE", "chapter": "Chapter 4: Friction"}],
+          "sections": [
+            {"heading": "When we want more", "text": "Treads on shoes and tyres increase friction so we don't slip. Gymnasts put powder on their hands for a better grip."},
+            {"heading": "When we want less", "text": "Oil and grease (lubricants) reduce friction between moving machine parts. Ball bearings replace sliding with rolling, which has much less friction."},
+            {"heading": "A necessary evil", "text": "Friction wastes energy as heat and wears things out, but without it we could not walk, write or hold anything."}
+          ],
+          "questions": [
+            {"skill": "S8-FRI-02", "stem": "Why are ball bearings used in machines?", "options": ["To add weight", "To replace sliding with rolling and reduce friction", "To increase friction", "For decoration"], "answer": 1, "explanation": "Rolling friction is smaller than sliding friction.", "hints": ["Rolling vs sliding."], "misconceptions": {}},
+            {"skill": "S8-FRI-02", "stem": "Which INCREASES friction?", "options": ["Oiling a hinge", "Treads on tyres", "Polishing a floor", "Using ball bearings"], "answer": 1, "explanation": "Treads give grip.", "hints": ["Which one gives grip?"], "misconceptions": {}},
+            {"skill": "S8-FRI-02", "stem": "Friction is called a 'necessary evil' because…", "options": ["it is always harmful", "it is useful but also wastes energy", "it is invisible", "it only exists in machines"], "answer": 1, "explanation": "We need it to walk and grip, but it causes wear and heat.", "hints": ["Think of both good and bad effects."], "misconceptions": {}},
+            {"skill": "S8-FRI-02", "stem": "Gymnasts rub powder on their hands to…", "options": ["reduce friction", "increase friction for grip", "stay cool", "look good"], "answer": 1, "explanation": "The powder absorbs sweat and improves grip.", "hints": ["They must not slip off the bar."], "misconceptions": {}}
+          ]
+        }
+      ]
+    }
+  ]
+}

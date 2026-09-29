@@ -32,6 +32,8 @@ DEBUG = env_bool("DJANGO_DEBUG", False)
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
 CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS", "")
 TUTOR_DEV_TOOLS = env_bool("TUTOR_DEV_TOOLS", False)  # tester helpers; honoured only when DEBUG
+TUTOR_DEMO_DATA = env_bool("TUTOR_DEMO_DATA", False)  # allows seed_demo; true locally and on the hosted demo only
+TUTOR_DEMO_PASSWORD = env("TUTOR_DEMO_PASSWORD", "")  # shared by all demo people; a secret on the hosted demo
 FRONTEND_URL = env("FRONTEND_URL", "http://localhost:3000")  # used in links sent to parents
 
 # Number of reverse proxies in front of Django that append to X-Forwarded-For (Render: 1). With 0 the
@@ -53,6 +55,7 @@ INSTALLED_APPS = [
     "apps.learning",
     "apps.commerce",
     "apps.operations",
+    "apps.demo",
 ]
 
 MIDDLEWARE = [

@@ -106,4 +106,4 @@ becomes one AI tutor chunk.
 |---|---|
 | `batches` | Centre, Batch (course or programme, class, board, mode, city, centre, teacher, seats, price, status), Session (meeting link / room), Attendance |
 | `tutor` (Django side) | TutorConversation, TutorMessage (mode, cited chunks, model, prompt version, tokens, cost), SafetyFlag, UsageCounter, TopicSummary |
-| AI service, schema `ai` | LessonChunk (text + embedding, HNSW index), PromptVersion, EvalRun |
+| AI service, schema `ai` | lesson_chunk (text + `vector(768)` + embedding_model, HNSW), prompt_version, eval_run, index_event. Django side adds `IndexRequest` (transactional outbox). See [AI service design](ai-service.md) |

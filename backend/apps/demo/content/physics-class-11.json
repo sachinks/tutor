@@ -1,0 +1,105 @@
+{
+  "course": {
+    "slug": "physics-class-11",
+    "title": "Physics · Class 11",
+    "subject": "physics",
+    "class_number": 11,
+    "summary": "Units, measurement and motion in a straight line: the foundations of mechanics.",
+    "track": "foundation",
+    "path_stage": 3,
+    "price_paise": 149900,
+    "free_module_position": 1
+  },
+  "skills": [
+    {"code": "P11-UNI-01", "name": "Use SI base units and derived units", "requires": []},
+    {"code": "P11-UNI-02", "name": "Apply significant-figure rules", "requires": ["P11-UNI-01"]},
+    {"code": "P11-KIN-01", "name": "Distinguish distance/displacement and speed/velocity", "requires": ["P11-UNI-01"]},
+    {"code": "P11-KIN-02", "name": "Use v = u + at for uniform acceleration", "requires": ["P11-KIN-01"]}
+  ],
+  "modules": [
+    {
+      "position": 1,
+      "title": "Units and measurement",
+      "lessons": [
+        {
+          "slug": "si-units",
+          "title": "SI units",
+          "est_minutes": 12,
+          "skills": ["P11-UNI-01"],
+          "boards": [{"board": "CBSE", "chapter": "Chapter 1: Units and measurement"}, {"board": "ICSE", "chapter": "Chapter 1: Measurements and experimentation"}],
+          "sections": [
+            {"heading": "Seven base units", "text": "The SI system has seven base units, including the **metre** (length), **kilogram** (mass), **second** (time), **ampere** (current) and **kelvin** (temperature)."},
+            {"heading": "Derived units", "text": "Other units are built from base units. Speed is m/s; force is the newton, 1 N = 1 kg·m/s²."},
+            {"heading": "Checking with units", "text": "Both sides of a correct equation have the same units. Units in an answer are part of the answer."}
+          ],
+          "questions": [
+            {"skill": "P11-UNI-01", "stem": "Which is an SI base unit?", "options": ["Newton", "Joule", "Kilogram", "Watt"], "answer": 2, "explanation": "The kilogram is a base unit; the others are derived.", "hints": ["Base units can't be broken into other units."], "misconceptions": {"0": "The newton is derived: kg·m/s²."}},
+            {"skill": "P11-UNI-01", "stem": "1 newton equals…", "options": ["1 kg·m/s", "1 kg·m/s²", "1 kg·m²/s²", "1 g·cm/s²"], "answer": 1, "explanation": "F = ma, so N = kg × m/s².", "hints": ["Force = mass × acceleration."], "misconceptions": {"2": "kg·m²/s² is the joule."}},
+            {"skill": "P11-UNI-01", "stem": "The SI unit of temperature is…", "options": ["Celsius", "Fahrenheit", "Kelvin", "Joule"], "answer": 2, "explanation": "The kelvin (K) is the SI base unit.", "hints": ["It has no 'degree' sign."], "misconceptions": {"0": "Celsius is common but not the SI base unit."}},
+            {"skill": "P11-UNI-01", "stem": "Speed has the SI unit…", "options": ["m/s", "km/h", "m/s²", "m"], "answer": 0, "explanation": "Distance (m) ÷ time (s).", "hints": ["Speed = distance ÷ time."], "misconceptions": {"2": "m/s² is acceleration."}}
+          ]
+        },
+        {
+          "slug": "significant-figures",
+          "title": "Significant figures",
+          "est_minutes": 15,
+          "skills": ["P11-UNI-02"],
+          "boards": [{"board": "CBSE", "chapter": "Chapter 1: Units and measurement"}, {"board": "ICSE", "chapter": "Chapter 1: Measurements and experimentation"}],
+          "sections": [
+            {"heading": "Why they matter", "text": "Significant figures show how precise a measurement is. 2.50 m says more than 2.5 m: it is known to the nearest centimetre."},
+            {"heading": "Counting rules", "text": "All non-zero digits count. Zeros between them count (2.05 has 3). Leading zeros never count (0.0042 has 2). Trailing zeros after a decimal point count (3.400 has 4)."},
+            {"heading": "In calculations", "text": "When multiplying or dividing, keep as many significant figures as the least precise number: 2.5 × 3.42 = 8.55 → 8.6."}
+          ],
+          "questions": [
+            {"skill": "P11-UNI-02", "stem": "How many significant figures in 0.00340?", "options": ["2", "3", "5", "6"], "answer": 1, "explanation": "Leading zeros don't count; 3, 4 and the trailing 0 after the decimal do.", "hints": ["Ignore zeros before the first non-zero digit."], "misconceptions": {"0": "The trailing zero after a decimal point counts."}},
+            {"skill": "P11-UNI-02", "stem": "How many significant figures in 1.005?", "options": ["2", "3", "4", "1"], "answer": 2, "explanation": "Zeros between non-zero digits count: 4.", "hints": ["Zeros sandwiched between digits count."], "misconceptions": {}},
+            {"skill": "P11-UNI-02", "stem": "3.0 × 2.456 should be reported as…", "options": ["7.368", "7.37", "7.4", "7"], "answer": 2, "explanation": "3.0 has 2 significant figures, so the answer gets 2: 7.4.", "hints": ["Which number is least precise?"], "misconceptions": {"0": "Too many figures claim false precision."}},
+            {"skill": "P11-UNI-02", "stem": "Which is more precise?", "options": ["4.2 cm", "4.20 cm", "Both the same", "Cannot tell"], "answer": 1, "explanation": "4.20 is known to the hundredth.", "hints": ["Count significant figures."], "misconceptions": {"2": "The extra zero adds precision."}}
+          ]
+        }
+      ]
+    },
+    {
+      "position": 2,
+      "title": "Motion in a straight line",
+      "lessons": [
+        {
+          "slug": "speed-and-velocity",
+          "title": "Speed and velocity",
+          "est_minutes": 12,
+          "skills": ["P11-KIN-01"],
+          "boards": [{"board": "CBSE", "chapter": "Chapter 2: Motion in a straight line"}, {"board": "ICSE", "chapter": "Chapter 2: Motion in one dimension"}],
+          "sections": [
+            {"heading": "Distance vs displacement", "text": "**Distance** is the total path length. **Displacement** is the straight-line change in position, with a direction. Walk 3 m east then 3 m west: distance 6 m, displacement 0."},
+            {"heading": "Speed vs velocity", "text": "Average speed = distance ÷ time. Average velocity = displacement ÷ time, and it has a direction."},
+            {"heading": "Example", "text": "A car goes 60 km north in 1 h and returns in 1 h. Average speed = 120 km ÷ 2 h = 60 km/h; average velocity = 0."}
+          ],
+          "questions": [
+            {"skill": "P11-KIN-01", "stem": "A runner completes one full lap of a 400 m track. Displacement?", "options": ["400 m", "200 m", "0 m", "800 m"], "answer": 2, "explanation": "She ends where she started.", "hints": ["Where does the runner finish?"], "misconceptions": {"0": "400 m is the distance."}},
+            {"skill": "P11-KIN-01", "stem": "Which is a vector quantity?", "options": ["Speed", "Distance", "Velocity", "Time"], "answer": 2, "explanation": "Velocity has size and direction.", "hints": ["Which one needs a direction?"], "misconceptions": {"0": "Speed has no direction."}},
+            {"skill": "P11-KIN-01", "stem": "A cyclist rides 10 km east in 0.5 h. Average velocity?", "options": ["5 km/h east", "20 km/h east", "20 km/h", "10 km/h east"], "answer": 1, "explanation": "10 ÷ 0.5 = 20 km/h, eastwards.", "hints": ["Displacement ÷ time, with direction."], "misconceptions": {"2": "Velocity needs a direction."}},
+            {"skill": "P11-KIN-01", "stem": "Can average speed be zero while the object moved?", "options": ["Yes", "No", "Only on a circle", "Only if it stops"], "answer": 1, "explanation": "If it moved, distance > 0, so average speed > 0. Average velocity can be zero.", "hints": ["Distance can't be negative."], "misconceptions": {"0": "That is true for velocity, not speed."}}
+          ]
+        },
+        {
+          "slug": "uniform-acceleration",
+          "title": "Uniform acceleration",
+          "est_minutes": 15,
+          "skills": ["P11-KIN-02"],
+          "boards": [{"board": "CBSE", "chapter": "Chapter 2: Motion in a straight line"}, {"board": "ICSE", "chapter": "Chapter 2: Motion in one dimension"}],
+          "sections": [
+            {"heading": "Acceleration", "text": "**Acceleration** is the rate of change of velocity: a = (v − u) ÷ t, measured in m/s²."},
+            {"heading": "First equation of motion", "text": "For uniform acceleration, **v = u + at**, where u is the initial velocity and v the velocity after time t."},
+            {"heading": "Example", "text": "A scooter starts at 2 m/s and accelerates at 1.5 m/s² for 4 s: v = 2 + 1.5 × 4 = 8 m/s."}
+          ],
+          "questions": [
+            {"skill": "P11-KIN-02", "stem": "A car goes from rest to 20 m/s in 5 s. Acceleration?", "options": ["4 m/s²", "100 m/s²", "0.25 m/s²", "25 m/s²"], "answer": 0, "explanation": "(20 − 0) ÷ 5 = 4 m/s².", "hints": ["a = (v − u) ÷ t; 'from rest' means u = 0."], "misconceptions": {"1": "That multiplies instead of dividing."}},
+            {"skill": "P11-KIN-02", "stem": "u = 3 m/s, a = 2 m/s², t = 6 s. Find v.", "options": ["9 m/s", "12 m/s", "15 m/s", "36 m/s"], "answer": 2, "explanation": "v = 3 + 2 × 6 = 15 m/s.", "hints": ["Multiply a by t first."], "misconceptions": {"1": "Don't forget to add u."}},
+            {"skill": "P11-KIN-02", "stem": "A negative acceleration while moving forward means the object is…", "options": ["speeding up", "slowing down", "at rest", "moving backwards"], "answer": 1, "explanation": "Acceleration opposite to velocity reduces speed.", "hints": ["Compare the directions of a and v."], "misconceptions": {"3": "It still moves forward, just more slowly."}},
+            {"skill": "P11-KIN-02", "stem": "The SI unit of acceleration is…", "options": ["m/s", "m/s²", "m²/s", "N"], "answer": 1, "explanation": "Change in velocity (m/s) per second.", "hints": ["Velocity per unit time."], "misconceptions": {"0": "m/s is velocity."}}
+          ]
+        }
+      ]
+    }
+  ]
+}

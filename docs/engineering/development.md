@@ -50,6 +50,7 @@ tutor/
 | `seed_reference` | Boards (CBSE, ICSE, WBBSE), Classes 6–12, disciplines and launch subjects |
 | `seed_consent` | The **draft** consent text |
 | `seed_demo_catalogue` | Demo course *AI Foundations*: 3 lessons, 4 skills, 9 quiz questions, a Class 8 programme |
+| `seed_demo` | The whole demo world (needs `TUTOR_DEMO_DATA=true`): 5 more courses from `apps/demo/content/*.json`, programmes, 19 people incl. 4 product admins (only when `TUTOR_DEMO_PASSWORD` is set), learning history, content in review. `--reset-activity` rebuilds history. See [demo-data.md](../testing/demo-data.md) |
 
 All are idempotent (safe to run repeatedly).
 

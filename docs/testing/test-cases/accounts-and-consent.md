@@ -40,6 +40,7 @@ Steps: `POST /auth/login` as `student_enrolled` using `esha@test.tutor`, `900000
 Expected: `200` each time; `GET /me` returns Esha.
 
 **TC-ACC-06 · Wrong password · P1**
+Steps: `POST /auth/login` as `esha@test.tutor` with a wrong password, then with `nobody@test.tutor`.
 Expected: `400`, `code: "invalid_credentials"`; message doesn't reveal whether the account exists.
 
 **TC-ACC-07 · Logout · P2**

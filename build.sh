@@ -16,7 +16,8 @@ python manage.py seed_reference   # boards, classes, subjects: real reference da
 python manage.py seed_consent     # current consent text (DRAFT until legal review)
 python manage.py ensure_superuser # first admin from DJANGO_SUPERUSER_* env vars; no-op when unset or existing
 
-# Demo catalogue only where explicitly allowed. Never set TUTOR_DEMO_DATA on production.
+# Demo world (courses, people, history) only where explicitly allowed. Never set TUTOR_DEMO_DATA on production.
+# People are created only when TUTOR_DEMO_PASSWORD is set (a secret in Render's environment).
 if [ "${TUTOR_DEMO_DATA:-false}" = "true" ]; then
-  python manage.py seed_demo_catalogue
+  python manage.py seed_demo
 fi

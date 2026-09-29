@@ -3,6 +3,7 @@
 Log in to `/admin/` with the superuser.
 
 **TC-ADM-01 · Users list and search · P2**
+Steps: in `/admin/` → Users, search for `Kabir`, `rahul@test.tutor` and `9000000022`; filter by account type *Parent*.
 Expected: search by name, email or mobile finds the test accounts; filter by account type works.
 
 **TC-ADM-02 · Create a user in admin · P2**
@@ -39,5 +40,6 @@ Steps: open an approved content version, change *Status* to `published` and save
 it to `draft`. Expected: both refused with "Published and archived are set only by the … action".
 
 **TC-ADM-08 · Mastery and progress are visible · P3**
+Steps: in `/admin/` open Learning → Mastery states, Mastery events, Lesson progress and Course completions; try to edit a mastery event.
 Expected: Learning → Mastery states, Mastery events, Lesson progress, Course completions show the smoke-test student's data;
 mastery events can't be edited.

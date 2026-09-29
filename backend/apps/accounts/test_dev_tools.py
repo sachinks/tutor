@@ -1,4 +1,4 @@
-"""seed_test_accounts builds exactly the accounts the tester guide promises (docs/testing/tester-guide.md §3)."""
+"""seed_test_accounts builds the demo accounts the tester guide promises (docs/testing/demo-data.md)."""
 
 from django.contrib.auth import authenticate
 from django.core.management import call_command
@@ -41,11 +41,12 @@ class SeedTestAccountsTests(TestCase):
                 "student__email", flat=True
             )
         )
-        self.assertEqual(children, {"asha@test.tutor", "esha@test.tutor"})
+        self.assertEqual(children, {"asha@test.tutor", "esha@test.tutor", "kabir@test.tutor"})
 
-    def test_only_esha_is_enrolled(self):
-        enrolled = set(Entitlement.objects.values_list("student__email", flat=True))
-        self.assertEqual(enrolled, {"esha@test.tutor"})
+    def test_asha_has_nothing_and_esha_has_ai_foundations(self):
+        enrolled = set(Entitlement.objects.filter(revoked_at__isnull=True).values_list("student__email", flat=True))
+        self.assertNotIn("asha@test.tutor", enrolled)
+        self.assertIn("esha@test.tutor", enrolled)
 
     def test_teacher_can_author_and_review_but_not_publish(self):
         tara = self.user("tara@test.tutor")

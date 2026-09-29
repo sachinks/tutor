@@ -25,6 +25,20 @@ app arrives, these cases are re-run through the screens; the expected results st
 | Exploratory testing | Testers | Same tools, no script | Time-boxed sessions per milestone |
 | Security and privacy checks | Testers + security | Cases in `security-and-privacy.md` | Each milestone; external review before launch |
 
+## Who owns what
+
+The product owner (Sachin) is test lead: plans cycles, assigns areas, triages bugs and signs off releases.
+
+| Stream | Owners | Works in | Output |
+|---|---|---|---|
+| Manual functional | Testers, assigned by area (one area per tester per cycle) | Workbook *Manual cases* filtered by Area | Status per case, bugs in *Bug log* |
+| API automation | Dev interns | `backend/apps/*/test*.py` (Django tests) and `backend/qa/smoke_test.py` | New tests + an `automation-map.json` entry per manual case they automate |
+| UI automation | Dev interns, when the web app exists (roadmap 10a) | Playwright suite in `web/` | UI tests mapped to the same TC IDs |
+| Exploratory | Testers, time-boxed per cycle | Tester guide §7 ideas, demo accounts | Bugs + new manual cases |
+
+Rule for everyone: a new or changed feature is not done until it has manual cases (with steps and expected results)
+and either automated tests mapped in `automation-map.json` or a note on why it can't be automated.
+
 ## Environments
 
 | Environment | Use | Data |

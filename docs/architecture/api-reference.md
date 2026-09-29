@@ -122,13 +122,14 @@ Permission shorthand: **Public** · **Auth** (any logged-in user) · **Student�
 
 ## AI service interface (internal, planned)
 
+Called only by Django, with a service token. Full contract (request/response shapes, streaming events, failure rules):
+[AI service design §3](ai-service.md#3-django--ai-service-contract).
+
 | Method | Path | Called when |
 |---|---|---|
-| POST | `/v1/tutor/respond` | Student sends a tutor message (streamed response) |
-| POST | `/v1/index/lesson-version` | A lesson version is published |
-| DELETE | `/v1/index/lessons/{id}` | A lesson is retired |
-| POST | `/v1/grade/short-answer` | A written answer is submitted |
-| POST | `/v1/practice/variants`, `/v1/studio/outline`, `/v1/studio/reading-level` | Author uses AI assist |
-| POST | `/v1/summaries/weekly` | Weekly parent report |
-| POST | `/v1/safety/check` | Before and after every model call |
 | GET | `/health` | Platform health check |
+| PUT / DELETE | `/v1/lessons/{id}/index` | A lesson version is published / retired (via the Django outbox) |
+| GET | `/v1/index/status` | `sync_ai_index` reconciles published versions with the index |
+| POST | `/v1/tutor/turns` | Student sends a tutor message (streamed) |
+| POST | `/v1/safety/check` | Classifying text outside a tutor turn |
+| POST | `/v1/grading/short-answer` | A written answer is submitted (after the tutor) |
