@@ -1,0 +1,47 @@
+[project]
+name = "tutor-ai"
+version = "0.1.0"
+description = "TUTOR AI service: lesson-grounded tutor, lesson index and model gateway"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+extend-exclude = ["migrations/script.py.mako"]
+
+[tool.ruff.lint]
+# Same gates as the backend (D22), plus async and type-annotation rules for a FastAPI service.
+select = ["E", "F", "W", "I", "B", "S", "ASYNC", "UP", "RUF"]
+ignore = ["RUF001", "RUF002", "RUF003"]  # typographic characters (…, ·, —) are intended in text
+
+[tool.ruff.lint.isort]
+known-first-party = ["tutor_ai"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106", "S608", "E501"]  # asserts, dummy tokens and test-only SQL
+"migrations/**" = ["E501"]
+
+[tool.mypy]
+python_version = "3.12"
+packages = ["tutor_ai"]
+strict = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["pgvector.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = ["db: needs PostgreSQL with pgvector (AI_DATABASE_URL)"]
+filterwarnings = ["error::DeprecationWarning:tutor_ai.*"]
+
+[tool.coverage.run]
+branch = true
+source = ["tutor_ai"]
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
+skip_covered = true

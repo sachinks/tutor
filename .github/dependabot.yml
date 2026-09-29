@@ -14,6 +14,18 @@ updates:
         patterns: ["django", "django-*", "psycopg*", "dj-database-url", "whitenoise", "gunicorn"]
       dev-tools:
         patterns: ["ruff", "coverage", "pip-audit", "requests"]
+  - package-ecosystem: pip
+    directory: /ai
+    schedule:
+      interval: weekly
+      day: monday
+      timezone: Asia/Kolkata
+    open-pull-requests-limit: 5
+    groups:
+      ai-stack:
+        patterns: ["fastapi", "uvicorn*", "pydantic*", "httpx", "sqlalchemy", "psycopg*", "alembic", "pgvector"]
+      ai-dev-tools:
+        patterns: ["ruff", "coverage", "pip-audit", "pytest", "mypy"]
   - package-ecosystem: github-actions
     directory: /
     schedule:

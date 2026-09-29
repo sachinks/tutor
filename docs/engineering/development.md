@@ -56,6 +56,12 @@ tutor/
 
 All are idempotent (safe to run repeatedly).
 
+## AI service (`ai/`)
+
+Its own virtualenv (`~/.venvs/tp-ai`) and its own check script: `cd ai && ./dev.sh` (format, lint, `mypy --strict`,
+migrations + `alembic check`, pip-audit, tests with ≥ 90% coverage on a throwaway database). Run it locally with
+`uvicorn tutor_ai.main:create_app --factory --port 8001 --reload`. Details: [ai/README.md](../../ai/README.md).
+
 ## AI tutor locally (Ollama)
 
 The AI service (milestone 5) uses your own Ollama for real AI during development; automated tests never need it

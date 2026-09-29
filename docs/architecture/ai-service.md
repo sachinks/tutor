@@ -1,6 +1,6 @@
 # AI service design (milestone 5)
 
-Status: **design for review**. Nothing here is built yet. Decisions: D1, D17, D23, D27, D28, D30, D31, M7.
+Status: **steps 1–2 built** (service skeleton, providers); steps 3–7 designed. Decisions: D1, D17, D23, D27, D28, D30, D31, M7.
 
 The AI service is a separate FastAPI application (`tutor/ai/`). It owns **how** the tutor answers. Django owns
 **whether** a student may ask, **what is stored** about the conversation, and **everything the student and parent
@@ -253,8 +253,8 @@ branch coverage ≥ 90%, pip-audit, and a separate CI job.
 
 ## 14. Build order
 
-1. `ai/` skeleton: FastAPI app, settings, auth, health, JSON logging, Alembic with schema `ai`, CI job, quality gates.
-2. Provider interface with `mock` (hashed embeddings, rule-based tutor) and `ollama`.
+1. **Done.** `ai/` skeleton: FastAPI app, settings, auth, health, JSON logging, Alembic with schema `ai`, CI job, quality gates.
+2. **Done.** Provider interface with `mock` (hashed embeddings, rule-based tutor) and `ollama`.
 3. Chunker + index endpoints + index status; Django outbox + `sync_ai_index`.
 4. Retrieval + prompt builder + tutor turn over SSE + safety rules + quiz guard.
 5. Django `tutor` app: endpoints, limits, storage, relay, parent-visible flags; smoke checks.
