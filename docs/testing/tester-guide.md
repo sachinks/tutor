@@ -56,6 +56,10 @@ fine) or the email. The ones most cases use:
 | maya | Maya Menon | 9000000042 | maya@test.tutor | **Curriculum lead**, Mathematics |
 | omar | Omar Sheikh | 9000000043 | omar@test.tutor | **Operations** |
 
+You also get a **personal tester account** (`testerN@test.tutor`) with its own password from the product owner: use it
+for anything that changes data (quizzes, finishing lessons), so your results don't mix with other testers'. See
+[demo-data.md](demo-data.md#personal-tester-accounts).
+
 `python manage.py seed_demo` (run by `./dev.sh`) resets these accounts' passwords, consent states, roles and
 enrolments. It keeps quiz history; `python manage.py seed_demo --reset-activity` rebuilds the demo students' history.
 For a completely clean database see §8.

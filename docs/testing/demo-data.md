@@ -47,6 +47,25 @@ work needs; what they may *do* is decided by their role.
 The product admin *screens* (admin home, review queue, safety queue) are planned API work; until then admins work in
 `/admin/` with their role limits enforced (see the admin and security test cases).
 
+### Personal tester accounts
+
+Each tester also gets a **personal** account: a clean, parent-approved Class 8 CBSE student enrolled in every course,
+with its **own** password, so testers never overwrite each other's quizzes, mastery or streaks. Created with
+`create_tester_accounts` (logins `tester1@test.tutor` … `testerN@test.tutor`, mobiles `9000000901` …); passwords are
+random, printed **once** and stored only as hashes. Use the shared demo accounts above for roles and ready-made states,
+and your personal account for journeys that change data.
+
+Create them on the hosted demo from WSL (from `backend/`), pointing this one command at Neon's **direct** connection
+string and typing its host to confirm the target:
+
+```bash
+DATABASE_URL='<Neon direct connection string>' \
+  python manage.py create_tester_accounts --count 5 --confirm-host <host part of that string>
+```
+
+Add `--reset-passwords` to give existing testers new passwords (the old ones stop working). Running it again without
+that flag changes nothing and prints "(unchanged…)".
+
 ## Courses
 
 | Course | Class | Modules · lessons · questions | Free module | Price |
