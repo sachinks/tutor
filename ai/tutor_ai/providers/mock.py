@@ -4,8 +4,9 @@ Embeddings are *hashed bag-of-words* vectors: each word is hashed to a position 
 result is normalised to unit length. Texts that share words therefore get similar vectors, so retrieval, off-topic
 detection and citations behave realistically without a model. The same text always gives the same vector.
 
-Chat is rule-based: it finds the context sentence that shares the most words with the student's message, quotes it,
-and asks a guiding question. Replies are clearly marked as demo replies.
+Chat is rule-based: it finds the passage sentence that shares the most words with the student's message and, by mode,
+quotes it (explain), asks about it (guide) or only points to it (hint), citing the passage label. Replies are clearly
+marked as demo replies.
 """
 
 import hashlib
@@ -22,6 +23,9 @@ STOPWORDS = frozenset(
     "who why will with you your do does did can".split()
 )
 DEMO_PREFIX = "(Demo tutor) "
+# The prompt builder labels passages "[P1] heading\n text"; the mock reads only those blocks when present, so it
+# never quotes the tutor's own rules back to the student.
+_PASSAGE_BLOCK = re.compile(r"^\[(P\d+)\][^\n]*\n(.*?)(?=\n\n\[P\d+\]|\Z)", re.MULTILINE | re.DOTALL)
 
 
 def tokens(text: str) -> list[str]:
@@ -52,6 +56,27 @@ def best_sentence(question: str, context: str) -> str | None:
     return best
 
 
+def _best_passage_sentence(question: str, system: str) -> tuple[str | None, str | None]:
+    blocks: list[tuple[str | None, str]] = list(_PASSAGE_BLOCK.findall(system)) or [(None, system)]
+    wanted = set(tokens(question))
+    best: tuple[str | None, str | None] = (None, None)
+    best_score = 0
+    for label, text in blocks:
+        sentence = best_sentence(question, text)
+        score = len(wanted & set(tokens(sentence))) if sentence else 0
+        if score > best_score:
+            best, best_score = (label, sentence), score
+    return best
+
+
+def _mode(system: str) -> str:
+    if "Mode: hint." in system:
+        return "hint"
+    if "Mode: guide." in system:
+        return "socratic"
+    return "explain"
+
+
 class MockProvider:
     name = "mock"
     chat_model = "mock-tutor-v1"
@@ -62,12 +87,23 @@ class MockProvider:
 
     async def chat(self, messages: list[Message], *, max_tokens: int, temperature: float) -> AsyncIterator[str]:
         question = next((m.content for m in reversed(messages) if m.role == "user"), "")
-        context = "\n".join(m.content for m in messages if m.role == "system")
-        found = best_sentence(question, context)
-        if found:
-            reply = f'{DEMO_PREFIX}The lesson says: "{found}" What do you think that means for your question?'
-        else:
+        system = "\n".join(m.content for m in messages if m.role == "system")
+        label, found = _best_passage_sentence(question, system)
+        cite = f" [{label}]" if label else ""
+        mode = _mode(system)
+        if not found:
             reply = f"{DEMO_PREFIX}That isn't covered in this lesson. Shall we go back to what the lesson is about?"
+        elif mode == "hint":
+            reply = (
+                f"{DEMO_PREFIX}Hint: look again at this part of the lesson{cite}. Which idea in it fits your question?"
+            )
+        elif mode == "socratic":
+            reply = (
+                f'{DEMO_PREFIX}Read this line from the lesson: "{found}"{cite} '
+                "What does it tell you about your question?"
+            )
+        else:
+            reply = f'{DEMO_PREFIX}The lesson says: "{found}"{cite} What do you think that means for your question?'
         words = reply.split(" ")
         for i, word in enumerate(words[: max(max_tokens, 1)]):
             yield word if i == 0 else " " + word

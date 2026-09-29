@@ -4,10 +4,11 @@ token. Endpoints arrive step by step (design §14): indexing (step 3), tutor tur
 from fastapi import APIRouter, Depends, Request
 
 from ..security import require_service_token
-from . import index
+from . import index, tutor
 
 router = APIRouter(prefix="/v1", dependencies=[Depends(require_service_token)])
 router.include_router(index.router)
+router.include_router(tutor.router)
 
 
 @router.get("/whoami", tags=["system"])
@@ -21,4 +22,5 @@ async def whoami(request: Request) -> dict[str, object]:
         "embedding_model": provider.embedding_model,
         "dimensions": provider.dimensions,
         "prompts": request.app.state.prompts.active_refs(),
+        "safety": request.app.state.safety.ref,
     }

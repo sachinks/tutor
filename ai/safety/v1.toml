@@ -1,0 +1,77 @@
+# TUTOR safety policy, version 1 (design §7).
+#
+# DRAFT. Every reply, word list and pattern here must be reviewed and signed off by the safety owner before real
+# students use the tutor, and the escalation procedure for "critical" (risk to life) must be written down (D15).
+# The helpline itself is shown by Django (locale-specific), not written here.
+#
+# Rules for this file:
+# - Never edit a version once it has been used; copy it to v2.toml. Replies record "safety/v1".
+# - Phrases match whole words, ignoring case and punctuation ("kill myself!!" matches "kill myself").
+# - Injection patterns are regular expressions on the lower-cased message. Keep them narrow: "act as" appears in
+#   science ("enzymes act as catalysts"), so it is deliberately not a pattern.
+#   Prefer multi-word phrases: single words cause false alarms in science lessons ("kill bacteria", "cell death").
+# - Severity decides the action: low = answer normally; medium = handle (scrub/redirect) and flag; high = fixed reply,
+#   flag to the Operations safety queue; critical = caring fixed reply, immediate Operations alert.
+
+version = "v1"
+
+[replies]
+off_topic = "That's a good thing to be curious about, but it isn't part of \"$lesson_title\". Shall we get back to the lesson? Which part would you like to go over?"
+personal_data = "Please don't share personal details like phone numbers, emails or addresses here. I've hidden them."
+injection = "I can only help with this lesson. What would you like to understand about it?"
+high = "That's not something I can help with here. If someone is hurting, scaring or bullying you, please tell a parent, teacher or another adult you trust. Shall we go back to the lesson?"
+critical = "I'm really sorry you're feeling this way. You matter, and you don't have to deal with this alone. Please talk to a parent, teacher or another adult you trust right now."
+output_fallback = "Let me try that a different way. Which part of the lesson shall we look at together?"
+quiz_fallback = "I can't give quiz answers, but you can do this. Read the lesson part about this idea again and try once more. What do you notice?"
+
+[categories.self_harm]
+severity = "critical"
+phrases = [
+  "kill myself", "killing myself", "want to die", "wanna die", "end my life", "take my life", "suicide", "suicidal",
+  "hurt myself", "hurting myself", "cut myself", "cutting myself", "self harm", "don't want to live",
+  "no reason to live", "better off dead", "mujhe marna hai", "marna chahta hoon", "marna chahti hoon",
+  "jeena nahi chahta", "jeena nahi chahti",
+]
+
+[categories.abuse]
+severity = "high"
+phrases = [
+  "touches me", "touched me", "touching me", "hits me", "beats me", "abuses me", "abusing me", "is hurting me",
+  "hurts me at home", "someone is hurting me", "makes me keep secrets", "sent me photos",
+]
+
+[categories.violence]
+severity = "high"
+phrases = [
+  "kill you", "going to kill", "i will kill", "beat you up", "bring a knife", "bring a gun", "gun to school",
+  "shoot them", "stab him", "stab her", "make a bomb", "build a bomb",
+]
+
+[categories.adult]
+severity = "high"
+phrases = ["porn", "porno", "send nudes", "nude photos", "nude pics", "sex video", "sexy photos", "have sex"]
+
+[categories.bullying]
+severity = "high"
+phrases = [
+  "being bullied", "they bully me", "bullying me", "everyone makes fun of me", "they beat me", "threatening me",
+  "leak my photos",
+]
+
+[categories.rude]
+severity = "low"
+phrases = ["stupid", "idiot", "shut up", "dumb", "useless bot", "you suck"]
+
+[injection]
+severity = "medium"
+patterns = [
+  '\bignore (all |any |the |your |previous |prior |above )*(instructions|rules|prompts?)\b',
+  '\b(forget|disregard) (all |your |the |previous )*(instructions|rules)\b',
+  '\byou are now (a|an|my|in|called)\b',
+  '\byou are no longer (a|an|the|bound|restricted)\b',
+  '\bpretend (to be|you are|that you are)\b',
+  '\brole ?play\b',
+  '\b(system|hidden|secret) prompt\b',
+  '\b(developer|dan|jailbreak) mode\b',
+  '\breveal (your|the) (rules|instructions|prompt)\b',
+]

@@ -66,6 +66,7 @@ def test_v1_needs_the_service_token(database_url):
         "embedding_model": "mock-hashed-bow-v1",
         "dimensions": 768,
         "prompts": {"tutor": "v1"},
+        "safety": "safety/v1",
     }
 
 
