@@ -240,6 +240,24 @@
         "title": "ChildOut",
         "type": "object"
       },
+      "Citation": {
+        "properties": {
+          "heading": {
+            "title": "Heading",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "heading"
+        ],
+        "title": "Citation",
+        "type": "object"
+      },
       "ClassOut": {
         "properties": {
           "label": {
@@ -308,6 +326,101 @@
           "consent_text"
         ],
         "title": "ConsentLinkOut",
+        "type": "object"
+      },
+      "ConversationDetailOut": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "last_message_at": {
+            "format": "date-time",
+            "title": "Last Message At",
+            "type": "string"
+          },
+          "lesson_id": {
+            "format": "uuid",
+            "title": "Lesson Id",
+            "type": "string"
+          },
+          "lesson_title": {
+            "title": "Lesson Title",
+            "type": "string"
+          },
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/MessageOut"
+            },
+            "title": "Messages",
+            "type": "array"
+          },
+          "mode": {
+            "title": "Mode",
+            "type": "string"
+          },
+          "usage": {
+            "$ref": "#/components/schemas/UsageOut"
+          }
+        },
+        "required": [
+          "id",
+          "lesson_id",
+          "lesson_title",
+          "mode",
+          "created_at",
+          "last_message_at",
+          "usage"
+        ],
+        "title": "ConversationDetailOut",
+        "type": "object"
+      },
+      "ConversationOut": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "last_message_at": {
+            "format": "date-time",
+            "title": "Last Message At",
+            "type": "string"
+          },
+          "lesson_id": {
+            "format": "uuid",
+            "title": "Lesson Id",
+            "type": "string"
+          },
+          "lesson_title": {
+            "title": "Lesson Title",
+            "type": "string"
+          },
+          "mode": {
+            "title": "Mode",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "lesson_id",
+          "lesson_title",
+          "mode",
+          "created_at",
+          "last_message_at"
+        ],
+        "title": "ConversationOut",
         "type": "object"
       },
       "CourseOut": {
@@ -931,6 +1044,83 @@
         "title": "MeOut",
         "type": "object"
       },
+      "MessageIn": {
+        "properties": {
+          "message": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
+          },
+          "mode": {
+            "default": "explain",
+            "enum": [
+              "explain",
+              "socratic",
+              "hint"
+            ],
+            "title": "Mode",
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "title": "MessageIn",
+        "type": "object"
+      },
+      "MessageOut": {
+        "properties": {
+          "blocked": {
+            "title": "Blocked",
+            "type": "boolean"
+          },
+          "citations": {
+            "items": {
+              "$ref": "#/components/schemas/Citation"
+            },
+            "title": "Citations",
+            "type": "array"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "mode": {
+            "title": "Mode",
+            "type": "string"
+          },
+          "off_topic": {
+            "title": "Off Topic",
+            "type": "boolean"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "role",
+          "text",
+          "mode",
+          "blocked",
+          "off_topic",
+          "citations",
+          "created_at"
+        ],
+        "title": "MessageOut",
+        "type": "object"
+      },
       "ModuleOut": {
         "properties": {
           "lessons": {
@@ -1487,6 +1677,30 @@
         "title": "StageOut",
         "type": "object"
       },
+      "StartIn": {
+        "properties": {
+          "lesson_id": {
+            "format": "uuid",
+            "title": "Lesson Id",
+            "type": "string"
+          },
+          "mode": {
+            "default": "explain",
+            "enum": [
+              "explain",
+              "socratic",
+              "hint"
+            ],
+            "title": "Mode",
+            "type": "string"
+          }
+        },
+        "required": [
+          "lesson_id"
+        ],
+        "title": "StartIn",
+        "type": "object"
+      },
       "StudentOut": {
         "properties": {
           "board": {
@@ -1686,6 +1900,29 @@
           "streak_days"
         ],
         "title": "TodayOut",
+        "type": "object"
+      },
+      "UsageOut": {
+        "properties": {
+          "left": {
+            "title": "Left",
+            "type": "integer"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "used": {
+            "title": "Used",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "used",
+          "limit",
+          "left"
+        ],
+        "title": "UsageOut",
         "type": "object"
       }
     },
@@ -2849,6 +3086,204 @@
         "summary": "Today",
         "tags": [
           "learning"
+        ]
+      }
+    },
+    "/api/v1/tutor/conversations": {
+      "get": {
+        "description": "The student's recent chats (newest first), optionally for one lesson.",
+        "operationId": "apps_tutor_api_conversations",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "lesson_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Lesson Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ConversationOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ],
+        "summary": "Conversations",
+        "tags": [
+          "tutor"
+        ]
+      },
+      "post": {
+        "description": "Start a tutor chat on a lesson of a course the student is enrolled in.",
+        "operationId": "apps_tutor_api_start",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationDetailOut"
+                }
+              }
+            },
+            "description": "Created"
+          }
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ],
+        "summary": "Start",
+        "tags": [
+          "tutor"
+        ]
+      }
+    },
+    "/api/v1/tutor/conversations/{conversation_id}": {
+      "delete": {
+        "operationId": "apps_tutor_api_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Conversation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ],
+        "summary": "Delete",
+        "tags": [
+          "tutor"
+        ]
+      },
+      "get": {
+        "operationId": "apps_tutor_api_conversation",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Conversation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationDetailOut"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ],
+        "summary": "Conversation",
+        "tags": [
+          "tutor"
+        ]
+      }
+    },
+    "/api/v1/tutor/conversations/{conversation_id}/messages": {
+      "post": {
+        "description": "Ask the tutor. The reply streams as Server-Sent Events; nothing is stored until the final event.",
+        "operationId": "apps_tutor_api_send",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Conversation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/event-stream": {}
+            },
+            "description": "text/event-stream: meta {mode, conversation_id} → delta {text}… → final {message_id, text, mode, blocked, replaced, off_topic, citations[{label, heading}], helplines[], personal_data_hidden} | error {code, message}"
+          }
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ],
+        "summary": "Send",
+        "tags": [
+          "tutor"
         ]
       }
     }

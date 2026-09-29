@@ -7,8 +7,10 @@ Idempotency-Key. Failures become AIServiceError with a `retryable` flag: network
 The token is never logged. The client is synchronous (Django views and management commands are).
 """
 
+import json
 import logging
 import uuid
+from collections.abc import Iterator
 from typing import Any
 
 import httpx
@@ -137,6 +139,44 @@ class AIServiceClient:
 
     def index_status(self) -> dict[str, Any]:
         return self._json(self._request("GET", "/v1/index/status"))
+
+    def stream_turn(self, payload: dict[str, Any], *, timeout: float) -> Iterator[tuple[str, dict[str, Any]]]:
+        """POST /v1/tutor/turns and yield its Server-Sent Events as (event, data) pairs, as they arrive.
+
+        Errors before the stream starts (validation, auth, network) raise AIServiceError; a stream cut off halfway
+        raises AIServiceError too. The AI service's own `error` events are yielded like any other event. A tutor turn
+        is never retried: a retry could double-charge tokens and confuse the student (design §3).
+        """
+        request_id = get_request_id()
+        headers = {"X-Request-ID": request_id if request_id != "-" else uuid.uuid4().hex, "Accept": "text/event-stream"}
+        path = "/v1/tutor/turns"
+        try:
+            with self._client.stream(
+                "POST",
+                path,
+                json=payload,
+                headers=headers,
+                timeout=httpx.Timeout(timeout, connect=min(CONNECT_TIMEOUT_SECONDS, timeout)),
+            ) as response:
+                if response.status_code >= 400:
+                    response.read()
+                    raise self._error("POST", path, response)
+                event: str | None = None
+                for line in response.iter_lines():
+                    if line.startswith("event: "):
+                        event = line[len("event: ") :].strip()
+                    elif line.startswith("data: ") and event:
+                        data = json.loads(line[len("data: ") :])
+                        if not isinstance(data, dict):
+                            raise AIServiceError("an event's data is not an object", code="bad_response")
+                        yield event, data
+                        event = None
+        except httpx.TimeoutException as exc:
+            raise AIServiceError(f"POST {path} timed out", code="timeout") from exc
+        except httpx.HTTPError as exc:
+            raise AIServiceError(f"POST {path} failed: {type(exc).__name__}", code="unreachable") from exc
+        except ValueError as exc:  # invalid JSON in an event
+            raise AIServiceError("the AI service sent an invalid event", code="bad_response") from exc
 
 
 def get_client(transport: httpx.BaseTransport | None = None) -> AIServiceClient:

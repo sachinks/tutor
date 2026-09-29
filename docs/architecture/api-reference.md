@@ -34,6 +34,9 @@ Every error body also carries `request_id` (same value as the `X-Request-ID` res
 | 500 | `server_error` | Unexpected failure; details are only in the server log, found by `request_id` |
 | 429 | `login_locked` | Too many wrong passwords for this email/mobile; wait 15 minutes or reset the password |
 | 503 | `consent_text_missing` | Setup problem: no active consent text |
+| 409 | `lesson_not_ready` | The lesson has no published content yet (tutor) |
+| 429 | `daily_limit_reached` | The student used today's tutor messages (`TUTOR_TUTOR_DAILY_LIMIT`, per IST day) |
+| 503 | `feature_unavailable` | The feature needs a service this environment doesn't have (D28), e.g. the AI tutor without an AI service |
 
 ### Rate limits
 
@@ -47,6 +50,7 @@ Per client IP unless noted; values are defaults in `TUTOR_THROTTLE_RATES` and ca
 | `otp` | `POST /auth/otp/send`, `/auth/otp/verify`, `/auth/password/reset` | 30 / hour |
 | `consent_link` | `/consent/link/{token}` (view, approve, report) | 60 / hour |
 | `consent_send` | resend approval link, change parent contact (per user) | 10 / hour |
+| `tutor` | `POST /tutor/conversations/{id}/messages` (per user) | 20 / minute (plus the daily limit, 50 messages) |
 
 Separately, 10 wrong passwords for one email/mobile lock that login for 15 minutes (`login_locked`).
 
@@ -111,19 +115,31 @@ Permission shorthand: **Public** · **Auth** (any logged-in user) · **Student�
 | GET | `/student/today` | Student✓ | Next lesson, review item, streak |
 | GET | `/student/record` | Student✓ | Mastery, completed courses, quiz history, lessons finished |
 
+### AI tutor
+
+The tutor comes with a course enrolment (the free module does not include it). Chats are kept 90 days after their
+last message (D40); flagged chats until the flag is closed plus 90 days.
+
+| Method | Path | Who | Purpose |
+|---|---|---|---|
+| POST | `/tutor/conversations` | Student✓ + entitled | `{lesson_id, mode}` → new chat with today's usage; `503 feature_unavailable` without an AI service |
+| GET | `/tutor/conversations?lesson_id=` | Student✓ | Own recent chats, newest first (20) |
+| GET | `/tutor/conversations/{id}` | Student✓ (owner) | Messages (student and tutor, with citations) and today's usage |
+| DELETE | `/tutor/conversations/{id}` | Student✓ (owner) | Delete; a flagged chat is only hidden from the student |
+| POST | `/tutor/conversations/{id}/messages` | Student✓ + entitled (owner) | `{message ≤ 500, mode}` → **Server-Sent Events**: `meta` {mode, conversation_id} → `delta` {text}… → `final` {message_id, text, mode, blocked, replaced, off_topic, citations[{label, heading}], helplines[{name, phone, note}], personal_data_hidden} or `error` {code: tutor_unavailable \| tutor_timeout \| lesson_not_ready \| server_error, message}. Checks (consent, entitlement, AI service, daily limit) answer with JSON errors before the stream starts. Only the `final` event is stored; a failed turn doesn't count against the limit. `final.text` replaces whatever was streamed. |
+
 ## Planned
 
 | Area | Endpoints |
 |---|---|
 | Exploratory test and warm-up | `GET /exploratory/{class}`, `POST /exploratory/{class}/score`, `POST /exploratory/results`, `POST /warmup/{subject}/start`, `POST /warmup/attempts/{id}/answer`, `GET /warmup/attempts/{id}/result` |
-| AI tutor | `POST /tutor/lessons/{id}/messages` (streamed), `GET /tutor/lessons/{id}/messages` |
 | Commerce | `POST /enrolment-requests`, `GET /parent/requests`, `POST /parent/requests/{id}/decline`, `POST /orders` (Idempotency-Key), `POST /orders/{id}/confirm`, `POST /webhooks/razorpay`, `GET /parent/payments`, `GET /parent/payments/{id}/receipt` |
-| Parent views | `GET /parent/dashboard`, `GET /parent/children/{id}/progress`, `…/tutor-topics`, `…/reports`, `…/export`, `DELETE /parent/children/{id}` |
+| Parent views | `GET /parent/dashboard`, `GET /parent/children/{id}/progress`, `…/tutor-topics`, `…/tutor-flags` (flagged chats in full, D13), `…/reports`, `…/export`, `DELETE /parent/children/{id}` |
 | Batches | `GET /batches/{id}`, `GET /student/batches`, teacher roster, sessions and attendance |
 | Teacher studio | Application, outlines, lesson/question versions, submit, review queue, approve / request changes, AI assist, media upload |
 | Admin (custom) | Home, publish queue, publish / roll back, safety flags, AI usage, settings, applications, refunds |
 
-## AI service interface (internal, planned)
+## AI service interface (internal)
 
 Called only by Django, with a service token. Full contract (request/response shapes, streaming events, failure rules):
 [AI service design §3](ai-service.md#3-django--ai-service-contract).

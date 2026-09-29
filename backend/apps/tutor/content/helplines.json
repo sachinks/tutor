@@ -1,0 +1,10 @@
+{
+  "_about": "DRAFT: helplines shown with the tutor's fixed replies (design §7). Numbers and wording must be verified and signed off by the safety owner before real students use the tutor, and re-checked every year. Keys are the reply kind: critical = risk to life, high = abuse, bullying, violence, adult content.",
+  "critical": [
+    {"name": "Tele-MANAS (national mental health helpline)", "phone": "14416", "note": "Free, 24 hours, many Indian languages"},
+    {"name": "Emergency", "phone": "112", "note": "If you are in danger right now"}
+  ],
+  "high": [
+    {"name": "CHILDLINE", "phone": "1098", "note": "Free, 24 hours, for any child who needs help"}
+  ]
+}

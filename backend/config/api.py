@@ -13,6 +13,7 @@ from apps.catalogue.api import catalogue_router, courses_router, lessons_router,
 from apps.core.errors import install_error_handlers
 from apps.core.throttling import api_throttle
 from apps.learning.api import student_router  # also registers /lessons/{id} and /finish
+from apps.tutor.api import tutor_router
 
 api = NinjaAPI(
     title="TUTOR API",
@@ -54,6 +55,7 @@ api.add_router("/programmes", programmes_router)
 api.add_router("/lessons", lessons_router)
 api.add_router("/student", student_router)
 api.add_router("/attempts", attempts_router)
+api.add_router("/tutor", tutor_router)
 
 # Tester tools: only when DEBUG and TUTOR_DEV_TOOLS=true (docs/testing/tester-guide.md). Never in production.
 if settings.DEBUG and settings.TUTOR_DEV_TOOLS:

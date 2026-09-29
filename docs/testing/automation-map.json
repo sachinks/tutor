@@ -392,5 +392,39 @@
   ],
   "TC-AIX-06": [
     "apps.aiservice.tests.AdminTests.test_list_is_read_only_with_a_queue_again_action"
+  ],
+  "TC-AIT-01": [
+    "apps.tutor.tests.TurnTests.test_a_turn_streams_and_stores_only_the_final_answer",
+    "apps.tutor.tests.AccessTests.test_an_enrolled_student_starts_a_chat"
+  ],
+  "TC-AIT-02": [
+    "apps.tutor.tests.AccessTests.test_the_free_module_does_not_include_the_tutor",
+    "apps.tutor.tests.AccessTests.test_consent_and_role_are_required"
+  ],
+  "TC-AIT-03": [
+    "apps.tutor.tests.TurnTests.test_what_is_sent_to_the_ai_service"
+  ],
+  "TC-AIT-04": [
+    "apps.tutor.tests.TurnTests.test_an_open_quiz_protects_the_unanswered_correct_options"
+  ],
+  "TC-AIT-05": [
+    "apps.tutor.tests.SafetyTests.test_a_critical_message_shows_helplines_alerts_operations_and_is_parent_visible"
+  ],
+  "TC-AIT-06": [
+    "apps.tutor.tests.SafetyTests.test_personal_data_is_flagged_but_not_shown_to_parents_and_never_stored"
+  ],
+  "TC-AIT-08": [
+    "apps.tutor.tests.TurnTests.test_the_daily_limit"
+  ],
+  "TC-AIT-09": [
+    "apps.tutor.tests.FailureTests.test_an_unreachable_ai_service",
+    "apps.tutor.tests.FailureTests.test_an_ai_error_event"
+  ],
+  "TC-AIT-10": [
+    "apps.tutor.tests.AccessTests.test_deleting_a_chat_and_keeping_a_flagged_one_for_review"
+  ],
+  "TC-AIT-11": [
+    "apps.tutor.tests.AdminTests.test_the_safety_queue_actions_record_who_and_when",
+    "apps.tutor.tests.AdminTests.test_changing_the_status_in_the_form_stamps_it_too"
   ]
 }

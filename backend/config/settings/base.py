@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "apps.commerce",
     "apps.operations",
     "apps.aiservice",
+    "apps.tutor",
     "apps.demo",
 ]
 
@@ -131,6 +132,7 @@ TUTOR_THROTTLE_RATES = {
     "otp": "30/h",  # send/verify one-time codes, password reset
     "consent_link": "60/h",  # parent approval-link pages
     "consent_send": "10/h",  # resend link / change parent contact (per user)
+    "tutor": "20/m",  # tutor messages (per user); the daily limit is TUTOR_TUTOR_DAILY_LIMIT
 }
 
 # Login lockout per email/mobile: after this many wrong passwords the account can't log in for the window.
@@ -161,3 +163,9 @@ TUTOR_AI_URL = env("TUTOR_AI_URL", "").strip().rstrip("/")
 TUTOR_AI_SERVICE_TOKEN = env("TUTOR_AI_SERVICE_TOKEN", "")
 TUTOR_AI_INDEX_TIMEOUT_SECONDS = float(env("TUTOR_AI_INDEX_TIMEOUT_SECONDS", "120"))  # Ollama on a CPU is slow
 TUTOR_AI_INDEX_ON_PUBLISH = env_bool("TUTOR_AI_INDEX_ON_PUBLISH", True)  # send right after publishing commits
+
+# AI tutor for students (apps/tutor, design §3, D40).
+TUTOR_TUTOR_DAILY_LIMIT = int(env("TUTOR_TUTOR_DAILY_LIMIT", "50"))  # messages per student per IST day
+TUTOR_AI_TURN_TIMEOUT_SECONDS = float(env("TUTOR_AI_TURN_TIMEOUT_SECONDS", "150"))  # longer than the AI service's own
+TUTOR_AI_REPLY_TOKENS = int(env("TUTOR_AI_REPLY_TOKENS", "250"))
+TUTOR_CHAT_RETENTION_DAYS = int(env("TUTOR_CHAT_RETENTION_DAYS", "90"))
