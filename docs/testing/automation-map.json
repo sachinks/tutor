@@ -1,87 +1,373 @@
 {
   "_about": "Which automated tests cover each manual test case. Keys are TC IDs; values are Django test labels (runnable with `python manage.py test <label> --settings=config.settings.test`) or smoke checks (`smoke:<check id>` local journey, `hosted:<check id>` hosted mode). Keep it current when you add tests or cases; build_test_suite.py reports unknown labels.",
-  "TC-SET-1": ["apps.accounts.tests.HealthTests.test_health", "apps.accounts.tests.HealthTests.test_health_is_503_when_the_database_is_unreachable", "hosted:H1"],
-  "TC-SET-2": ["smoke:S0"],
-  "TC-SET-3": ["apps.accounts.test_api.SecureByDefaultTests.test_docs_page_sends_csrf_token"],
-  "TC-ACC-01": ["apps.accounts.test_api.SignupAndApprovalFlow.test_student_signup_waits_for_parent", "smoke:A1"],
-  "TC-ACC-02": ["apps.accounts.test_api.SignupAndApprovalFlow.test_full_approval", "smoke:A5"],
-  "TC-ACC-03": ["apps.accounts.test_api.LoginAndErrors.test_duplicate_signup"],
-  "TC-ACC-04": ["apps.accounts.test_api.LoginAndErrors.test_validation_error_format"],
-  "TC-ACC-05": ["apps.accounts.test_api.LoginAndErrors.test_login_with_plain_10_digit_mobile", "apps.accounts.tests.LoginTests.test_login_with_email", "apps.accounts.tests.LoginTests.test_login_with_mobile"],
-  "TC-ACC-06": ["apps.accounts.test_api.LoginAndErrors.test_wrong_password", "hosted:X4"],
-  "TC-ACC-08": ["apps.accounts.test_api.LoginAndErrors.test_password_reset"],
-  "TC-ACC-09": ["apps.accounts.test_security.RateLimitTests.test_one_time_code_endpoints_are_rate_limited"],
-  "TC-ACC-10": ["apps.accounts.test_api.LoginAndErrors.test_otp_not_sent_to_unknown_contact"],
-  "TC-CON-01": ["smoke:A6"],
-  "TC-CON-02": ["apps.accounts.test_api.SignupAndApprovalFlow.test_full_approval", "smoke:A7", "smoke:A8"],
-  "TC-CON-03": ["apps.accounts.test_api.SignupAndApprovalFlow.test_parent_must_verify_contact_first"],
-  "TC-CON-06": ["apps.accounts.test_api.SignupAndApprovalFlow.test_not_my_child"],
-  "TC-CON-07": ["apps.accounts.test_api.SignupAndApprovalFlow.test_resend_limit"],
-  "TC-CON-08": ["apps.accounts.test_api.SignupAndApprovalFlow.test_change_parent_contact"],
-  "TC-CON-09": ["apps.accounts.tests.GuardianConsentTests.test_only_one_active_primary_guardian"],
-  "TC-CON-10": ["apps.accounts.test_api.ParentManagesChildren.test_add_child_withdraw_and_restore"],
-  "TC-CON-11": ["apps.accounts.test_api.ParentManagesChildren.test_add_child_withdraw_and_restore", "smoke:P1", "smoke:P2", "smoke:P3", "smoke:P4"],
-  "TC-ADM-04": ["apps.content.tests.AdminPublishingTests.test_lead_publishes_and_it_is_audited", "apps.catalogue.tests.ContentVersionTests.test_publishing_archives_previous"],
-  "TC-ADM-05": ["apps.catalogue.tests.ContentVersionTests.test_only_approved_can_be_published"],
-  "TC-ADM-06": ["apps.content.tests.AdminPublishingTests.test_question_publish_action"],
-  "TC-ADM-07": ["apps.content.tests.RoleAdminTests.test_granting_a_role_is_recorded", "apps.accounts.tests.RoleTests.test_no_duplicate_active_grant"],
-  "TC-ADM-09": ["apps.content.tests.PublishPermissionTests.test_lead_for_subject_and_class", "apps.content.tests.AdminPublishingTests.test_staff_without_role_is_refused"],
-  "TC-ADM-10": ["apps.content.tests.AdminPublishingTests.test_status_cannot_be_typed_in_as_published", "apps.content.tests.AdminPublishingTests.test_published_status_cannot_be_changed_back_in_the_form"],
-  "TC-CAT-01": ["apps.catalogue.tests.CatalogueApiTests.test_facets"],
-  "TC-CAT-02": ["apps.catalogue.tests.CatalogueApiTests.test_items_lists_published_only", "smoke:C1", "hosted:C1"],
-  "TC-CAT-03": ["apps.catalogue.tests.CatalogueApiTests.test_board_filter_keeps_board_independent_courses", "apps.catalogue.tests.CatalogueApiTests.test_class_filter"],
-  "TC-CAT-04": ["apps.catalogue.tests.CatalogueApiTests.test_pagination", "apps.catalogue.test_queries.CatalogueQueryTests.test_items_are_paginated_in_the_database"],
-  "TC-CAT-05": ["apps.catalogue.tests.CatalogueApiTests.test_course_detail", "smoke:C2", "hosted:C2"],
-  "TC-CAT-06": ["apps.catalogue.tests.CatalogueApiTests.test_draft_course_is_404", "hosted:C5"],
-  "TC-CAT-07": ["apps.catalogue.tests.CatalogueApiTests.test_programme_detail"],
-  "TC-CAT-08": ["apps.catalogue.tests.CatalogueApiTests.test_free_lesson_preview", "hosted:C4"],
-  "TC-CAT-09": ["apps.catalogue.tests.CatalogueApiTests.test_paid_lesson_preview_is_blocked"],
-  "TC-LRN-01": ["apps.learning.tests.AccessTests.test_free_lesson_open_without_purchase", "smoke:L1"],
-  "TC-LRN-02": ["apps.learning.tests.AccessTests.test_consent_required", "smoke:A2"],
-  "TC-LRN-03": ["apps.learning.tests.AccessTests.test_paid_lesson_needs_entitlement", "apps.learning.tests.AccessTests.test_programme_entitlement_covers_its_courses"],
-  "TC-LRN-04": ["apps.learning.tests.AccessTests.test_revoked_entitlement"],
-  "TC-QZ-01": ["apps.learning.tests.QuizFlowTests.test_quiz_does_not_leak_answers", "smoke:Q1"],
-  "TC-QZ-02": ["apps.learning.test_queries.LearningQueryTests.test_resume_quiz"],
-  "TC-QZ-03": ["apps.learning.tests.QuizFlowTests.test_full_quiz", "smoke:Q2"],
-  "TC-QZ-04": ["apps.learning.tests.QuizFlowTests.test_full_quiz"],
-  "TC-QZ-05": ["apps.learning.tests.QuizFlowTests.test_full_quiz"],
-  "TC-QZ-06": ["apps.learning.tests.QuizFlowTests.test_full_quiz", "smoke:Q4"],
-  "TC-QZ-07": ["apps.learning.tests.QuizFlowTests.test_full_quiz", "smoke:Q5"],
-  "TC-QZ-08": ["apps.learning.tests.QuizFlowTests.test_other_students_attempt_is_invisible"],
-  "TC-MAS-01": ["apps.learning.tests.MasteryRuleTests.test_levels"],
-  "TC-MAS-02": ["apps.learning.tests.MasteryRuleTests.test_hint_penalty"],
-  "TC-MAS-03": ["apps.learning.tests.QuizFlowTests.test_course_completion_and_today"],
-  "TC-TDY-01": ["apps.learning.tests.QuizFlowTests.test_course_completion_and_today", "smoke:R2"],
-  "TC-TDY-02": ["apps.learning.test_queries.StreakTests.test_streak_stops_at_the_first_gap", "apps.demo.tests.StudyTimeTests.test_study_time_is_10am_ist_and_never_in_the_future"],
-  "TC-REC-01": ["apps.learning.tests.QuizFlowTests.test_full_quiz", "smoke:R1"],
-  "TC-SEC-01": ["apps.accounts.test_api.SecureByDefaultTests.test_protected_endpoints_need_login", "hosted:X1", "hosted:X2"],
-  "TC-SEC-02": ["apps.accounts.test_api.ParentManagesChildren.test_other_parent_cannot_touch_child"],
-  "TC-SEC-04": ["apps.learning.tests.AccessTests.test_consent_required", "smoke:P2"],
-  "TC-SEC-05": ["apps.accounts.tests.TokenAndApprovalTests.test_link_token_stored_only_as_hash"],
-  "TC-SEC-06": ["apps.accounts.tests.GuardianConsentTests.test_consent_record_active_until_withdrawn"],
-  "TC-SEC-07": ["apps.core.tests.AuditLogAdminTests.test_audit_log_is_read_only_even_for_superusers"],
-  "TC-SEC-08": ["apps.catalogue.tests.ContentVersionTests.test_one_published_version_per_lesson", "apps.content.tests.AdminPublishingTests.test_published_status_cannot_be_changed_back_in_the_form"],
-  "TC-SEC-09": ["apps.catalogue.tests.ContentVersionTests.test_reviewer_cannot_be_author"],
-  "TC-SEC-10": ["apps.accounts.test_api.LoginAndErrors.test_otp_not_sent_to_unknown_contact"],
-  "TC-SEC-11": ["apps.accounts.tests.DevToolsAreLockedTests.test_seed_test_accounts_refuses_without_dev_flags", "apps.accounts.tests.DevToolsAreLockedTests.test_dev_outbox_not_mounted_when_debug_off", "hosted:X3"],
-  "TC-SEC-13": ["apps.accounts.test_security.LoginLockoutTests.test_account_locks_after_repeated_wrong_passwords", "apps.accounts.test_security.LoginLockoutTests.test_password_reset_lifts_the_lockout"],
-  "TC-SEC-14": ["apps.accounts.test_security.LoginLockoutTests.test_unknown_accounts_lock_the_same_way"],
-  "TC-SEC-15": ["apps.accounts.test_security.RateLimitTests.test_login_is_rate_limited_per_ip"],
-  "TC-SEC-16": ["apps.accounts.test_security.RateLimitTests.test_forging_x_forwarded_for_does_not_escape_the_limit", "apps.accounts.test_security.ClientIpTests.test_forged_left_entries_are_ignored"],
-  "TC-SEC-17": ["apps.content.tests.AdminPublishingTests.test_staff_without_role_is_refused", "apps.content.tests.PublishPermissionTests.test_reviewer_without_lead_role_cannot_publish"],
-  "TC-SEC-18": ["apps.content.tests.RoleAdminTests.test_staff_cannot_give_themselves_admin_access", "apps.content.tests.RoleAdminTests.test_only_super_admins_grant_roles"],
-  "TC-HOST-01": ["hosted:H1", "hosted:C1", "hosted:X1"],
-  "TC-HOST-02": ["apps.core.tests.RootPageTests.test_root_points_to_the_api", "hosted:H5"],
-  "TC-HOST-03": ["hosted:X3"],
-  "TC-HOST-04": ["hosted:H2", "hosted:H4"],
-  "TC-DEMO-01": ["apps.demo.tests.DemoWorldTests.test_everyone_logs_in_with_the_demo_password"],
-  "TC-DEMO-02": ["apps.demo.tests.DemoWorldTests.test_student_states", "apps.demo.tests.DemoWorldTests.test_paused_student_keeps_history_but_is_blocked"],
-  "TC-DEMO-04": ["apps.demo.tests.DemoWorldTests.test_kabir_sees_his_record_and_a_review_item", "apps.demo.tests.DemoWorldTests.test_learning_history"],
-  "TC-DEMO-05": ["apps.demo.tests.DemoWorldTests.test_learning_history", "apps.demo.tests.DemoWorldTests.test_reset_activity_rebuilds_history"],
-  "TC-DEMO-06": ["apps.demo.tests.DemoWorldTests.test_draft_course_is_hidden_from_the_public_catalogue"],
-  "TC-DEMO-07": ["apps.demo.tests.DemoWorldTests.test_content_waiting_in_every_review_state"],
-  "TC-DEMO-08": ["apps.demo.tests.DemoWorldTests.test_publishing_rights_match_the_roles"],
-  "TC-DEMO-09": ["apps.demo.tests.DemoWorldTests.test_publishing_rights_match_the_roles"],
-  "TC-DEMO-10": ["apps.demo.tests.DemoWorldTests.test_four_product_admins", "apps.content.tests.RoleAdminTests.test_only_super_admins_grant_roles"],
-  "TC-DEMO-11": ["apps.demo.tests.DemoWorldTests.test_content_waiting_in_every_review_state"]
+  "TC-SET-1": [
+    "apps.accounts.tests.HealthTests.test_health",
+    "apps.accounts.tests.HealthTests.test_health_is_503_when_the_database_is_unreachable",
+    "hosted:H1"
+  ],
+  "TC-SET-2": [
+    "smoke:S0"
+  ],
+  "TC-SET-3": [
+    "apps.accounts.test_api.SecureByDefaultTests.test_docs_page_sends_csrf_token",
+    "apps.core.test_authorization.CsrfTests.test_logged_in_post_needs_the_csrf_token"
+  ],
+  "TC-ACC-01": [
+    "apps.accounts.test_api.SignupAndApprovalFlow.test_student_signup_waits_for_parent",
+    "smoke:A1"
+  ],
+  "TC-ACC-02": [
+    "apps.accounts.test_api.SignupAndApprovalFlow.test_full_approval",
+    "smoke:A5"
+  ],
+  "TC-ACC-03": [
+    "apps.accounts.test_api.LoginAndErrors.test_duplicate_signup"
+  ],
+  "TC-ACC-04": [
+    "apps.accounts.test_api.LoginAndErrors.test_validation_error_format",
+    "apps.accounts.test_validation.SignupBoundaryTests.test_class_range_edges",
+    "apps.accounts.test_validation.SignupBoundaryTests.test_wrong_types_and_unknown_board",
+    "apps.accounts.test_validation.SignupBoundaryTests.test_passwords",
+    "apps.accounts.test_validation.SignupBoundaryTests.test_text_fields_are_limited_to_the_database_columns"
+  ],
+  "TC-ACC-05": [
+    "apps.accounts.test_api.LoginAndErrors.test_login_with_plain_10_digit_mobile",
+    "apps.accounts.tests.LoginTests.test_login_with_email",
+    "apps.accounts.tests.LoginTests.test_login_with_mobile"
+  ],
+  "TC-ACC-06": [
+    "apps.accounts.test_api.LoginAndErrors.test_wrong_password",
+    "hosted:X4"
+  ],
+  "TC-ACC-08": [
+    "apps.accounts.test_api.LoginAndErrors.test_password_reset"
+  ],
+  "TC-ACC-09": [
+    "apps.accounts.test_security.RateLimitTests.test_one_time_code_endpoints_are_rate_limited"
+  ],
+  "TC-ACC-10": [
+    "apps.accounts.test_api.LoginAndErrors.test_otp_not_sent_to_unknown_contact"
+  ],
+  "TC-CON-01": [
+    "smoke:A6"
+  ],
+  "TC-CON-02": [
+    "apps.accounts.test_api.SignupAndApprovalFlow.test_full_approval",
+    "smoke:A7",
+    "smoke:A8"
+  ],
+  "TC-CON-03": [
+    "apps.accounts.test_api.SignupAndApprovalFlow.test_parent_must_verify_contact_first"
+  ],
+  "TC-CON-06": [
+    "apps.accounts.test_api.SignupAndApprovalFlow.test_not_my_child"
+  ],
+  "TC-CON-07": [
+    "apps.accounts.test_api.SignupAndApprovalFlow.test_resend_limit"
+  ],
+  "TC-CON-08": [
+    "apps.accounts.test_api.SignupAndApprovalFlow.test_change_parent_contact"
+  ],
+  "TC-CON-09": [
+    "apps.accounts.tests.GuardianConsentTests.test_only_one_active_primary_guardian"
+  ],
+  "TC-CON-10": [
+    "apps.accounts.test_api.ParentManagesChildren.test_add_child_withdraw_and_restore"
+  ],
+  "TC-CON-11": [
+    "apps.accounts.test_api.ParentManagesChildren.test_add_child_withdraw_and_restore",
+    "smoke:P1",
+    "smoke:P2",
+    "smoke:P3",
+    "smoke:P4"
+  ],
+  "TC-ADM-04": [
+    "apps.content.tests.AdminPublishingTests.test_lead_publishes_and_it_is_audited",
+    "apps.catalogue.tests.ContentVersionTests.test_publishing_archives_previous"
+  ],
+  "TC-ADM-05": [
+    "apps.catalogue.tests.ContentVersionTests.test_only_approved_can_be_published"
+  ],
+  "TC-ADM-06": [
+    "apps.content.tests.AdminPublishingTests.test_question_publish_action"
+  ],
+  "TC-ADM-07": [
+    "apps.content.tests.RoleAdminTests.test_granting_a_role_is_recorded",
+    "apps.accounts.tests.RoleTests.test_no_duplicate_active_grant"
+  ],
+  "TC-ADM-09": [
+    "apps.content.tests.PublishPermissionTests.test_lead_for_subject_and_class",
+    "apps.content.tests.AdminPublishingTests.test_staff_without_role_is_refused"
+  ],
+  "TC-ADM-10": [
+    "apps.content.tests.AdminPublishingTests.test_status_cannot_be_typed_in_as_published",
+    "apps.content.tests.AdminPublishingTests.test_published_status_cannot_be_changed_back_in_the_form"
+  ],
+  "TC-CAT-01": [
+    "apps.catalogue.tests.CatalogueApiTests.test_facets"
+  ],
+  "TC-CAT-02": [
+    "apps.catalogue.tests.CatalogueApiTests.test_items_lists_published_only",
+    "smoke:C1",
+    "hosted:C1"
+  ],
+  "TC-CAT-03": [
+    "apps.catalogue.tests.CatalogueApiTests.test_board_filter_keeps_board_independent_courses",
+    "apps.catalogue.tests.CatalogueApiTests.test_class_filter",
+    "apps.learning.test_boundaries.CatalogueParameterTests.test_wrong_types_are_400"
+  ],
+  "TC-CAT-04": [
+    "apps.catalogue.tests.CatalogueApiTests.test_pagination",
+    "apps.catalogue.test_queries.CatalogueQueryTests.test_items_are_paginated_in_the_database",
+    "apps.learning.test_boundaries.CatalogueParameterTests.test_page_numbers_are_clamped"
+  ],
+  "TC-CAT-05": [
+    "apps.catalogue.tests.CatalogueApiTests.test_course_detail",
+    "smoke:C2",
+    "hosted:C2"
+  ],
+  "TC-CAT-06": [
+    "apps.catalogue.tests.CatalogueApiTests.test_draft_course_is_404",
+    "hosted:C5"
+  ],
+  "TC-CAT-07": [
+    "apps.catalogue.tests.CatalogueApiTests.test_programme_detail"
+  ],
+  "TC-CAT-08": [
+    "apps.catalogue.tests.CatalogueApiTests.test_free_lesson_preview",
+    "hosted:C4"
+  ],
+  "TC-CAT-09": [
+    "apps.catalogue.tests.CatalogueApiTests.test_paid_lesson_preview_is_blocked"
+  ],
+  "TC-LRN-01": [
+    "apps.learning.tests.AccessTests.test_free_lesson_open_without_purchase",
+    "smoke:L1"
+  ],
+  "TC-LRN-02": [
+    "apps.learning.tests.AccessTests.test_consent_required",
+    "smoke:A2"
+  ],
+  "TC-LRN-03": [
+    "apps.learning.tests.AccessTests.test_paid_lesson_needs_entitlement",
+    "apps.learning.tests.AccessTests.test_programme_entitlement_covers_its_courses"
+  ],
+  "TC-LRN-04": [
+    "apps.learning.tests.AccessTests.test_revoked_entitlement"
+  ],
+  "TC-QZ-01": [
+    "apps.learning.tests.QuizFlowTests.test_quiz_does_not_leak_answers",
+    "smoke:Q1"
+  ],
+  "TC-QZ-02": [
+    "apps.learning.test_queries.LearningQueryTests.test_resume_quiz"
+  ],
+  "TC-QZ-03": [
+    "apps.learning.tests.QuizFlowTests.test_full_quiz",
+    "smoke:Q2"
+  ],
+  "TC-QZ-04": [
+    "apps.learning.tests.QuizFlowTests.test_full_quiz"
+  ],
+  "TC-QZ-05": [
+    "apps.learning.tests.QuizFlowTests.test_full_quiz"
+  ],
+  "TC-QZ-06": [
+    "apps.learning.tests.QuizFlowTests.test_full_quiz",
+    "smoke:Q4",
+    "apps.learning.test_boundaries.QuizInputTests.test_choice_out_of_range"
+  ],
+  "TC-QZ-07": [
+    "apps.learning.tests.QuizFlowTests.test_full_quiz",
+    "smoke:Q5"
+  ],
+  "TC-QZ-08": [
+    "apps.learning.tests.QuizFlowTests.test_other_students_attempt_is_invisible",
+    "apps.core.test_authorization.LearningAccessMatrixTests.test_nobody_can_touch_another_students_attempt"
+  ],
+  "TC-MAS-01": [
+    "apps.learning.tests.MasteryRuleTests.test_levels"
+  ],
+  "TC-MAS-02": [
+    "apps.learning.tests.MasteryRuleTests.test_hint_penalty"
+  ],
+  "TC-MAS-03": [
+    "apps.learning.tests.QuizFlowTests.test_course_completion_and_today"
+  ],
+  "TC-TDY-01": [
+    "apps.learning.tests.QuizFlowTests.test_course_completion_and_today",
+    "smoke:R2"
+  ],
+  "TC-TDY-02": [
+    "apps.learning.test_queries.StreakTests.test_streak_stops_at_the_first_gap",
+    "apps.demo.tests.StudyTimeTests.test_study_time_is_10am_ist_and_never_in_the_future"
+  ],
+  "TC-REC-01": [
+    "apps.learning.tests.QuizFlowTests.test_full_quiz",
+    "smoke:R1"
+  ],
+  "TC-SEC-01": [
+    "apps.accounts.test_api.SecureByDefaultTests.test_protected_endpoints_need_login",
+    "hosted:X1",
+    "hosted:X2",
+    "apps.core.test_authorization.SecureByDefaultMatrixTests.test_every_operation_is_either_listed_public_or_needs_login"
+  ],
+  "TC-SEC-02": [
+    "apps.accounts.test_api.ParentManagesChildren.test_other_parent_cannot_touch_child",
+    "apps.core.test_authorization.LearningAccessMatrixTests.test_parents_act_only_on_their_own_children"
+  ],
+  "TC-SEC-04": [
+    "apps.learning.tests.AccessTests.test_consent_required",
+    "smoke:P2",
+    "apps.core.test_authorization.LearningAccessMatrixTests.test_quiz_and_finish_follow_the_same_rules"
+  ],
+  "TC-SEC-05": [
+    "apps.accounts.tests.TokenAndApprovalTests.test_link_token_stored_only_as_hash"
+  ],
+  "TC-SEC-06": [
+    "apps.accounts.tests.GuardianConsentTests.test_consent_record_active_until_withdrawn"
+  ],
+  "TC-SEC-07": [
+    "apps.core.tests.AuditLogAdminTests.test_audit_log_is_read_only_even_for_superusers"
+  ],
+  "TC-SEC-08": [
+    "apps.catalogue.tests.ContentVersionTests.test_one_published_version_per_lesson",
+    "apps.content.tests.AdminPublishingTests.test_published_status_cannot_be_changed_back_in_the_form"
+  ],
+  "TC-SEC-09": [
+    "apps.catalogue.tests.ContentVersionTests.test_reviewer_cannot_be_author"
+  ],
+  "TC-SEC-10": [
+    "apps.accounts.test_api.LoginAndErrors.test_otp_not_sent_to_unknown_contact"
+  ],
+  "TC-SEC-11": [
+    "apps.accounts.tests.DevToolsAreLockedTests.test_seed_test_accounts_refuses_without_dev_flags",
+    "apps.accounts.tests.DevToolsAreLockedTests.test_dev_outbox_not_mounted_when_debug_off",
+    "hosted:X3"
+  ],
+  "TC-SEC-13": [
+    "apps.accounts.test_security.LoginLockoutTests.test_account_locks_after_repeated_wrong_passwords",
+    "apps.accounts.test_security.LoginLockoutTests.test_password_reset_lifts_the_lockout"
+  ],
+  "TC-SEC-14": [
+    "apps.accounts.test_security.LoginLockoutTests.test_unknown_accounts_lock_the_same_way"
+  ],
+  "TC-SEC-15": [
+    "apps.accounts.test_security.RateLimitTests.test_login_is_rate_limited_per_ip"
+  ],
+  "TC-SEC-16": [
+    "apps.accounts.test_security.RateLimitTests.test_forging_x_forwarded_for_does_not_escape_the_limit",
+    "apps.accounts.test_security.ClientIpTests.test_forged_left_entries_are_ignored"
+  ],
+  "TC-SEC-17": [
+    "apps.content.tests.AdminPublishingTests.test_staff_without_role_is_refused",
+    "apps.content.tests.PublishPermissionTests.test_reviewer_without_lead_role_cannot_publish"
+  ],
+  "TC-SEC-18": [
+    "apps.content.tests.RoleAdminTests.test_staff_cannot_give_themselves_admin_access",
+    "apps.content.tests.RoleAdminTests.test_only_super_admins_grant_roles"
+  ],
+  "TC-HOST-01": [
+    "hosted:H1",
+    "hosted:C1",
+    "hosted:X1"
+  ],
+  "TC-HOST-02": [
+    "apps.core.tests.RootPageTests.test_root_points_to_the_api",
+    "hosted:H5"
+  ],
+  "TC-HOST-03": [
+    "hosted:X3"
+  ],
+  "TC-HOST-04": [
+    "hosted:H2",
+    "hosted:H4"
+  ],
+  "TC-DEMO-01": [
+    "apps.demo.tests.DemoWorldTests.test_everyone_logs_in_with_the_demo_password"
+  ],
+  "TC-DEMO-02": [
+    "apps.demo.tests.DemoWorldTests.test_student_states",
+    "apps.demo.tests.DemoWorldTests.test_paused_student_keeps_history_but_is_blocked"
+  ],
+  "TC-DEMO-04": [
+    "apps.demo.tests.DemoWorldTests.test_kabir_sees_his_record_and_a_review_item",
+    "apps.demo.tests.DemoWorldTests.test_learning_history"
+  ],
+  "TC-DEMO-05": [
+    "apps.demo.tests.DemoWorldTests.test_learning_history",
+    "apps.demo.tests.DemoWorldTests.test_reset_activity_rebuilds_history"
+  ],
+  "TC-DEMO-06": [
+    "apps.demo.tests.DemoWorldTests.test_draft_course_is_hidden_from_the_public_catalogue"
+  ],
+  "TC-DEMO-07": [
+    "apps.demo.tests.DemoWorldTests.test_content_waiting_in_every_review_state"
+  ],
+  "TC-DEMO-08": [
+    "apps.demo.tests.DemoWorldTests.test_publishing_rights_match_the_roles"
+  ],
+  "TC-DEMO-09": [
+    "apps.demo.tests.DemoWorldTests.test_publishing_rights_match_the_roles"
+  ],
+  "TC-DEMO-10": [
+    "apps.demo.tests.DemoWorldTests.test_four_product_admins",
+    "apps.content.tests.RoleAdminTests.test_only_super_admins_grant_roles"
+  ],
+  "TC-DEMO-11": [
+    "apps.demo.tests.DemoWorldTests.test_content_waiting_in_every_review_state"
+  ],
+  "TC-ACC-07": [
+    "apps.accounts.test_validation.AccountFlowGapTests.test_logout"
+  ],
+  "TC-CON-04": [
+    "apps.accounts.test_validation.AccountFlowGapTests.test_consent_box_must_be_ticked"
+  ],
+  "TC-CON-05": [
+    "apps.accounts.test_api.SignupAndApprovalFlow.test_full_approval"
+  ],
+  "TC-SEC-03": [
+    "apps.accounts.test_validation.AccountFlowGapTests.test_student_cannot_approve_own_account"
+  ],
+  "TC-SEC-12": [
+    "apps.accounts.test_validation.AccountFlowGapTests.test_data_minimisation"
+  ],
+  "TC-LRN-05": [
+    "apps.learning.test_boundaries.LessonFinishTests.test_finish_points_to_the_next_unfinished_lesson"
+  ],
+  "TC-DEMO-03": [
+    "apps.core.test_authorization.LearningAccessMatrixTests.test_matrix"
+  ],
+  "TC-ADM-01": [
+    "apps.accounts.test_validation.AdminFormTests.test_admin_user_search"
+  ],
+  "TC-ADM-02": [
+    "apps.accounts.test_validation.AdminFormTests.test_admin_user_creation_needs_a_contact_and_a_strong_password"
+  ],
+  "TC-ADM-03": [
+    "apps.learning.test_boundaries.AdminLearningTests.test_entitlement_granted_in_admin_opens_paid_lessons"
+  ],
+  "TC-ADM-08": [
+    "apps.learning.test_boundaries.AdminLearningTests.test_mastery_events_are_read_only_in_admin"
+  ],
+  "TC-ERR-01": [
+    "apps.core.test_errors_and_logging.ApiErrorShapeTests.test_error_body_carries_the_request_id",
+    "apps.core.test_errors_and_logging.RequestIdTests.test_generated_and_returned"
+  ],
+  "TC-ERR-02": [
+    "apps.core.test_errors_and_logging.ApiErrorShapeTests.test_unknown_api_url_is_json_404"
+  ],
+  "TC-ERR-03": [
+    "apps.accounts.test_validation.SignupBoundaryTests.test_malformed_json_is_a_400"
+  ],
+  "TC-ERR-04": [
+    "apps.accounts.test_validation.SignupBoundaryTests.test_text_fields_are_limited_to_the_database_columns",
+    "apps.accounts.test_validation.SignupBoundaryTests.test_huge_login_password_is_refused_before_hashing"
+  ],
+  "TC-LOG-01": [
+    "apps.core.test_errors_and_logging.RotatingLogTests.test_rotating_files_when_a_log_dir_is_set"
+  ],
+  "TC-LOG-02": [
+    "apps.core.test_errors_and_logging.MessagingSecretsTests.test_hosted_mode_never_logs_or_keeps_the_text"
+  ]
 }

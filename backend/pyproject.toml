@@ -17,6 +17,7 @@ known-first-party = ["apps", "config"]
 "**/test_*.py" = ["E501", "S105", "S106", "S107"]
 # The smoke test is a client script: a throwaway password and random test phone numbers are intended.
 "qa/smoke_test.py" = ["S105", "S311"]
+"qa/locustfile.py" = ["S311"]  # random choice of demo pages, not cryptography
 "apps/core/testing.py" = ["S105", "S106"]
 
 # Test coverage (quality backlog Q5). Run through dev.sh or CI: coverage run manage.py test ...; coverage report

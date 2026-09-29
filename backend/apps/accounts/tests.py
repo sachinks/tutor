@@ -57,7 +57,11 @@ class HealthTests(TestCase):
 
         broken = mock.Mock()
         broken.cursor.side_effect = RuntimeError("database down")
-        with mock.patch("config.api.connection", broken), self.assertLogs("config.api", level="ERROR"):
+        with (
+            mock.patch("config.api.connection", broken),
+            self.assertLogs("config.api", level="ERROR"),
+            self.assertLogs("django.request", level="ERROR"),
+        ):
             response = self.client.get("/api/v1/health")
         self.assertEqual(response.status_code, 503)
         self.assertEqual(response.json(), {"ok": False, "db": False})

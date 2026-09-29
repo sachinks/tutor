@@ -13,7 +13,11 @@ that works. Known gaps are tracked, not hidden, in [quality-backlog.md](quality-
   "reviewer ≠ author", "email or mobile".
 - **Auth:** endpoints are protected by default. Public endpoints must say `auth=None` on the router or operation, and
   need a test proving anonymous access is intended.
-- **Errors:** raise `apps.core.errors.ApiError(status, code, message, fields)`. Never return ad-hoc error shapes.
+- **Errors:** raise `apps.core.errors.ApiError(status, code, message, fields)`. Never return ad-hoc error shapes, and
+  don't catch exceptions just to hide them: unexpected errors reach the global handler, which logs the traceback once
+  and returns `500 server_error` with the request ID. Catch only what you can handle, and re-raise with `from`.
+- **Logging:** `logging.getLogger(__name__)`; never log passwords, codes, tokens, message text or personal data (log
+  IDs instead). Files only locally (`TUTOR_LOG_DIR`); hosted instances log to the console.
 - **Money** in integer paise; **IDs** in URLs as UUIDs; **time** stored in UTC, "today" computed in IST.
 - **Published content is immutable.** Change = new version.
 - **No secrets in code.** Read configuration through `config/settings/base.py` helpers from environment variables.

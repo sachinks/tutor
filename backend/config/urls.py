@@ -19,3 +19,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/", api.urls),
 ]
+
+# Unknown URLs and errors outside the API handlers still answer in the API's error shape under /api/.
+handler404 = "apps.core.errors.json_404"
+handler500 = "apps.core.errors.json_500"

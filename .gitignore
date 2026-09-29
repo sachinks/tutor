@@ -220,3 +220,7 @@ __marimo__/
 # TUTOR
 backend/staticfiles/
 .last_run.log
+
+# Local rotating log files (TUTOR_LOG_DIR); keep only the placeholder
+backend/logs/*
+!backend/logs/.gitkeep

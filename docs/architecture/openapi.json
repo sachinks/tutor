@@ -1,0 +1,2857 @@
+{
+  "components": {
+    "schemas": {
+      "AddChildIn": {
+        "properties": {
+          "board_code": {
+            "maxLength": 10,
+            "minLength": 1,
+            "title": "Board Code",
+            "type": "string"
+          },
+          "city": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "City",
+            "type": "string"
+          },
+          "class_number": {
+            "title": "Class Number",
+            "type": "integer"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "maxLength": 254,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "full_name": {
+            "maxLength": 150,
+            "minLength": 1,
+            "title": "Full Name",
+            "type": "string"
+          },
+          "mobile": {
+            "anyOf": [
+              {
+                "maxLength": 254,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mobile"
+          },
+          "password": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Password",
+            "type": "string"
+          },
+          "relationship": {
+            "default": "guardian",
+            "enum": [
+              "mother",
+              "father",
+              "guardian",
+              "other"
+            ],
+            "title": "Relationship",
+            "type": "string"
+          },
+          "school_name": {
+            "default": "",
+            "maxLength": 150,
+            "title": "School Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "full_name",
+          "password",
+          "class_number",
+          "board_code",
+          "city"
+        ],
+        "title": "AddChildIn",
+        "type": "object"
+      },
+      "AnswerIn": {
+        "properties": {
+          "choice_index": {
+            "title": "Choice Index",
+            "type": "integer"
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "position",
+          "choice_index"
+        ],
+        "title": "AnswerIn",
+        "type": "object"
+      },
+      "AnswerResultOut": {
+        "properties": {
+          "correct": {
+            "title": "Correct",
+            "type": "boolean"
+          },
+          "correct_index": {
+            "title": "Correct Index",
+            "type": "integer"
+          },
+          "explanation": {
+            "title": "Explanation",
+            "type": "string"
+          },
+          "mastery": {
+            "$ref": "#/components/schemas/MasteryBrief"
+          },
+          "misconception": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Misconception"
+          }
+        },
+        "required": [
+          "correct",
+          "correct_index",
+          "explanation",
+          "mastery"
+        ],
+        "title": "AnswerResultOut",
+        "type": "object"
+      },
+      "ApproveIn": {
+        "properties": {
+          "accept": {
+            "title": "Accept",
+            "type": "boolean"
+          },
+          "relationship": {
+            "default": "guardian",
+            "enum": [
+              "mother",
+              "father",
+              "guardian",
+              "other"
+            ],
+            "title": "Relationship",
+            "type": "string"
+          }
+        },
+        "required": [
+          "accept"
+        ],
+        "title": "ApproveIn",
+        "type": "object"
+      },
+      "AttemptOut": {
+        "properties": {
+          "attempt_id": {
+            "format": "uuid",
+            "title": "Attempt Id",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ItemOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "lesson_id": {
+            "format": "uuid",
+            "title": "Lesson Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "attempt_id",
+          "lesson_id",
+          "items"
+        ],
+        "title": "AttemptOut",
+        "type": "object"
+      },
+      "BoardOut": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "name"
+        ],
+        "title": "BoardOut",
+        "type": "object"
+      },
+      "ChildOut": {
+        "properties": {
+          "class_number": {
+            "title": "Class Number",
+            "type": "integer"
+          },
+          "full_name": {
+            "title": "Full Name",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "full_name",
+          "class_number",
+          "status"
+        ],
+        "title": "ChildOut",
+        "type": "object"
+      },
+      "ClassOut": {
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "number": {
+            "title": "Number",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "number",
+          "label"
+        ],
+        "title": "ClassOut",
+        "type": "object"
+      },
+      "CompletedCourseOut": {
+        "properties": {
+          "completed_at": {
+            "format": "date-time",
+            "title": "Completed At",
+            "type": "string"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug",
+          "title",
+          "completed_at"
+        ],
+        "title": "CompletedCourseOut",
+        "type": "object"
+      },
+      "ConsentLinkOut": {
+        "properties": {
+          "child_first_name": {
+            "title": "Child First Name",
+            "type": "string"
+          },
+          "class_label": {
+            "title": "Class Label",
+            "type": "string"
+          },
+          "consent_text": {
+            "title": "Consent Text",
+            "type": "string"
+          },
+          "consent_version": {
+            "title": "Consent Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "child_first_name",
+          "class_label",
+          "consent_version",
+          "consent_text"
+        ],
+        "title": "ConsentLinkOut",
+        "type": "object"
+      },
+      "CourseOut": {
+        "properties": {
+          "boards": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Boards",
+            "type": "array"
+          },
+          "class_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Class Number"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "includes_ai_tutor": {
+            "default": true,
+            "title": "Includes Ai Tutor",
+            "type": "boolean"
+          },
+          "modules": {
+            "items": {
+              "$ref": "#/components/schemas/ModuleOut"
+            },
+            "title": "Modules",
+            "type": "array"
+          },
+          "path_stage": {
+            "title": "Path Stage",
+            "type": "integer"
+          },
+          "path_stage_label": {
+            "title": "Path Stage Label",
+            "type": "string"
+          },
+          "price_paise": {
+            "title": "Price Paise",
+            "type": "integer"
+          },
+          "skills": {
+            "items": {
+              "$ref": "#/components/schemas/SkillOut"
+            },
+            "title": "Skills",
+            "type": "array"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "track": {
+            "title": "Track",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "title",
+          "summary",
+          "subject",
+          "track",
+          "path_stage",
+          "path_stage_label",
+          "price_paise",
+          "boards",
+          "skills",
+          "modules"
+        ],
+        "title": "CourseOut",
+        "type": "object"
+      },
+      "DisciplineOut": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          },
+          "subjects": {
+            "items": {
+              "$ref": "#/components/schemas/NamedOut"
+            },
+            "title": "Subjects",
+            "type": "array"
+          }
+        },
+        "required": [
+          "slug",
+          "name",
+          "subjects"
+        ],
+        "title": "DisciplineOut",
+        "type": "object"
+      },
+      "FacetsOut": {
+        "properties": {
+          "boards": {
+            "items": {
+              "$ref": "#/components/schemas/BoardOut"
+            },
+            "title": "Boards",
+            "type": "array"
+          },
+          "classes": {
+            "items": {
+              "$ref": "#/components/schemas/ClassOut"
+            },
+            "title": "Classes",
+            "type": "array"
+          },
+          "disciplines": {
+            "items": {
+              "$ref": "#/components/schemas/DisciplineOut"
+            },
+            "title": "Disciplines",
+            "type": "array"
+          },
+          "stages": {
+            "items": {
+              "$ref": "#/components/schemas/StageOut"
+            },
+            "title": "Stages",
+            "type": "array"
+          }
+        },
+        "required": [
+          "disciplines",
+          "boards",
+          "classes",
+          "stages"
+        ],
+        "title": "FacetsOut",
+        "type": "object"
+      },
+      "FinishOut": {
+        "properties": {
+          "course_completed": {
+            "title": "Course Completed",
+            "type": "boolean"
+          },
+          "finished": {
+            "title": "Finished",
+            "type": "boolean"
+          },
+          "next_lesson_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Lesson Id"
+          }
+        },
+        "required": [
+          "finished",
+          "course_completed"
+        ],
+        "title": "FinishOut",
+        "type": "object"
+      },
+      "HintOut": {
+        "properties": {
+          "hint": {
+            "title": "Hint",
+            "type": "string"
+          },
+          "hints_left": {
+            "title": "Hints Left",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "hint",
+          "hints_left"
+        ],
+        "title": "HintOut",
+        "type": "object"
+      },
+      "ItemOut": {
+        "properties": {
+          "answered": {
+            "title": "Answered",
+            "type": "boolean"
+          },
+          "hints_available": {
+            "title": "Hints Available",
+            "type": "integer"
+          },
+          "hints_used": {
+            "title": "Hints Used",
+            "type": "integer"
+          },
+          "options": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Options",
+            "type": "array"
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "stem": {
+            "title": "Stem",
+            "type": "string"
+          }
+        },
+        "required": [
+          "position",
+          "stem",
+          "options",
+          "hints_available",
+          "hints_used",
+          "answered"
+        ],
+        "title": "ItemOut",
+        "type": "object"
+      },
+      "ItemPageOut": {
+        "properties": {
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/ItemOut"
+            },
+            "title": "Results",
+            "type": "array"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "results",
+          "page",
+          "page_size",
+          "total"
+        ],
+        "title": "ItemPageOut",
+        "type": "object"
+      },
+      "LessonBrief": {
+        "properties": {
+          "course_title": {
+            "title": "Course Title",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "course_title"
+        ],
+        "title": "LessonBrief",
+        "type": "object"
+      },
+      "LessonCardOut": {
+        "properties": {
+          "est_minutes": {
+            "title": "Est Minutes",
+            "type": "integer"
+          },
+          "has_content": {
+            "title": "Has Content",
+            "type": "boolean"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "is_free": {
+            "title": "Is Free",
+            "type": "boolean"
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "position",
+          "est_minutes",
+          "is_free",
+          "has_content"
+        ],
+        "title": "LessonCardOut",
+        "type": "object"
+      },
+      "LessonOut": {
+        "properties": {
+          "course_slug": {
+            "title": "Course Slug",
+            "type": "string"
+          },
+          "course_title": {
+            "title": "Course Title",
+            "type": "string"
+          },
+          "has_quiz": {
+            "title": "Has Quiz",
+            "type": "boolean"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "module_title": {
+            "title": "Module Title",
+            "type": "string"
+          },
+          "sections": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Sections",
+            "type": "array"
+          },
+          "skills": {
+            "items": {
+              "$ref": "#/components/schemas/SkillBrief"
+            },
+            "title": "Skills",
+            "type": "array"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "version_no": {
+            "title": "Version No",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "course_slug",
+          "course_title",
+          "module_title",
+          "version_no",
+          "sections",
+          "skills",
+          "has_quiz"
+        ],
+        "title": "LessonOut",
+        "type": "object"
+      },
+      "LessonPreviewOut": {
+        "properties": {
+          "course_slug": {
+            "title": "Course Slug",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "sections": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Sections",
+            "type": "array"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "version_no": {
+            "title": "Version No",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "course_slug",
+          "version_no",
+          "sections"
+        ],
+        "title": "LessonPreviewOut",
+        "type": "object"
+      },
+      "LoginIn": {
+        "properties": {
+          "identifier": {
+            "maxLength": 254,
+            "minLength": 1,
+            "title": "Identifier",
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "identifier",
+          "password"
+        ],
+        "title": "LoginIn",
+        "type": "object"
+      },
+      "MasteryBrief": {
+        "properties": {
+          "level": {
+            "title": "Level",
+            "type": "string"
+          },
+          "score": {
+            "title": "Score",
+            "type": "number"
+          },
+          "skill": {
+            "title": "Skill",
+            "type": "string"
+          }
+        },
+        "required": [
+          "skill",
+          "level",
+          "score"
+        ],
+        "title": "MasteryBrief",
+        "type": "object"
+      },
+      "MasteryOut": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "evidence": {
+            "title": "Evidence",
+            "type": "integer"
+          },
+          "level": {
+            "title": "Level",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "score": {
+            "title": "Score",
+            "type": "number"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "subject",
+          "level",
+          "score",
+          "evidence"
+        ],
+        "title": "MasteryOut",
+        "type": "object"
+      },
+      "MeOut": {
+        "properties": {
+          "account_type": {
+            "title": "Account Type",
+            "type": "string"
+          },
+          "children": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ChildOut"
+            },
+            "title": "Children",
+            "type": "array"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "maxLength": 254,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "email_verified": {
+            "title": "Email Verified",
+            "type": "boolean"
+          },
+          "full_name": {
+            "title": "Full Name",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "mobile": {
+            "anyOf": [
+              {
+                "maxLength": 254,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mobile"
+          },
+          "mobile_verified": {
+            "title": "Mobile Verified",
+            "type": "boolean"
+          },
+          "parent": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ParentOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "roles": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/RoleOut"
+            },
+            "title": "Roles",
+            "type": "array"
+          },
+          "student": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StudentOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "full_name",
+          "email_verified",
+          "mobile_verified",
+          "account_type"
+        ],
+        "title": "MeOut",
+        "type": "object"
+      },
+      "ModuleOut": {
+        "properties": {
+          "lessons": {
+            "items": {
+              "$ref": "#/components/schemas/LessonCardOut"
+            },
+            "title": "Lessons",
+            "type": "array"
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "position",
+          "lessons"
+        ],
+        "title": "ModuleOut",
+        "type": "object"
+      },
+      "NamedOut": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug",
+          "name"
+        ],
+        "title": "NamedOut",
+        "type": "object"
+      },
+      "OkOut": {
+        "properties": {
+          "message": {
+            "default": "",
+            "title": "Message",
+            "type": "string"
+          },
+          "ok": {
+            "default": true,
+            "title": "Ok",
+            "type": "boolean"
+          }
+        },
+        "title": "OkOut",
+        "type": "object"
+      },
+      "OtpSendIn": {
+        "properties": {
+          "destination": {
+            "maxLength": 254,
+            "minLength": 1,
+            "title": "Destination",
+            "type": "string"
+          },
+          "purpose": {
+            "enum": [
+              "verify_contact",
+              "login",
+              "reset_password"
+            ],
+            "title": "Purpose",
+            "type": "string"
+          }
+        },
+        "required": [
+          "destination",
+          "purpose"
+        ],
+        "title": "OtpSendIn",
+        "type": "object"
+      },
+      "OtpVerifyIn": {
+        "properties": {
+          "code": {
+            "maxLength": 10,
+            "minLength": 1,
+            "title": "Code",
+            "type": "string"
+          },
+          "destination": {
+            "maxLength": 254,
+            "minLength": 1,
+            "title": "Destination",
+            "type": "string"
+          },
+          "purpose": {
+            "enum": [
+              "verify_contact",
+              "login",
+              "reset_password"
+            ],
+            "title": "Purpose",
+            "type": "string"
+          }
+        },
+        "required": [
+          "destination",
+          "purpose",
+          "code"
+        ],
+        "title": "OtpVerifyIn",
+        "type": "object"
+      },
+      "ParentContactIn": {
+        "properties": {
+          "parent_contact": {
+            "maxLength": 254,
+            "minLength": 1,
+            "title": "Parent Contact",
+            "type": "string"
+          }
+        },
+        "required": [
+          "parent_contact"
+        ],
+        "title": "ParentContactIn",
+        "type": "object"
+      },
+      "ParentOut": {
+        "properties": {
+          "notify_by": {
+            "title": "Notify By",
+            "type": "string"
+          },
+          "preferred_language": {
+            "title": "Preferred Language",
+            "type": "string"
+          }
+        },
+        "required": [
+          "preferred_language",
+          "notify_by"
+        ],
+        "title": "ParentOut",
+        "type": "object"
+      },
+      "ParentSignupIn": {
+        "properties": {
+          "email": {
+            "anyOf": [
+              {
+                "maxLength": 254,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "full_name": {
+            "maxLength": 150,
+            "minLength": 1,
+            "title": "Full Name",
+            "type": "string"
+          },
+          "mobile": {
+            "anyOf": [
+              {
+                "maxLength": 254,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mobile"
+          },
+          "password": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Password",
+            "type": "string"
+          },
+          "preferred_language": {
+            "default": "en",
+            "maxLength": 10,
+            "minLength": 2,
+            "title": "Preferred Language",
+            "type": "string"
+          }
+        },
+        "required": [
+          "full_name",
+          "password"
+        ],
+        "title": "ParentSignupIn",
+        "type": "object"
+      },
+      "PasswordResetIn": {
+        "properties": {
+          "code": {
+            "maxLength": 10,
+            "minLength": 1,
+            "title": "Code",
+            "type": "string"
+          },
+          "destination": {
+            "maxLength": 254,
+            "minLength": 1,
+            "title": "Destination",
+            "type": "string"
+          },
+          "new_password": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "New Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "destination",
+          "code",
+          "new_password"
+        ],
+        "title": "PasswordResetIn",
+        "type": "object"
+      },
+      "PositionIn": {
+        "properties": {
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "position"
+        ],
+        "title": "PositionIn",
+        "type": "object"
+      },
+      "ProgrammeCourseOut": {
+        "properties": {
+          "price_paise": {
+            "title": "Price Paise",
+            "type": "integer"
+          },
+          "required": {
+            "title": "Required",
+            "type": "boolean"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug",
+          "title",
+          "required",
+          "price_paise"
+        ],
+        "title": "ProgrammeCourseOut",
+        "type": "object"
+      },
+      "ProgrammeOut": {
+        "properties": {
+          "class_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Class Number"
+          },
+          "courses": {
+            "items": {
+              "$ref": "#/components/schemas/ProgrammeCourseOut"
+            },
+            "title": "Courses",
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "path_stage": {
+            "title": "Path Stage",
+            "type": "integer"
+          },
+          "path_stage_label": {
+            "title": "Path Stage Label",
+            "type": "string"
+          },
+          "price_paise": {
+            "title": "Price Paise",
+            "type": "integer"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "title",
+          "summary",
+          "path_stage",
+          "path_stage_label",
+          "price_paise",
+          "courses"
+        ],
+        "title": "ProgrammeOut",
+        "type": "object"
+      },
+      "QuizHistoryOut": {
+        "properties": {
+          "lesson_title": {
+            "title": "Lesson Title",
+            "type": "string"
+          },
+          "max_score": {
+            "title": "Max Score",
+            "type": "integer"
+          },
+          "score": {
+            "title": "Score",
+            "type": "integer"
+          },
+          "submitted_at": {
+            "format": "date-time",
+            "title": "Submitted At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "lesson_title",
+          "score",
+          "max_score",
+          "submitted_at"
+        ],
+        "title": "QuizHistoryOut",
+        "type": "object"
+      },
+      "RecordOut": {
+        "properties": {
+          "completed_courses": {
+            "items": {
+              "$ref": "#/components/schemas/CompletedCourseOut"
+            },
+            "title": "Completed Courses",
+            "type": "array"
+          },
+          "lessons_finished": {
+            "title": "Lessons Finished",
+            "type": "integer"
+          },
+          "mastery": {
+            "items": {
+              "$ref": "#/components/schemas/MasteryOut"
+            },
+            "title": "Mastery",
+            "type": "array"
+          },
+          "quizzes": {
+            "items": {
+              "$ref": "#/components/schemas/QuizHistoryOut"
+            },
+            "title": "Quizzes",
+            "type": "array"
+          }
+        },
+        "required": [
+          "mastery",
+          "completed_courses",
+          "quizzes",
+          "lessons_finished"
+        ],
+        "title": "RecordOut",
+        "type": "object"
+      },
+      "ReviewOut": {
+        "properties": {
+          "lesson_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lesson Id"
+          },
+          "level": {
+            "title": "Level",
+            "type": "string"
+          },
+          "skill_code": {
+            "title": "Skill Code",
+            "type": "string"
+          },
+          "skill_name": {
+            "title": "Skill Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "skill_code",
+          "skill_name",
+          "level"
+        ],
+        "title": "ReviewOut",
+        "type": "object"
+      },
+      "RoleOut": {
+        "properties": {
+          "class_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Class Number"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject"
+          }
+        },
+        "required": [
+          "role"
+        ],
+        "title": "RoleOut",
+        "type": "object"
+      },
+      "SkillBrief": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "name"
+        ],
+        "title": "SkillBrief",
+        "type": "object"
+      },
+      "SkillChangeOut": {
+        "properties": {
+          "after": {
+            "title": "After",
+            "type": "number"
+          },
+          "before": {
+            "title": "Before",
+            "type": "number"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "skill": {
+            "title": "Skill",
+            "type": "string"
+          }
+        },
+        "required": [
+          "skill",
+          "name",
+          "before",
+          "after"
+        ],
+        "title": "SkillChangeOut",
+        "type": "object"
+      },
+      "SkillOut": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "name"
+        ],
+        "title": "SkillOut",
+        "type": "object"
+      },
+      "StageOut": {
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "stage": {
+            "title": "Stage",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "stage",
+          "label"
+        ],
+        "title": "StageOut",
+        "type": "object"
+      },
+      "StudentOut": {
+        "properties": {
+          "board": {
+            "title": "Board",
+            "type": "string"
+          },
+          "city": {
+            "title": "City",
+            "type": "string"
+          },
+          "class_number": {
+            "title": "Class Number",
+            "type": "integer"
+          },
+          "school_name": {
+            "title": "School Name",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "class_number",
+          "board",
+          "city",
+          "school_name",
+          "status"
+        ],
+        "title": "StudentOut",
+        "type": "object"
+      },
+      "StudentSignupIn": {
+        "properties": {
+          "board_code": {
+            "maxLength": 10,
+            "minLength": 1,
+            "title": "Board Code",
+            "type": "string"
+          },
+          "city": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "City",
+            "type": "string"
+          },
+          "class_number": {
+            "title": "Class Number",
+            "type": "integer"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "maxLength": 254,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "full_name": {
+            "maxLength": 150,
+            "minLength": 1,
+            "title": "Full Name",
+            "type": "string"
+          },
+          "mobile": {
+            "anyOf": [
+              {
+                "maxLength": 254,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mobile"
+          },
+          "parent_contact": {
+            "maxLength": 254,
+            "minLength": 1,
+            "title": "Parent Contact",
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Password",
+            "type": "string"
+          },
+          "school_name": {
+            "default": "",
+            "maxLength": 150,
+            "title": "School Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "full_name",
+          "password",
+          "class_number",
+          "board_code",
+          "city",
+          "parent_contact"
+        ],
+        "title": "StudentSignupIn",
+        "type": "object"
+      },
+      "SubmitOut": {
+        "properties": {
+          "course_completed": {
+            "title": "Course Completed",
+            "type": "boolean"
+          },
+          "max_score": {
+            "title": "Max Score",
+            "type": "integer"
+          },
+          "next_lesson_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Lesson Id"
+          },
+          "score": {
+            "title": "Score",
+            "type": "integer"
+          },
+          "skill_changes": {
+            "items": {
+              "$ref": "#/components/schemas/SkillChangeOut"
+            },
+            "title": "Skill Changes",
+            "type": "array"
+          }
+        },
+        "required": [
+          "score",
+          "max_score",
+          "skill_changes",
+          "course_completed"
+        ],
+        "title": "SubmitOut",
+        "type": "object"
+      },
+      "TodayOut": {
+        "properties": {
+          "next_lesson": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LessonBrief"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "next_session": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Session"
+          },
+          "review": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReviewOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "streak_days": {
+            "title": "Streak Days",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "streak_days"
+        ],
+        "title": "TodayOut",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "SessionAuth": {
+        "in": "cookie",
+        "name": "sessionid",
+        "type": "apiKey"
+      }
+    }
+  },
+  "info": {
+    "description": "Django platform API used by the TUTOR web app.",
+    "title": "TUTOR API",
+    "version": "1.0.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/attempts/{attempt_id}/answers": {
+      "post": {
+        "operationId": "apps_assessment_api_answer",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "attempt_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Attempt Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnswerIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswerResultOut"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ],
+        "summary": "Answer",
+        "tags": [
+          "quiz"
+        ]
+      }
+    },
+    "/api/v1/attempts/{attempt_id}/hint": {
+      "post": {
+        "operationId": "apps_assessment_api_hint",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "attempt_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Attempt Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PositionIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HintOut"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ],
+        "summary": "Hint",
+        "tags": [
+          "quiz"
+        ]
+      }
+    },
+    "/api/v1/attempts/{attempt_id}/submit": {
+      "post": {
+        "operationId": "apps_assessment_api_submit",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "attempt_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Attempt Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitOut"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ],
+        "summary": "Submit",
+        "tags": [
+          "quiz"
+        ]
+      }
+    },
+    "/api/v1/auth/csrf": {
+      "get": {
+        "description": "Sets the CSRF cookie; the web app sends the token back in the X-CSRFToken header.",
+        "operationId": "apps_accounts_api_csrf",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Csrf",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "operationId": "apps_accounts_api_do_login",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeOut"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Do Login",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "operationId": "apps_accounts_api_do_logout",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ],
+        "summary": "Do Logout",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/otp/send": {
+      "post": {
+        "operationId": "apps_accounts_api_otp_send",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OtpSendIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Otp Send",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/otp/verify": {
+      "post": {
+        "operationId": "apps_accounts_api_otp_verify",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OtpVerifyIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeOut"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Otp Verify",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/password/reset": {
+      "post": {
+        "operationId": "apps_accounts_api_password_reset",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordResetIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Password Reset",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/signup/parent": {
+      "post": {
+        "operationId": "apps_accounts_api_signup_parent",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParentSignupIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeOut"
+                }
+              }
+            },
+            "description": "Created"
+          }
+        },
+        "summary": "Signup Parent",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/signup/student": {
+      "post": {
+        "operationId": "apps_accounts_api_signup_student",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentSignupIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeOut"
+                }
+              }
+            },
+            "description": "Created"
+          }
+        },
+        "summary": "Signup Student",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/catalogue/facets": {
+      "get": {
+        "operationId": "apps_catalogue_api_facets",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FacetsOut"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Facets",
+        "tags": [
+          "catalogue"
+        ]
+      }
+    },
+    "/api/v1/catalogue/items": {
+      "get": {
+        "description": "Courses, then programmes, as one paginated list. Board-independent items (no class) match any class or board.\n\nProgrammes have no subject, so a subject filter returns courses only.",
+        "operationId": "apps_catalogue_api_items",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "course",
+                    "programme"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Type"
+            }
+          },
+          {
+            "in": "query",
+            "name": "class_number",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Class Number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "board",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Board"
+            }
+          },
+          {
+            "in": "query",
+            "name": "subject",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Subject"
+            }
+          },
+          {
+            "in": "query",
+            "name": "stage",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Stage"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemPageOut"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Items",
+        "tags": [
+          "catalogue"
+        ]
+      }
+    },
+    "/api/v1/consent/link/{token}": {
+      "get": {
+        "operationId": "apps_accounts_api_link_details",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "title": "Token",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentLinkOut"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Link Details",
+        "tags": [
+          "consent"
+        ]
+      }
+    },
+    "/api/v1/consent/link/{token}/approve": {
+      "post": {
+        "operationId": "apps_accounts_api_approve",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "title": "Token",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApproveIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ],
+        "summary": "Approve",
+        "tags": [
+          "consent"
+        ]
+      }
+    },
+    "/api/v1/consent/link/{token}/report": {
+      "post": {
+        "operationId": "apps_accounts_api_report",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "title": "Token",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Report",
+        "tags": [
+          "consent"
+        ]
+      }
+    },
+    "/api/v1/consent/requests/parent-contact": {
+      "patch": {
+        "operationId": "apps_accounts_api_change_parent_contact",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParentContactIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ],
+        "summary": "Change Parent Contact",
+        "tags": [
+          "consent"
+        ]
+      }
+    },
+    "/api/v1/consent/requests/resend": {
+      "post": {
+        "operationId": "apps_accounts_api_resend",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ],
+        "summary": "Resend",
+        "tags": [
+          "consent"
+        ]
+      }
+    },
+    "/api/v1/courses/{slug}": {
+      "get": {
+        "operationId": "apps_catalogue_api_course_detail",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "title": "Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseOut"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Course Detail",
+        "tags": [
+          "catalogue"
+        ]
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "description": "Health check for Render: 200 when the app is up and can reach the database, 503 otherwise.\n\nThe status code matters: Render only switches traffic to a new version whose health check succeeds.",
+        "operationId": "config_api_health",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Health",
+        "tags": [
+          "system"
+        ]
+      }
+    },
+    "/api/v1/lessons/{lesson_id}": {
+      "get": {
+        "operationId": "apps_learning_api_open_lesson",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "lesson_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Lesson Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonOut"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ],
+        "summary": "Open Lesson",
+        "tags": [
+          "learning"
+        ]
+      }
+    },
+    "/api/v1/lessons/{lesson_id}/finish": {
+      "post": {
+        "operationId": "apps_learning_api_finish_lesson",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "lesson_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Lesson Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinishOut"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ],
+        "summary": "Finish Lesson",
+        "tags": [
+          "learning"
+        ]
+      }
+    },
+    "/api/v1/lessons/{lesson_id}/preview": {
+      "get": {
+        "description": "Free-module lessons only, without the AI tutor (decision Q5).",
+        "operationId": "apps_catalogue_api_lesson_preview",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "lesson_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Lesson Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonPreviewOut"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Lesson Preview",
+        "tags": [
+          "catalogue"
+        ]
+      }
+    },
+    "/api/v1/lessons/{lesson_id}/quiz/start": {
+      "post": {
+        "operationId": "apps_assessment_api_start_quiz",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "lesson_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Lesson Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptOut"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ],
+        "summary": "Start Quiz",
+        "tags": [
+          "quiz"
+        ]
+      }
+    },
+    "/api/v1/me": {
+      "get": {
+        "operationId": "apps_accounts_api_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeOut"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ],
+        "summary": "Me",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/parent/children": {
+      "post": {
+        "operationId": "apps_accounts_api_add_child",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddChildIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChildOut"
+                }
+              }
+            },
+            "description": "Created"
+          }
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ],
+        "summary": "Add Child",
+        "tags": [
+          "parent"
+        ]
+      }
+    },
+    "/api/v1/parent/children/{child_id}/consent/restore": {
+      "post": {
+        "operationId": "apps_accounts_api_restore",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "child_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Child Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ],
+        "summary": "Restore",
+        "tags": [
+          "parent"
+        ]
+      }
+    },
+    "/api/v1/parent/children/{child_id}/consent/withdraw": {
+      "post": {
+        "operationId": "apps_accounts_api_withdraw",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "child_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Child Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ],
+        "summary": "Withdraw",
+        "tags": [
+          "parent"
+        ]
+      }
+    },
+    "/api/v1/programmes/{slug}": {
+      "get": {
+        "description": "Pro-rata price for courses a student already completed arrives with the learner record (C1).",
+        "operationId": "apps_catalogue_api_programme_detail",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "title": "Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProgrammeOut"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Programme Detail",
+        "tags": [
+          "catalogue"
+        ]
+      }
+    },
+    "/api/v1/student/record": {
+      "get": {
+        "description": "The student's own learner record. (Parents get their own view in the parent API.)",
+        "operationId": "apps_learning_api_record",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordOut"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ],
+        "summary": "Record",
+        "tags": [
+          "learning"
+        ]
+      }
+    },
+    "/api/v1/student/today": {
+      "get": {
+        "operationId": "apps_learning_api_today",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TodayOut"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ],
+        "summary": "Today",
+        "tags": [
+          "learning"
+        ]
+      }
+    }
+  },
+  "servers": []
+}

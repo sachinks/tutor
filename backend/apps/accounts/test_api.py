@@ -166,7 +166,7 @@ class LoginAndErrors(ApiTestCase):
     def test_otp_not_sent_to_unknown_contact(self):
         res = post(Client(), "/auth/otp/send", {"destination": "9811111111", "purpose": "login"})
         self.assertEqual(res.status_code, 200)
-        self.assertEqual(messaging.OUTBOX, [])
+        self.assertEqual(list(messaging.OUTBOX), [])
 
     def test_password_reset(self):
         self.signup_student()

@@ -53,6 +53,8 @@ jobs:
           DJANGO_HSTS_SECONDS: "31536000"
           TUTOR_TRUSTED_PROXIES: "1"
         run: python manage.py check --deploy --fail-level WARNING
+      - name: API contract is committed and current (docs/architecture/openapi.json)
+        run: python manage.py export_openapi --check
       - name: Test suite sources are consistent (cases, automation map, test labels)
         run: python qa/build_test_suite.py --check
       - name: Dependency vulnerability scan
