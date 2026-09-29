@@ -279,6 +279,7 @@ def test_blocked_messages_get_a_fixed_reply_without_retrieval_or_a_model(databas
     names, deltas, final = split(events)
     assert names == ["meta", "final"] and deltas == ""
     assert final["blocked"] and final["text"] == POLICY.reply(reply)
+    assert final["message"] == message
     assert final["safety"]["input"]["severity"] == severity and final["safety"]["input"]["flagged"]
     assert final["flags"][0]["stage"] == "input"
     assert provider.chats == [] and provider.embeds == 0
@@ -291,6 +292,7 @@ def test_personal_data_never_reaches_the_model_or_the_events(database_url, world
     assert provider.chats[0]["messages"][-1].content == "my phone is [phone hidden], what do leaves make?"
     assert final["text"].startswith(POLICY.reply("personal_data"))
     assert final["safety"]["personal_data"] == ["phone"]
+    assert final["message"] == "my phone is [phone hidden], what do leaves make?"
     assert {"stage": "input", "category": "personal_data", "severity": "medium", "flagged": True} in final["flags"]
     assert "9876543210" not in json.dumps(events)
 

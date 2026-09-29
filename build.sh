@@ -25,3 +25,6 @@ fi
 # Bring the AI tutor's lesson index in step with published content. A no-op without TUTOR_AI_URL; an unreachable
 # AI service is a warning, not a failed deploy (docs/architecture/ai-service.md §5).
 python manage.py sync_ai_index
+
+# Delete tutor chats past their retention period (D40). Production also runs this daily.
+python manage.py purge_tutor_chats

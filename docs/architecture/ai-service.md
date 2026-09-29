@@ -225,7 +225,7 @@ How it is built (step 4b, D39):
 | Streaming guard | `StreamGuard` | Model text is released with a lag longer than any protected answer or phrase; a protected quiz answer (whole words, any case/punctuation) or a high/critical phrase stops generation and nothing of it reaches the student; `final.text` is the fixed fallback and `final.replaced` is true. |
 | Grounding | `grounding_score` | Share of the reply's content words found in the passages and the student's message; below `TUTOR_AI_GROUNDING_MIN` (0.2) the reply is kept but flagged `ungrounded` (low). Replacement is decided with evals, because small local models paraphrase heavily. |
 | Off-topic | `tutor_ai/tutor.py` | On later turns, a message below the relevance threshold for every pinned passage triggers one course-wide search; if nothing relevant is found the student gets the fixed redirect (no model call, not flagged). |
-| Turn endpoint | `POST /v1/tutor/turns` | SSE: `meta` {chat_id, model, provider, prompt_version, safety_version, mode, pinned_chunk_ids} → `delta` {text}… → `final` {text, blocked, replaced, off_topic, citations[{label, chunk_id, heading}], safety{input, output, personal_data, grounding}, flags[], context{pinned_chunk_ids, repinned, extra_retrieval, similarity}, usage, latency_ms, model, prompt_version, safety_version, mode}; or `error` {code: provider_unavailable \| provider_timeout \| provider_error \| timeout \| lesson_not_indexed \| server_error}. Invalid requests are `400` before streaming. A blocked message is a normal `final` (the student sees the kind reply), not an error. |
+| Turn endpoint | `POST /v1/tutor/turns` | SSE: `meta` {chat_id, model, provider, prompt_version, safety_version, mode, pinned_chunk_ids} → `delta` {text}… → `final` {text, message (the student's message with personal data hidden, for Django to store), blocked, replaced, off_topic, citations[{label, chunk_id, heading}], safety{input, output, personal_data, grounding}, flags[], context{pinned_chunk_ids, repinned, extra_retrieval, similarity}, usage, latency_ms, model, prompt_version, safety_version, mode}; or `error` {code: provider_unavailable \| provider_timeout \| provider_error \| timeout \| lesson_not_indexed \| server_error}. Invalid requests are `400` before streaming. A blocked message is a normal `final` (the student sees the kind reply), not an error. |
 | Timeouts | `TUTOR_AI_TURN_TIMEOUT_SECONDS` (120) | A deadline for the whole reply, enforced per chunk so it never cancels anything outside the stream; the model stream is always closed. |
 | Safety check | `POST /v1/safety/check` | `{category, severity, flagged}` for a text (not stored). |
 
@@ -304,6 +304,8 @@ branch coverage ≥ 90%, pip-audit, and a separate CI job.
 2. **Done.** Provider interface with `mock` (hashed embeddings, rule-based tutor) and `ollama`.
 3. **Done.** Chunker + index endpoints + index status; Django outbox + `sync_ai_index` (D37).
 4. **Done.** Retrieval + prompt builder + tutor turn over SSE + safety rules + quiz guard (4a: D38, 4b: D39).
-5. Django `tutor` app: endpoints, limits, storage, relay, parent-visible flags; smoke checks.
+5. Django `tutor` app. **5a done:** endpoints, access (consent + enrolment, not the free module), daily limit, quiz
+   guard, SSE relay, storage of the final event only, safety flags + helplines, admin safety queue, 90-day retention
+   (D40). 5b: parent view of flagged chats and topics, smoke checks.
 6. Eval runner + first golden sets; Render `tutor-ai` service.
 7. Later: short-answer grading, author assist, weekly parent summaries.

@@ -46,7 +46,7 @@ IDs are stable; reference them in tickets and tests.
 
 | ID | Requirement | Status |
 |---|---|---|
-| FR-AI-1 | Tutor modes Explain / Socratic / Hint, grounded in published lesson content with cited sections | Planned |
+| FR-AI-1 | Tutor modes Explain / Socratic / Hint, grounded in published lesson content with cited sections | Implemented (API; web screens later) |
 | FR-AI-2 | Daily message limit per student (default 50, admin-adjustable) | Planned |
 | FR-AI-3 | Safety check on every message; flags routed to operations | Planned |
 | FR-COM-1 | Razorpay checkout; entitlement created **only** from a signature-verified webhook | Planned |

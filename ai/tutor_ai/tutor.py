@@ -309,6 +309,7 @@ class TutorService:
             flags.append({"stage": "output", "category": "ungrounded", "severity": "low", "flagged": False})
         return {
             "text": text.strip(),
+            "message": decision.text,  # the student's message as stored: personal data already hidden
             "blocked": blocked,
             "replaced": replaced,
             "off_topic": off_topic,
