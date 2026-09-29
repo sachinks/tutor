@@ -16,6 +16,7 @@ from .db import create_engine
 from .errors import install_error_handlers
 from .logging_config import configure_logging
 from .middleware import RequestContextMiddleware
+from .prompts import PromptError, PromptRegistry, sync_prompts
 from .providers import ModelProvider, build_provider
 from .settings import Settings, get_settings
 
@@ -26,12 +27,20 @@ def create_app(settings: Settings | None = None, provider: ModelProvider | None 
     settings = settings or get_settings()
     if settings.environment != "test":  # tests keep pytest's log capture; everything else logs JSON to stdout
         configure_logging(settings.log_level)
+    prompts = PromptRegistry.load(settings.prompts_dir)  # a malformed prompt file stops the service here
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         app.state.settings = settings
         app.state.engine = create_engine(settings.database_url.get_secret_value())
         app.state.provider = provider or build_provider(settings)
+        app.state.prompts = prompts
+        try:
+            await sync_prompts(app.state.engine, prompts)
+        except PromptError:
+            raise  # an edited prompt version must never answer students
+        except Exception:  # database unreachable: start anyway (health reports it); the next start records them
+            logger.warning("could not record prompt versions", exc_info=True)
         logger.info(
             "started",
             extra={"version": __version__, "environment": settings.environment, "provider": app.state.provider.name},

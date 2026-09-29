@@ -20,4 +20,5 @@ async def whoami(request: Request) -> dict[str, object]:
         "chat_model": provider.chat_model,
         "embedding_model": provider.embedding_model,
         "dimensions": provider.dimensions,
+        "prompts": request.app.state.prompts.active_refs(),
     }
