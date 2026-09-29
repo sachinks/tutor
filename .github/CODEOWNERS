@@ -1,0 +1,3 @@
+# Every change to the repository needs a review from the product owner (decision D26).
+# With "Require review from Code Owners" on in the ruleset, GitHub requests this review automatically.
+* @sachinks

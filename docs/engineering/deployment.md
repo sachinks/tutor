@@ -4,7 +4,7 @@
 [`render.yaml`](../../render.yaml) and [`build.sh`](../../build.sh), with Neon Postgres (Singapore).
 Hosted URL: `https://tutor-platform-ovlg.onrender.com` (free tier: the first request after idle takes up to a minute).
 After each deploy, run the smoke test against it:
-`python qa/smoke_test.py --base https://tutor-platform-ovlg.onrender.com` (from `backend/`).
+`python qa/smoke_test.py --hosted --base https://tutor-platform-ovlg.onrender.com` (from `backend/`). Hosted mode is read-only: it creates no accounts and needs no tester tools (health, HTTPS and security headers, public catalogue, anonymous access refused, tester tools off). The full sign-up → consent → quiz journey runs only locally (`python qa/smoke_test.py`).
 The AI service, worker and web app below are still planned.
 
 ## Target
@@ -15,7 +15,7 @@ The AI service, worker and web app below are still planned.
 | AI service | Render web service (root directory `ai/`) | Reachable only with the service token |
 | Worker | Render background worker | Indexing, messages, scheduled deletions |
 | Web app | Render (or static hosting) from `web/` | |
-| Database | Neon PostgreSQL + pgvector | Use Neon's pooled connection string from Render |
+| Database | Neon PostgreSQL + pgvector | Direct (non-pooled) connection string; project `tutor`, branch `production`, database `tutor`, role `tutor_owner`, pgvector 0.8.0 |
 
 Render's free Postgres is **not** used: free instances expire after 30 days.
 
@@ -44,7 +44,7 @@ passes (`autoDeployTrigger: checksPass`) and switches traffic only when the new 
 |---|---|
 | `DJANGO_SETTINGS_MODULE` | `config.settings.prod` |
 | `DJANGO_SECRET_KEY` | long random string (never reuse dev's) |
-| `DATABASE_URL` | Neon pooled connection string |
+| `DATABASE_URL` | Neon **direct** (non-pooled) connection string: hostname without `-pooler`, `sslmode=require`. Direct because migrations run on every deploy and Django uses session-level Postgres features the transaction pooler breaks; with 2 gunicorn workers we need ~2 connections |
 | `DJANGO_ALLOWED_HOSTS` | `api.tutor.org.in` (demo: `tutor-platform-ovlg.onrender.com`; a wrong value makes every request `400`) |
 | `DJANGO_CSRF_TRUSTED_ORIGINS` | `https://tutor.org.in,https://app.tutor.org.in` |
 | `DJANGO_COOKIE_DOMAIN` | `.tutor.org.in` |
