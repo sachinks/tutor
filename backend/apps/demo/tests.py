@@ -262,3 +262,67 @@ class DemoWorldTests(TestCase):
         self.assertFalse(Attempt.objects.filter(student=user("kabir")).exists())
         call_command("seed_demo", "--reset-activity", stdout=StringIO())
         self.assertEqual(streak_days(user("zoya")), 5)
+
+
+@override_settings(TUTOR_DEMO_DATA=True, TUTOR_DEMO_PASSWORD="")
+class TesterAccountTests(TestCase):
+    """create_tester_accounts: personal, clean, enrolled students with one-time passwords."""
+
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_demo", stdout=StringIO())  # content only (no demo password)
+
+    def run_command(self, *args):
+        from django.db import connection
+
+        host = connection.settings_dict.get("HOST") or "localhost"
+        out = StringIO()
+        call_command("create_tester_accounts", *args, "--confirm-host", host, stdout=out)
+        return out.getvalue()
+
+    def passwords(self, output):
+        rows = [line.split() for line in output.splitlines() if line.startswith("tester")]
+        return {row[0]: row[2] for row in rows}
+
+    def test_creates_active_enrolled_students_with_working_passwords(self):
+        creds = self.passwords(self.run_command("--count", "3"))
+        self.assertEqual(set(creds), {"tester1@test.tutor", "tester2@test.tutor", "tester3@test.tutor"})
+        self.assertEqual(len(set(creds.values())), 3)  # all different
+        for email, password in creds.items():
+            self.assertGreaterEqual(len(password), 16)
+            user = authenticate(None, username=email, password=password)
+            self.assertIsNotNone(user, email)
+            self.assertEqual(user.student_profile.status, "active")
+        client = Client()
+        client.force_login(
+            User.objects.get(email="tester1@test.tutor"), backend="apps.accounts.backends.EmailOrMobileBackend"
+        )
+        paid = Lesson.objects.get(slug="solving-linear-equations")  # Maths 8, paid module
+        self.assertEqual(client.get(f"/api/v1/lessons/{paid.id}").status_code, 200)
+
+    def test_rerun_keeps_passwords_unless_asked(self):
+        first = self.passwords(self.run_command("--count", "2"))
+        again = self.run_command("--count", "2")
+        self.assertIn("(unchanged", again)
+        self.assertIsNotNone(authenticate(None, username="tester1@test.tutor", password=first["tester1@test.tutor"]))
+        rotated = self.passwords(self.run_command("--count", "2", "--reset-passwords"))
+        self.assertNotEqual(rotated["tester1@test.tutor"], first["tester1@test.tutor"])
+        self.assertIsNone(authenticate(None, username="tester1@test.tutor", password=first["tester1@test.tutor"]))
+        self.assertEqual(User.objects.filter(email__regex=r"^tester[0-9]+@").count(), 2)
+
+    def test_guards(self):
+        with self.assertRaises(CommandError):
+            call_command("create_tester_accounts", "--confirm-host", "some-other-host.neon.tech", stdout=StringIO())
+        with override_settings(TUTOR_DEMO_DATA=False), self.assertRaises(CommandError):
+            self.run_command()
+        with self.assertRaises(CommandError):
+            self.run_command("--count", "0")
+        self.assertFalse(User.objects.filter(email__regex=r"^tester[0-9]+@").exists())
+
+    def test_passwords_are_never_logged(self):
+        with self.assertLogs(level="DEBUG") as logs:
+            import logging
+
+            logging.getLogger("tutor.check").debug("marker")  # assertLogs needs at least one record
+            creds = self.passwords(self.run_command("--count", "1"))
+        self.assertNotIn(creds["tester1@test.tutor"], "\n".join(logs.output))
