@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     "apps.learning",
     "apps.commerce",
     "apps.operations",
+    "apps.aiservice",
     "apps.demo",
 ]
 
@@ -153,3 +154,10 @@ LOGGING = build_logging(LOG_LEVEL, TUTOR_LOG_DIR)
 
 # Keep and log the full text of outgoing SMS/email (codes, links). Local development and tests only.
 TUTOR_KEEP_MESSAGES = env_bool("TUTOR_KEEP_MESSAGES", False)
+
+# AI service (docs/architecture/ai-service.md). An empty URL means "no AI service in this environment" (the hosted
+# demo today): publishing still queues index requests, and sync_ai_index reports how many are waiting.
+TUTOR_AI_URL = env("TUTOR_AI_URL", "").strip().rstrip("/")
+TUTOR_AI_SERVICE_TOKEN = env("TUTOR_AI_SERVICE_TOKEN", "")
+TUTOR_AI_INDEX_TIMEOUT_SECONDS = float(env("TUTOR_AI_INDEX_TIMEOUT_SECONDS", "120"))  # Ollama on a CPU is slow
+TUTOR_AI_INDEX_ON_PUBLISH = env_bool("TUTOR_AI_INDEX_ON_PUBLISH", True)  # send right after publishing commits

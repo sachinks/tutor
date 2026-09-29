@@ -54,9 +54,9 @@ All endpoints are versioned under `/v1`, JSON over HTTPS, OpenAPI-documented. Ev
 | Method | Path | Purpose | Response |
 |---|---|---|---|
 | GET | `/health` | Liveness + database + provider reachability | `200` / `503` |
-| PUT | `/v1/lessons/{lesson_id}/index` | Index one published lesson version (body: version id, course, subject, class, sections) | `200 {chunks, embedding_model}`; replaces any older version's chunks atomically |
-| DELETE | `/v1/lessons/{lesson_id}/index` | Remove a retired lesson | `204` |
-| GET | `/v1/index/status` | Indexed `lesson_id → version_id, embedding_model` for reconciliation | `200` |
+| PUT | `/v1/lessons/{lesson_id}/index` | Index one published lesson version (body: `content_version_id`, `version_no`, `course_id`, `subject`, `class_number`, `title`, `sections`) | `200 {chunks, embedding_model, status: indexed\|unchanged}`; replaces the lesson's chunks atomically; `409 stale_version` if a newer version is indexed; `409 idempotency_conflict` if the key was used for another request |
+| DELETE | `/v1/lessons/{lesson_id}/index?up_to_version=N` | Remove a lesson that is no longer published (`up_to_version`: refuse if a newer version is indexed) | `204` (also when it wasn't indexed) |
+| GET | `/v1/index/status` | Every indexed lesson with `content_version_id`, `version_no`, `embedding_model`, `chunks`, plus the service's current `embedding_model` | `200` |
 | POST | `/v1/tutor/turns` | One tutor turn (below) | `text/event-stream` |
 | POST | `/v1/safety/check` | Classify a text (used by Django for parent-visible content later) | `200 {category, severity}` |
 | POST | `/v1/grading/short-answer` | *(after tutor)* marks against a rubric | `200 {marks, feedback, confidence}` |
@@ -111,9 +111,14 @@ without monkey-patching. Changing embedding model changes vector dimensions and 
 **What is indexed:** only the currently **published** version of each lesson (M6). Draft, in-review and archived
 content never reaches the tutor.
 
-**Chunking:** one chunk per lesson section (`heading + blocks`, as in DATA_MODEL). Sections longer than ~300 tokens
-are split on paragraph boundaries with ~40 tokens of overlap; each chunk keeps its lesson, section heading, position and
-content version. Chunk text is stored exactly as published so citations can be shown verbatim.
+**Chunking** (`ai/tutor_ai/chunking.py`, pure functions): one chunk per lesson section (`heading + blocks`, as in
+DATA_MODEL). Sections longer than 300 tokens are split on paragraph boundaries; a paragraph that is too long on
+sentences; a sentence that is still too long on words. Consecutive chunks of a section overlap by up to 40 tokens of
+whole paragraphs or closing sentences, never half a sentence. Images contribute their alt text as `[Image: …]`;
+blocks without text are skipped. Chunk text is stored exactly as published so citations can be shown verbatim; what
+is embedded is `title — heading` + text, which makes short passages easier to find. Token counts are an estimate
+(words + punctuation): the limits serve retrieval precision, not a model limit, so the chunker doesn't depend on
+any one model's tokenizer.
 
 **Storage (schema `ai`, managed by Alembic migrations in `ai/`):**
 
@@ -132,6 +137,21 @@ publishes content (transactional outbox), then, after commit, calls `PUT /v1/les
 outbox and are retried by `manage.py sync_ai_index`, which also compares `/v1/index/status` with the published
 versions and fixes any difference. `build.sh` runs it on every deploy (Render's free tier has no background worker or
 cron), so a missed call is repaired at the next deploy at the latest, and an admin can trigger it at any time.
+
+How it is built (step 3, D37):
+
+| Part | Where | Behaviour |
+|---|---|---|
+| Outbox | `backend/apps/aiservice/models.py` `IndexRequest` | Says only *which lesson changed*; the sender reads the lesson's current state when sending (index its published version, or delete it). At most one pending request per lesson (DB constraint); a change while pending bumps `generation`. |
+| Sending | `apps/aiservice/indexing.py` | Claims a request with a 5-minute lease, calls the AI service outside any transaction, completes it only if `generation` is unchanged (otherwise it stays pending and is re-sent with the new content). Idempotency key `django-ir{id}-g{generation}-{action}-{version}`, stable across retries. |
+| Retries | same | Retryable: network errors, timeouts, 5xx, 429, 401 (token rotation). Backoff 30 s doubling to 1 h; failed after 8 attempts. Other 4xx fail at once (`retryable=False`) and are not re-queued by reconciliation until the content changes. `409 stale_version` counts as done. An unreachable service stops the run so an outage doesn't use up attempts. |
+| Reconciliation | `sync_ai_index` | Queues lessons missing from the index, indexed with an older version or another embedding model, or indexed but no longer published. Lessons already queued keep their backoff. |
+| Guards in the AI service | `ai/tutor_ai/indexing.py` | Embeddings computed before the transaction; delete + insert in one transaction under a per-lesson advisory lock; the stale-version check repeated under the lock; replayed keys return the original result; a failed attempt is recorded in `index_event` and can be retried with the same key. |
+| Admin | Admin → AI service → Index requests | Read-only history with a "queue again" action. |
+
+Settings (Django): `TUTOR_AI_URL` (empty = no AI service; requests just queue), `TUTOR_AI_SERVICE_TOKEN` (≥ 32
+characters, checked by `manage.py check`), `TUTOR_AI_INDEX_TIMEOUT_SECONDS` (default 120), `TUTOR_AI_INDEX_ON_PUBLISH`
+(default true: send straight after the publish commits).
 
 **Retrieval:** the query is embedded as `query`, then cosine search restricted to the same course and embedding model,
 top 4, with a minimum similarity. Results below the threshold mean "off-topic" (§7).
@@ -255,7 +275,7 @@ branch coverage ≥ 90%, pip-audit, and a separate CI job.
 
 1. **Done.** `ai/` skeleton: FastAPI app, settings, auth, health, JSON logging, Alembic with schema `ai`, CI job, quality gates.
 2. **Done.** Provider interface with `mock` (hashed embeddings, rule-based tutor) and `ollama`.
-3. Chunker + index endpoints + index status; Django outbox + `sync_ai_index`.
+3. **Done.** Chunker + index endpoints + index status; Django outbox + `sync_ai_index` (D37).
 4. Retrieval + prompt builder + tutor turn over SSE + safety rules + quiz guard.
 5. Django `tutor` app: endpoints, limits, storage, relay, parent-visible flags; smoke checks.
 6. Eval runner + first golden sets; Render `tutor-ai` service.

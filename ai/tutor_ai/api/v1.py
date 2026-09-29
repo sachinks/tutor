@@ -1,11 +1,13 @@
 """Version 1 of the internal API, called only by the Django platform (design §3). Every route needs the service
-token. Endpoints arrive step by step (design §14): indexing in step 3, tutor turns in step 4."""
+token. Endpoints arrive step by step (design §14): indexing (step 3), tutor turns (step 4)."""
 
 from fastapi import APIRouter, Depends, Request
 
 from ..security import require_service_token
+from . import index
 
 router = APIRouter(prefix="/v1", dependencies=[Depends(require_service_token)])
+router.include_router(index.router)
 
 
 @router.get("/whoami", tags=["system"])

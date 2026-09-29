@@ -46,6 +46,7 @@ def insert_chunk(conn, **overrides):
     values = {
         "lesson_id": uuid.uuid4(),
         "content_version_id": uuid.uuid4(),
+        "version_no": 1,
         "course_id": uuid.uuid4(),
         "subject": "ai-foundations",
         "class_number": None,
@@ -66,7 +67,7 @@ def insert_chunk(conn, **overrides):
 def test_constraints_protect_the_data(database_url):
     with connect(database_url) as conn:
         first = insert_chunk(conn)
-        for bad in ({"position": -1}, {"token_count": 0}, {"embedding": "[0.1,0.2]"}):
+        for bad in ({"position": -1}, {"token_count": 0}, {"version_no": 0}, {"embedding": "[0.1,0.2]"}):
             with pytest.raises(psycopg.Error):
                 insert_chunk(conn, **bad)
         with pytest.raises(psycopg.errors.UniqueViolation):

@@ -40,6 +40,7 @@ AREAS = {
     "admin": "Admin",
     "demo-and-hosted": "Demo world & hosted",
     "errors-and-logs": "Errors & logs",
+    "ai-index": "AI lesson index",
 }
 STATUSES = ["Not run", "Pass", "Fail", "Blocked", "N/A"]
 HEADER_RE = re.compile(r"^\*\*(TC-[A-Z]+-\d+) · (.+?) · (P[1-3])(?: · (.+?))?\*\*\s*$")

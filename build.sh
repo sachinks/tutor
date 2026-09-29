@@ -21,3 +21,7 @@ python manage.py ensure_superuser # first admin from DJANGO_SUPERUSER_* env vars
 if [ "${TUTOR_DEMO_DATA:-false}" = "true" ]; then
   python manage.py seed_demo
 fi
+
+# Bring the AI tutor's lesson index in step with published content. A no-op without TUTOR_AI_URL; an unreachable
+# AI service is a warning, not a failed deploy (docs/architecture/ai-service.md §5).
+python manage.py sync_ai_index
