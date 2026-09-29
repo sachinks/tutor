@@ -7,6 +7,7 @@ DEBUG = False
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")  # Render terminates HTTPS
 SECURE_SSL_REDIRECT = env_bool("DJANGO_SECURE_SSL_REDIRECT", True)
+SECURE_REDIRECT_EXEMPT = [r"^api/v1/health$"]  # platform health checks may arrive over plain HTTP inside Render
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_DOMAIN = env("DJANGO_COOKIE_DOMAIN")  # e.g. ".tutor.org.in"; None = auto (OK for single-domain deploys)

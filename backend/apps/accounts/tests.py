@@ -51,6 +51,17 @@ class HealthTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"ok": True, "db": True})
 
+    def test_health_is_503_when_the_database_is_unreachable(self):
+        """Render must see a failing status, or a broken deploy would receive traffic."""
+        from unittest import mock
+
+        broken = mock.Mock()
+        broken.cursor.side_effect = RuntimeError("database down")
+        with mock.patch("config.api.connection", broken), self.assertLogs("config.api", level="ERROR"):
+            response = self.client.get("/api/v1/health")
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.json(), {"ok": False, "db": False})
+
 
 # ---------------------------------------------------------------------------
 # Profiles, guardians, consent, approvals, roles
