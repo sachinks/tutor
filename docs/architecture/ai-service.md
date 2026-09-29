@@ -295,7 +295,7 @@ branch coverage ≥ 90%, pip-audit, and a separate CI job.
 | Environment | AI service | Provider | Database |
 |---|---|---|---|
 | Local | `uvicorn` on port 8001 in WSL | `ollama` (or `mock`) | local Postgres, schema `ai` |
-| Hosted demo (Render free) | second free web service `tutor-ai`, internal URL only, deploys after CI | `mock` | same Neon database, role limited to schema `ai` |
+| Hosted demo (Render free) | second free web service `tutor-ai`, public https URL protected by the service token (free instances can't receive private-network traffic, D41), deploys after CI, sleeps when idle (first request after a pause waits for it to wake) | `mock` | same Neon database, role `tutor_ai` limited to schema `ai` |
 | Production | paid instance | `hosted` | production Neon project |
 
 ## 14. Build order

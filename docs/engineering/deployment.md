@@ -62,3 +62,35 @@ passes (`autoDeployTrigger: checksPass`) and switches traffic only when the new 
 - [ ] Deployed to staging and smoke-tested (sign-up → approval → lesson → quiz)
 - [ ] Production deploy; health check green; smoke test repeated
 - [ ] Rollback plan: redeploy the previous commit; migrations must be backward compatible for one release
+
+## AI service on the hosted demo (D41)
+
+One-time set-up, in this order. Passwords and tokens go only into the Neon SQL editor and Render; never into git,
+chat or files.
+
+1. **Neon role.** In the Neon SQL editor, connected as the owner role, run (replace `<password>` with a fresh random
+   value from `python3 -c "import secrets; print(secrets.token_urlsafe(32))"`):
+
+   ```sql
+   CREATE EXTENSION IF NOT EXISTS vector;
+   CREATE ROLE tutor_ai WITH LOGIN PASSWORD '<password>';
+   GRANT CONNECT ON DATABASE tutor TO tutor_ai;
+   CREATE SCHEMA IF NOT EXISTS ai AUTHORIZATION tutor_ai;
+   ```
+
+   The role can create and use tables only in schema `ai`; Django's tables in `public` stay out of its reach (M7).
+   Build its **direct** (non-pooled) connection string: the owner's string with `tutor_ai:<password>` as user and
+   password.
+2. **Render service `tutor-ai`.** It is defined in `render.yaml` (the Blueprint), so merging it to `main` makes
+   Render create the service (Blueprint → sync). Then open `tutor-ai` → Environment and set the two secret values:
+   `AI_DATABASE_URL` (step 1) and `TUTOR_AI_SERVICE_TOKEN` (a new random value, ≥ 32 characters), and deploy. Until
+   they are set its first deploy fails, which is expected. `https://<service>.onrender.com/health` then answers
+   `{"ok": true, "db": true, "provider": "mock", "provider_ok": true}`.
+3. **Django.** On `tutor-platform` add `TUTOR_AI_URL` (the https URL from step 2) and the same
+   `TUTOR_AI_SERVICE_TOKEN`. The redeploy runs `sync_ai_index`, which indexes every published lesson: the deploy log
+   shows `Reconciled: … published, 0 indexed, … queued` and `Sent: … done`.
+4. **Check.** As an enrolled demo student, start a tutor chat and send a message (TC-AIT-01). The first message after
+   the AI service has slept can take up to a minute.
+
+Rotating the token: set `TUTOR_AI_SERVICE_TOKEN_PREVIOUS` on `tutor-ai` to the old value and a new
+`TUTOR_AI_SERVICE_TOKEN` on both services; remove `…_PREVIOUS` after both have redeployed.
