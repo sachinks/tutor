@@ -65,6 +65,7 @@ def test_v1_needs_the_service_token(database_url):
         "chat_model": "mock-tutor-v1",
         "embedding_model": "mock-hashed-bow-v1",
         "dimensions": 768,
+        "prompts": {"tutor": "v1"},
     }
 
 

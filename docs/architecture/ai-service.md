@@ -184,6 +184,18 @@ contains a protected answer.
 reply ≤ 250; larger for the hosted provider. Prompts are files in `ai/prompts/<name>/<version>.md`, loaded into
 `prompt_version` with a checksum; every reply records `model` and `prompt_version`.
 
+How it is built (step 4a, D38):
+
+| Part | Where | Behaviour |
+|---|---|---|
+| Prompt registry | `ai/prompts/tutor/v1.md`, `tutor_ai/prompts.py` | Sections `## @system`, `@explain`, `@socratic`, `@hint`, `@quiz_guard`, `@context`; `$placeholders` checked per section at start-up (a malformed file stops the service). Highest version is active. Each version's text (comments excluded) is stored with a SHA-256 checksum; an edited version stops the service, so changes always go in a new file. Values (lesson text, student messages) are substituted, never parsed as template text. |
+| Retrieval | `tutor_ai/retrieval.py` | `pin_context` at chat start: the whole lesson if it fits the context budget, otherwise its passages closest to the first question, kept in lesson order; then the most similar passages from other lessons of the same course above the relevance threshold. `passages_by_id` reloads pinned passages in order on later turns; `best_similarity` measures whether a new message is still on the pinned context. Only the current embedding model's vectors are compared; `hnsw.ef_search = 100` so course filtering keeps enough candidates. |
+| Relevance threshold | `TUTOR_AI_MIN_SIMILARITY` | Default per provider until evals calibrate it: mock 0.10, ollama 0.45 (a guess to be measured), others 0.50. |
+| Prompt builder | `tutor_ai/prompt_builder.py` | system (rules + mode + quiz guard + `[P1]…` passages) → last `TUTOR_AI_HISTORY_TURNS` turns within `TUTOR_AI_HISTORY_TOKENS` → new message. An open quiz forces Hint mode. Same inputs → byte-identical system message on every turn. |
+
+Settings: `TUTOR_AI_CONTEXT_TOKENS` 600, `TUTOR_AI_HISTORY_TURNS` 6, `TUTOR_AI_HISTORY_TOKENS` 900,
+`TUTOR_AI_REPLY_TOKENS` 250, `TUTOR_AI_RETRIEVAL_TOP_K` 4, `TUTOR_AI_PROMPTS_DIR` (default `ai/prompts`).
+
 ## 7. Safety (children's platform)
 
 Two checks per turn, before and after the model:
@@ -276,7 +288,8 @@ branch coverage ≥ 90%, pip-audit, and a separate CI job.
 1. **Done.** `ai/` skeleton: FastAPI app, settings, auth, health, JSON logging, Alembic with schema `ai`, CI job, quality gates.
 2. **Done.** Provider interface with `mock` (hashed embeddings, rule-based tutor) and `ollama`.
 3. **Done.** Chunker + index endpoints + index status; Django outbox + `sync_ai_index` (D37).
-4. Retrieval + prompt builder + tutor turn over SSE + safety rules + quiz guard.
+4. Retrieval + prompt builder + tutor turn over SSE + safety rules + quiz guard. **4a done** (prompt registry,
+   retrieval, prompt builder); 4b: safety checks, quiz guard on output, `POST /v1/tutor/turns` over SSE.
 5. Django `tutor` app: endpoints, limits, storage, relay, parent-visible flags; smoke checks.
 6. Eval runner + first golden sets; Render `tutor-ai` service.
 7. Later: short-answer grading, author assist, weekly parent summaries.

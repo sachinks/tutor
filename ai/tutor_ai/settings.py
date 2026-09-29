@@ -9,7 +9,8 @@ from typing import Literal
 from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-REPO_ENV = Path(__file__).resolve().parent.parent.parent / ".env"  # tutor/.env, shared with Django locally
+AI_DIR = Path(__file__).resolve().parent.parent  # tutor/ai
+REPO_ENV = AI_DIR.parent / ".env"  # tutor/.env, shared with Django locally
 
 ProviderName = Literal["mock", "ollama", "hosted"]
 
@@ -30,6 +31,18 @@ class Settings(BaseSettings):
     ollama_embed_model: str = Field("nomic-embed-text", alias="TUTOR_OLLAMA_EMBED_MODEL", min_length=1)
     ollama_keep_alive: str = Field("30m", alias="TUTOR_OLLAMA_KEEP_ALIVE")
     ollama_timeout_seconds: float = Field(180.0, alias="TUTOR_OLLAMA_TIMEOUT_SECONDS", gt=0, le=900)
+
+    # Tutor prompts and size limits (design §6). Locally they suit a 3B model on a CPU; the hosted provider gets
+    # larger limits once it is chosen (D23).
+    prompts_dir: Path = Field(AI_DIR / "prompts", alias="TUTOR_AI_PROMPTS_DIR")
+    context_tokens: int = Field(600, alias="TUTOR_AI_CONTEXT_TOKENS", ge=100, le=20_000)
+    history_turns: int = Field(6, alias="TUTOR_AI_HISTORY_TURNS", ge=0, le=50)
+    history_tokens: int = Field(900, alias="TUTOR_AI_HISTORY_TOKENS", ge=0, le=20_000)
+    reply_tokens: int = Field(250, alias="TUTOR_AI_REPLY_TOKENS", ge=20, le=4_000)
+    retrieval_top_k: int = Field(4, alias="TUTOR_AI_RETRIEVAL_TOP_K", ge=1, le=20)
+    # Minimum cosine similarity for a passage to count as relevant. None = the provider's default (retrieval.py);
+    # the right value depends on the embedding model and is calibrated with the eval suites.
+    min_similarity: float | None = Field(None, alias="TUTOR_AI_MIN_SIMILARITY", ge=0, le=1)
 
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = Field("INFO", alias="TUTOR_AI_LOG_LEVEL")
     trusted_proxies: int = Field(0, alias="TUTOR_TRUSTED_PROXIES", ge=0, le=5)
