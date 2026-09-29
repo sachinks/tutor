@@ -1,7 +1,6 @@
 # Render Blueprint — https://docs.render.com/infrastructure-as-code
 #
-# Defines the Django platform service. The FastAPI AI service will be added
-# when Milestone 5 is built. Deploy by connecting the GitHub repo to Render
+# Defines the Django platform service and the FastAPI AI service. Deploy by connecting the GitHub repo to Render
 # and selecting this file.
 #
 # Prerequisites (set up manually before first deploy):
@@ -48,22 +47,36 @@ services:
         sync: false  # first admin, created once by build.sh (ensure_superuser)
       - key: DJANGO_SUPERUSER_PASSWORD
         sync: false  # strong password; lives only in Render. Change it in /admin after first login
+      - key: TUTOR_AI_URL
+        sync: false  # https://<tutor-ai service>.onrender.com ; empty = no tutor (503 feature_unavailable)
+      - key: TUTOR_AI_SERVICE_TOKEN
+        sync: false  # same value as on tutor-ai
 
-  # ── FastAPI AI service (Milestone 5 — uncomment when ready) ───
-  # - type: web
-  #   name: tutor-ai
-  #   runtime: python
-  #   plan: free
-  #   region: singapore
-  #   branch: main
-  #   autoDeployTrigger: checksPass
-  #   buildCommand: cd ai && pip install -r requirements.txt && alembic upgrade head
-  #   startCommand: cd ai && uvicorn tutor_ai.main:create_app --factory --host 0.0.0.0 --port $PORT
-  #   healthCheckPath: /health
-  #   envVars:
-  #     - key: PYTHON_VERSION
-  #       value: "3.12.3"
-  #     - key: TUTOR_AI_PROVIDER
-  #       value: mock
-  #     - key: TUTOR_PLATFORM_SERVICE_TOKEN
-  #       sync: false
+  # ── FastAPI AI service (milestone 5, D41) ───────────────────
+  # Free instances can't receive private-network traffic, so on the hosted demo Django calls this service's public
+  # https URL; every /v1 call needs the service token, /health reveals only up/down, and the API docs are off
+  # (TUTOR_ENV=hosted). Production moves to a paid instance on the private network.
+  - type: web
+    name: tutor-ai
+    runtime: python
+    plan: free
+    region: singapore
+    branch: main
+    autoDeployTrigger: checksPass
+    rootDir: ai
+    healthCheckPath: /health
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt && alembic upgrade head
+    startCommand: uvicorn tutor_ai.main:create_app --factory --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips '*'
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.3"
+      - key: TUTOR_ENV
+        value: hosted  # refuses Ollama, hides the API docs
+      - key: TUTOR_AI_PROVIDER
+        value: mock  # deterministic demo tutor: no model, no key, no cost
+      - key: TUTOR_TRUSTED_PROXIES
+        value: "1"
+      - key: AI_DATABASE_URL
+        sync: false  # Neon direct connection string of the tutor_ai role (schema ai only, M7)
+      - key: TUTOR_AI_SERVICE_TOKEN
+        sync: false  # same value as on tutor-platform; at least 32 random characters
