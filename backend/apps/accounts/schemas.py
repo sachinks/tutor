@@ -1,16 +1,27 @@
-from typing import Literal, Optional
+from typing import Annotated, Literal, Optional
 from uuid import UUID
 
 from ninja import Schema
-from pydantic import model_validator
+from pydantic import StringConstraints, model_validator
+
+# Input limits match the database columns, so over-long input is a clean 400, never a database error (500).
+# Passwords are capped because hashing a huge password is an easy way to burn CPU (denial of service).
+Name = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=150)]
+City = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=80)]
+School = Annotated[str, StringConstraints(strip_whitespace=True, max_length=150)]
+Password = Annotated[str, StringConstraints(min_length=1, max_length=128)]
+Contact = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=254)]
+Code = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=10)]
+BoardCode = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=10)]
+Language = Annotated[str, StringConstraints(strip_whitespace=True, min_length=2, max_length=10)]
 
 OtpPurpose = Literal["verify_contact", "login", "reset_password"]
 Relationship = Literal["mother", "father", "guardian", "other"]
 
 
 class _NeedsContact(Schema):
-    email: Optional[str] = None
-    mobile: Optional[str] = None
+    email: Optional[Contact] = None
+    mobile: Optional[Contact] = None
 
     @model_validator(mode="after")
     def need_email_or_mobile(self):
@@ -20,48 +31,48 @@ class _NeedsContact(Schema):
 
 
 class OtpSendIn(Schema):
-    destination: str
+    destination: Contact
     purpose: OtpPurpose
 
 
 class OtpVerifyIn(OtpSendIn):
-    code: str
+    code: Code
 
 
 class PasswordResetIn(Schema):
-    destination: str
-    code: str
-    new_password: str
+    destination: Contact
+    code: Code
+    new_password: Password
 
 
 class StudentSignupIn(_NeedsContact):
-    full_name: str
-    password: str
+    full_name: Name
+    password: Password
     class_number: int
-    board_code: str
-    city: str
-    school_name: str = ""
-    parent_contact: str
+    board_code: BoardCode
+    city: City
+    school_name: School = ""
+    parent_contact: Contact
 
 
 class ParentSignupIn(_NeedsContact):
-    full_name: str
-    password: str
-    preferred_language: str = "en"
+    full_name: Name
+    password: Password
+    preferred_language: Language = "en"
 
 
 class LoginIn(Schema):
-    identifier: str  # email or mobile
-    password: str
+    identifier: Contact  # email or mobile
+    password: Password
 
 
 class AddChildIn(_NeedsContact):
-    full_name: str
-    password: str
+    full_name: Name
+    password: Password
     class_number: int
-    board_code: str
-    city: str
-    school_name: str = ""
+    board_code: BoardCode
+    city: City
+    school_name: School = ""
     relationship: Relationship = "guardian"
 
 
@@ -71,7 +82,7 @@ class ApproveIn(Schema):
 
 
 class ParentContactIn(Schema):
-    parent_contact: str
+    parent_contact: Contact
 
 
 class StudentOut(Schema):
@@ -103,8 +114,8 @@ class RoleOut(Schema):
 class MeOut(Schema):
     id: UUID
     full_name: str
-    email: Optional[str] = None
-    mobile: Optional[str] = None
+    email: Optional[Contact] = None
+    mobile: Optional[Contact] = None
     email_verified: bool
     mobile_verified: bool
     account_type: str

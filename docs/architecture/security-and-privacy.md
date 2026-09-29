@@ -54,6 +54,12 @@ TUTOR stores data about children aged 10–17. Treat every change here as high-r
 - Secrets live only in `.env` (git-ignored) locally and in Render environment variables in production.
 - Production settings: HTTPS redirect, HSTS, secure cookies, `X-Forwarded-Proto` trusted from Render's proxy.
 
+## Logs
+
+Logs carry request IDs, never secrets or personal data. Outside local development, outgoing messages are logged
+only as channel + masked recipient + length (no codes or links), and the in-memory outbox is off. Unexpected errors
+return a generic `500` with the request ID; tracebacks stay in the server log.
+
 ## Audit
 
 Append-only `AuditLog` for consent given/withdrawn/restored, content and question publishing, role grants/changes/

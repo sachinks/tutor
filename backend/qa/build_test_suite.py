@@ -39,6 +39,7 @@ AREAS = {
     "security-and-privacy": "Security & privacy",
     "admin": "Admin",
     "demo-and-hosted": "Demo world & hosted",
+    "errors-and-logs": "Errors & logs",
 }
 STATUSES = ["Not run", "Pass", "Fail", "Blocked", "N/A"]
 HEADER_RE = re.compile(r"^\*\*(TC-[A-Z]+-\d+) · (.+?) · (P[1-3])(?: · (.+?))?\*\*\s*$")

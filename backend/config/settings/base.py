@@ -7,6 +7,8 @@ import dj_database_url
 from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
+from apps.core.logging import build_logging
+
 BASE_DIR = Path(__file__).resolve().parent.parent.parent  # tutor/backend
 REPO_DIR = BASE_DIR.parent  # tutor/
 load_dotenv(REPO_DIR / ".env")  # no-op when the file doesn't exist (e.g. on Render)
@@ -48,6 +50,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # TUTOR apps
+    "apps.core",
     "apps.catalogue",
     "apps.accounts",
     "apps.content",
@@ -59,6 +62,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "apps.core.request_context.RequestIDMiddleware",  # first, so every later log line has the request ID
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -142,9 +146,10 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {"console": {"class": "logging.StreamHandler", "level": env("DJANGO_LOG_LEVEL", "INFO")}},
-    "root": {"handlers": ["console"], "level": env("DJANGO_LOG_LEVEL", "INFO")},
-}
+# Logging: console always; rotating files only when TUTOR_LOG_DIR is set (local). See apps/core/logging.py.
+LOG_LEVEL = env("DJANGO_LOG_LEVEL", "INFO")
+TUTOR_LOG_DIR = env("TUTOR_LOG_DIR", "")
+LOGGING = build_logging(LOG_LEVEL, TUTOR_LOG_DIR)
+
+# Keep and log the full text of outgoing SMS/email (codes, links). Local development and tests only.
+TUTOR_KEEP_MESSAGES = env_bool("TUTOR_KEEP_MESSAGES", False)

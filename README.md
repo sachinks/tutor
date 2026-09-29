@@ -70,6 +70,17 @@ Manual testing: start with the [tester guide](docs/testing/tester-guide.md). All
 traceability and a bug log are in the workbook [`docs/testing/TUTOR-test-suite.xlsx`](docs/testing/TUTOR-test-suite.xlsx),
 generated from the markdown cases in `docs/testing/test-cases/`. CI runs the same checks as `./dev.sh` on every push.
 
+## Logs and errors
+
+- Every request gets an ID, returned in the `X-Request-ID` header and in every API error body
+  (`{"error": {"code", "message", "fields", "request_id"}}`). Quote it in bug reports; it finds the exact log lines.
+- Unexpected errors return `500 server_error` without internal details and are logged once, with the traceback.
+- Locally, logs go to the console **and** to rotating files in `backend/logs/` (`tutor.log`, and `errors.log` for
+  errors; 5 MB × 5 files each). The folder is in git only as an empty placeholder. Set `TUTOR_LOG_DIR=` (empty) in
+  `.env` to switch files off.
+- On Render, logs go to the console only (Render keeps them; its disk is temporary).
+- One-time codes and approval links are never logged outside local development.
+
 ## Conventions
 
 - Code style is enforced by `ruff` (config in `backend/pyproject.toml`). `./dev.sh` formats automatically and CI checks it.

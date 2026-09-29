@@ -14,6 +14,8 @@ Base URL `/api/v1`. The live, always-accurate schema is generated from code: **`
 | Errors | `{"error": {"code": "...", "message": "...", "fields": {...}}}` |
 | Service auth | Django → AI service: `Authorization: Bearer <service token>` (planned) |
 
+Every error body also carries `request_id` (same value as the `X-Request-ID` response header).
+
 ### Error codes
 
 | HTTP | code | Meaning |
@@ -29,6 +31,7 @@ Base URL `/api/v1`. The live, always-accurate schema is generated from code: **`
 | 409 | `already_registered` / `already_has_guardian` / `conflict` | State doesn't allow the action |
 | 410 | `link_expired` | Approval link expired or already used |
 | 429 | `limit_reached` | Rate or daily limit. Rate limits add a `Retry-After` header (seconds) |
+| 500 | `server_error` | Unexpected failure; details are only in the server log, found by `request_id` |
 | 429 | `login_locked` | Too many wrong passwords for this email/mobile; wait 15 minutes or reset the password |
 | 503 | `consent_text_missing` | Setup problem: no active consent text |
 

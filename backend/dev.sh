@@ -23,6 +23,7 @@ VENV="${TUTOR_VENV:-$HOME/.venvs/tp-platform}"
   python manage.py seed_demo &&
   python manage.py check &&
   python qa/build_test_suite.py --check &&
+  python manage.py export_openapi &&
   pip-audit -r requirements.txt --progress-spinner off &&
   DJANGO_LOG_LEVEL=ERROR coverage run manage.py test apps --settings=config.settings.test "$@" &&
   if [ "$#" -gt 0 ]; then coverage report --fail-under=0; else coverage report; fi  # minimum only on a full run

@@ -42,6 +42,8 @@ tutor/
 | Tests by hand | `python manage.py test apps --settings=config.settings.test` |
 | Run the server | `python manage.py runserver` → `/api/v1/docs`, `/admin/` |
 | New model change | edit `models.py` → `./dev.sh` (runs `makemigrations`) → commit the migration file |
+| API change | `./dev.sh` rewrites `docs/architecture/openapi.json` (the contract); commit it, and reviewers read its diff. CI fails if it is stale |
+| Authorization | Every new endpoint needs a login unless you add it to `PUBLIC` in `apps/core/test_authorization.py` (security review) |
 
 ## Seed data
 
@@ -84,6 +86,17 @@ times faster and `llama3.1:8b` is practical.
 
 **Don't judge tutor quality on a local 3B model.** Locally we build and debug the machinery (lesson search, safety
 rules, chat flow, Django integration). Answer quality is measured with the eval suites on the production provider.
+
+## Logs
+
+| Where | What |
+|---|---|
+| Console (`runserver` terminal) | Everything at `DJANGO_LOG_LEVEL` (default INFO), each line with the request ID |
+| `backend/logs/tutor.log` | Same lines, rotated at 5 MB, 5 old files kept |
+| `backend/logs/errors.log` | Errors only, with tracebacks: look here first when something returns `500` |
+
+Find a failing request by the `request_id` from the error body: `grep <request_id> backend/logs/*.log`.
+`TUTOR_LOG_DIR` in `.env` moves the files; an empty value switches files off. Log files are git-ignored.
 
 ## Development messaging
 

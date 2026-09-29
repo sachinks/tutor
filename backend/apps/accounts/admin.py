@@ -2,6 +2,7 @@ from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
+from django.contrib.auth.password_validation import validate_password
 
 from apps.operations import audit
 
@@ -34,6 +35,12 @@ class UserCreationForm(forms.ModelForm):
             raise forms.ValidationError("Enter an email or a mobile number.")
         if cleaned.get("password1") != cleaned.get("password2"):
             self.add_error("password2", "Passwords don't match.")
+        elif cleaned.get("password1"):
+            candidate = User(full_name=cleaned.get("full_name", ""), email=cleaned.get("email"))
+            try:
+                validate_password(cleaned["password1"], candidate)  # same rules as sign-up
+            except forms.ValidationError as exc:
+                self.add_error("password1", exc)
         return cleaned
 
     def save(self, commit=True):
