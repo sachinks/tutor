@@ -53,6 +53,37 @@ tutor/
 
 All are idempotent (safe to run repeatedly).
 
+## AI tutor locally (Ollama)
+
+The AI service (milestone 5) uses your own Ollama for real AI during development; automated tests never need it
+(they use the `mock` provider). Full design: [AI service](../architecture/ai-service.md).
+
+1. Install Ollama **inside WSL** (not Windows), so the AI service reaches it at `http://localhost:11434`:
+   `curl -fsSL https://ollama.com/install.sh | sh`, then check `curl -s localhost:11434/api/version`.
+2. Pull the models:
+   ```bash
+   ollama pull llama3.2            # chat, 3B, ~2 GB: the default, usable on a CPU
+   ollama pull nomic-embed-text    # embeddings for lesson search, ~270 MB
+   ollama pull llama3.1:8b         # optional, ~4.9 GB: better answers, only worth it with an NVIDIA GPU
+   ```
+3. Set in `.env` (defaults shown):
+   ```
+   TUTOR_AI_PROVIDER=ollama
+   TUTOR_OLLAMA_URL=http://localhost:11434
+   TUTOR_OLLAMA_CHAT_MODEL=llama3.2
+   TUTOR_OLLAMA_EMBED_MODEL=nomic-embed-text
+   ```
+
+**Know your machine.** Run `ollama run llama3.2 --verbose "hello"` and look at the *eval rate*. On a CPU-only laptop
+(for example Intel Iris Xe graphics, which Ollama doesn't use) expect about 10–14 tokens/s for writing and about
+**a minute before the first word of the first tutor reply**, because reading a ~1,300-token tutor prompt takes
+~50 s on CPU. Later messages in the same chat are faster because the unchanged start of the prompt is reused
+(see "Prompt layout" in the AI service doc). With an NVIDIA GPU (`nvidia-smi` works inside WSL), everything is many
+times faster and `llama3.1:8b` is practical.
+
+**Don't judge tutor quality on a local 3B model.** Locally we build and debug the machinery (lesson search, safety
+rules, chat flow, Django integration). Answer quality is measured with the eval suites on the production provider.
+
 ## Development messaging
 
 Until an SMS/email provider is connected, messages (approval links, one-time codes) are written to the server log and to

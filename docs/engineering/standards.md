@@ -38,7 +38,8 @@ that works. Known gaps are tracked, not hidden, in [quality-backlog.md](quality-
 
 - Branch model in [branches-and-environments.md](branches-and-environments.md): `main` is the only long-lived branch and
   always deployable; work on short-lived `feat/…`, `fix/…`, `docs/…`, `chore/…` branches merged by pull request.
-- Commit messages: imperative summary line (≤ 72 characters), then detail if needed.
+- Commit messages: imperative subject ≤ 50 characters (GitHub cuts titles after 72), a blank line, then the details.
+  From the command line: `git commit -m "Short subject" -m "Details of what and why."`
 - Every PR: passing CI, tests for new behaviour, updated docs when behaviour or data changes, migration files included.
 - At least one review before merge; the author never approves their own PR.
 
