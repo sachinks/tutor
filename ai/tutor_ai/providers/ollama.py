@@ -14,6 +14,7 @@ from .base import EmbeddingKind, Message, ProviderError, ProviderTimeout, Provid
 
 # nomic-embed-text was trained with these prefixes; without them retrieval quality drops.
 NOMIC_PREFIX = {"document": "search_document: ", "query": "search_query: "}
+DEFAULT_EMBED_BATCH = 32
 MAX_EMBED_BATCH = 32
 
 
@@ -28,6 +29,7 @@ class OllamaProvider:
         embedding_model: str,
         dimensions: int,
         keep_alive: str = "30m",
+        max_batch_size: int = DEFAULT_EMBED_BATCH,
         timeout_seconds: float = 180.0,
         transport: httpx.AsyncBaseTransport | None = None,
     ) -> None:
@@ -35,6 +37,7 @@ class OllamaProvider:
         self.embedding_model = embedding_model
         self.dimensions = dimensions
         self.keep_alive = keep_alive
+        self.max_batch_size = max(1, min(max_batch_size, 64))
         self._client = httpx.AsyncClient(
             base_url=base_url.rstrip("/"),
             timeout=httpx.Timeout(timeout_seconds, connect=5.0),
@@ -80,7 +83,7 @@ class OllamaProvider:
     async def embed(self, texts: list[str], *, kind: EmbeddingKind) -> list[list[float]]:
         prefix = NOMIC_PREFIX[kind] if self.embedding_model.startswith("nomic-embed-text") else ""
         vectors: list[list[float]] = []
-        for start in range(0, len(texts), MAX_EMBED_BATCH):
+        for start in range(0, len(texts), self.max_batch_size):
             batch = [prefix + t for t in texts[start : start + MAX_EMBED_BATCH]]
             try:
                 response = await self._client.post(
