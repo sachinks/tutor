@@ -32,7 +32,6 @@ class Settings(BaseSettings):
     ollama_keep_alive: str = Field("30m", alias="TUTOR_OLLAMA_KEEP_ALIVE")
     ollama_max_batch_size: int = Field(32, alias="TUTOR_OLLAMA_MAX_BATCH_SIZE", ge=1, le=64)
     ollama_timeout_seconds: float = Field(180.0, alias="TUTOR_OLLAMA_TIMEOUT_SECONDS", gt=0, le=900)
-    ollama_max_batch_size: int = Field(32, alias="TUTOR_OLLAMA_MAX_BATCH_SIZE", ge=1, le=64)
     ollama_connect_timeout: float = Field(15.0, alias="TUTOR_OLLAMA_CONNECT_TIMEOUT", gt=0, le=300)
     query_cache_max_entries: int = Field(2000, alias="TUTOR_AI_QUERY_CACHE_MAX_ENTRIES", ge=0, le=50_000)
     db_pool_size: int = Field(10, alias="TUTOR_AI_DB_POOL_SIZE", ge=1, le=100)
