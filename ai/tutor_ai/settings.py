@@ -94,16 +94,25 @@ class Settings(BaseSettings):
             raise ValueError("service tokens must be at least 32 characters (use a random value)")
         return value
 
+    @property
+    def providers_in_use(self) -> set[str]:
+        """Every underlying provider this configuration can send a student's message to (the gateway uses two)."""
+        if self.provider != "gateway":
+            return {self.provider}
+        return {self.gateway_primary} | ({self.gateway_fallback} - {"none"})
+
     @model_validator(mode="after")
     def _production_rules(self) -> "Settings":
-        if self.environment in ("hosted", "production") and self.provider == "ollama":
+        used = self.providers_in_use
+        if self.environment in ("hosted", "production") and "ollama" in used:
             raise ValueError("a hosted service can't use a laptop's Ollama; use mock (demo) or hosted (production)")
-        if (
-            self.provider == "gemini"
-            or (self.provider == "gateway" and (self.gateway_primary == "gemini" or self.gateway_fallback == "gemini"))
-        ) and self.gemini_api_key is None:
+        if self.environment == "production" and "gemini" in used:
+            # D44: Google's Gemini API terms forbid apps directed at or likely used by under-18s, and the free tier
+            # may use content to improve Google's products. Gemini is for development and demo with demo data only.
+            raise ValueError("Gemini can't answer real students (Google's terms exclude under-18 apps); see D44")
+        if "gemini" in used and self.gemini_api_key is None:
             raise ValueError("TUTOR_GEMINI_API_KEY is required when Gemini is selected")
-        if self.environment == "production" and self.provider == "mock":
+        if self.environment == "production" and "mock" in used:
             raise ValueError("production must not answer students with the mock provider")
         return self
 
