@@ -195,6 +195,12 @@ def test_gateway_chat_failover_to_fallback(caplog: pytest.LogCaptureFixture) -> 
         retry_backoff_seconds=0.0,
     )
 
+def test_gateway_chat_failover_to_fallback(caplog: pytest.LogCaptureFixture) -> None:
+    """Gateway catches primary failure before emission and smoothly fails over to fallback."""
+    primary = MockFailingProvider(fail_after_chunks=0)
+    fallback = MockProvider(dimensions=768)
+    gateway = LLMGatewayProvider(primary=primary, fallback=fallback)
+
     messages = [Message(role="user", content="What is gravity?")]
 
     async def _run():
@@ -211,6 +217,7 @@ def test_gateway_chat_failover_to_fallback(caplog: pytest.LogCaptureFixture) -> 
     events = [getattr(r, "event", None) for r in log_records]
 
     assert "gateway.chat.retry" in events
+    # Verify failover was logged
     assert "gateway.chat.fallback" in events
     assert "gateway.chat.complete" in events
 
@@ -264,6 +271,13 @@ def test_gateway_chat_raises_midstream_if_no_fallback() -> None:
     primary = MockFailingProvider(fail_after_chunks=2)
     gateway = LLMGatewayProvider(primary=primary, fallback=None)
 
+
+def test_gateway_chat_raises_if_primary_fails_midstream() -> None:
+    """Gateway will not switch to fallback if tokens were already emitted to client."""
+    primary = MockFailingProvider(fail_after_chunks=2)
+    fallback = MockProvider(dimensions=768)
+    gateway = LLMGatewayProvider(primary=primary, fallback=fallback)
+
     messages = [Message(role="user", content="Tell me a story")]
 
     async def _run():
@@ -307,23 +321,29 @@ def test_gateway_health() -> None:
     gw2 = LLMGatewayProvider(primary=primary_fail, fallback=fallback)
     assert asyncio.run(gw2.health()) is True
 
+    # Primary ok
+    gw1 = LLMGatewayProvider(primary=primary_ok, fallback=fallback)
+    assert asyncio.run(gw1.health()) is True
+
+    # Primary fail, fallback ok -> still returns True (degraded operational)
+    gw2 = LLMGatewayProvider(primary=primary_fail, fallback=fallback)
+    assert asyncio.run(gw2.health()) is True
+
+    # Both fail
     gw3 = LLMGatewayProvider(primary=primary_fail, fallback=primary_fail)
     assert asyncio.run(gw3.health()) is False
 
 
 def test_factory_builds_gateway_provider() -> None:
     """build_provider correctly builds an LLMGatewayProvider with retry config from settings."""
+    """build_provider correctly builds an LLMGatewayProvider from settings."""
     settings = make_settings(
         TUTOR_AI_PROVIDER="gateway",
         TUTOR_GATEWAY_PRIMARY="mock",
         TUTOR_GATEWAY_FALLBACK="mock",
-        TUTOR_GATEWAY_MAX_RETRIES=3,
-        TUTOR_GATEWAY_RETRY_BACKOFF_SECONDS=0.25,
     )
     provider = build_provider(settings)
     assert isinstance(provider, LLMGatewayProvider)
     assert provider.name == "gateway"
     assert provider.primary.name == "mock"
     assert provider.fallback.name == "mock"
-    assert provider.max_retries == 3
-    assert provider.retry_backoff_seconds == 0.25

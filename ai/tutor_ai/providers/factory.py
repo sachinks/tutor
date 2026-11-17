@@ -61,11 +61,6 @@ def build_provider(settings: Settings) -> ModelProvider:
         fallback = None
         if settings.gateway_fallback != "none":
             fallback = _build_individual_provider(settings.gateway_fallback, settings)
-        return LLMGatewayProvider(
-            primary=primary,
-            fallback=fallback,
-            max_retries=settings.gateway_max_retries,
-            retry_backoff_seconds=settings.gateway_retry_backoff_seconds,
-        )
+        return LLMGatewayProvider(primary=primary, fallback=fallback)
 
     return _build_individual_provider(settings.provider, settings)

@@ -51,8 +51,6 @@ class Settings(BaseSettings):
         "ollama",
         alias="TUTOR_GATEWAY_FALLBACK",
     )
-    gateway_max_retries: int = Field(1, alias="TUTOR_GATEWAY_MAX_RETRIES", ge=0, le=5)
-    gateway_retry_backoff_seconds: float = Field(0.5, alias="TUTOR_GATEWAY_RETRY_BACKOFF_SECONDS", ge=0.0, le=10.0)
     ollama_connect_timeout: float = Field(15.0, alias="TUTOR_OLLAMA_CONNECT_TIMEOUT", gt=0, le=300)
     query_cache_max_entries: int = Field(2000, alias="TUTOR_AI_QUERY_CACHE_MAX_ENTRIES", ge=0, le=50_000)
     db_pool_size: int = Field(10, alias="TUTOR_AI_DB_POOL_SIZE", ge=1, le=100)
