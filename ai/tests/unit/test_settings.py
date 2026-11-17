@@ -50,6 +50,62 @@ def test_unsafe_provider_for_environment_is_refused(environment, provider):
         make_settings(TUTOR_ENV=environment, TUTOR_AI_PROVIDER=provider)
 
 
+KEY = "test-gemini-key"
+
+
+@pytest.mark.parametrize(
+    "config",
+    [
+        {"TUTOR_AI_PROVIDER": "gemini"},
+        {"TUTOR_AI_PROVIDER": "gateway", "TUTOR_GATEWAY_PRIMARY": "gemini", "TUTOR_GATEWAY_FALLBACK": "none"},
+        {"TUTOR_AI_PROVIDER": "gateway", "TUTOR_GATEWAY_PRIMARY": "gemini", "TUTOR_GATEWAY_FALLBACK": "mock"},
+    ],
+)
+def test_gemini_is_refused_in_production_however_it_is_configured(config):
+    """D44: Google's Gemini API terms exclude apps for under-18s, so production can never route a student to it."""
+    with pytest.raises(ValidationError, match="D44"):
+        make_settings(TUTOR_ENV="production", TUTOR_GEMINI_API_KEY=KEY, **config)
+
+
+def test_gemini_as_gateway_fallback_is_refused_in_production():
+    with pytest.raises(ValidationError):
+        make_settings(
+            TUTOR_ENV="production",
+            TUTOR_AI_PROVIDER="gateway",
+            TUTOR_GATEWAY_PRIMARY="mock",
+            TUTOR_GATEWAY_FALLBACK="gemini",
+            TUTOR_GEMINI_API_KEY=KEY,
+        )
+
+
+@pytest.mark.parametrize("environment", ["local", "test", "hosted"])
+def test_gemini_is_allowed_for_development_and_demo(environment):
+    settings = make_settings(
+        TUTOR_ENV=environment,
+        TUTOR_AI_PROVIDER="gateway",
+        TUTOR_GATEWAY_PRIMARY="gemini",
+        TUTOR_GATEWAY_FALLBACK="mock",
+        TUTOR_GEMINI_API_KEY=KEY,
+    )
+    assert settings.providers_in_use == {"gemini", "mock"}
+
+
+def test_gemini_needs_a_key():
+    with pytest.raises(ValidationError, match="TUTOR_GEMINI_API_KEY"):
+        make_settings(TUTOR_AI_PROVIDER="gemini")
+
+
+def test_hosted_gateway_cannot_fall_back_to_a_laptop_ollama():
+    with pytest.raises(ValidationError, match="Ollama"):
+        make_settings(
+            TUTOR_ENV="hosted",
+            TUTOR_AI_PROVIDER="gateway",
+            TUTOR_GATEWAY_PRIMARY="gemini",
+            TUTOR_GATEWAY_FALLBACK="ollama",
+            TUTOR_GEMINI_API_KEY=KEY,
+        )
+
+
 def test_hosted_demo_with_mock_is_allowed():
     assert make_settings(TUTOR_ENV="hosted", TUTOR_AI_PROVIDER="mock").provider == "mock"
 
